@@ -2,4 +2,4 @@
 
 by Milan & Noah 
 
-running Tauri + Vue.js
+### Running Tauri + Vue.js
