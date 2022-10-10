@@ -1,6 +1,10 @@
 {
   "name": "Soundboard",
   "version": "0.0.0",
+  "contributors": [
+    "Milan Theiss (https://github.com/milantheiss)",
+    "Noah Yannik Alps (https://github.com/Noah-Alps)"
+  ],
   "private": true,
   "scripts": {
     "build": "vite build",

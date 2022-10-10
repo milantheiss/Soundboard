@@ -5,10 +5,9 @@
 <script>
 //import BetterPlayer from './components/BetterPlayer.vue';
 import HowlerPlayer from './components/HowlerPlayer.vue';
-
-  export default {
-    components: {
+export default {
+  components: {
     HowlerPlayer
-}
   }
+}
 </script>

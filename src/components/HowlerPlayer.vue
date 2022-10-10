@@ -14,7 +14,6 @@ export default {
     name: "HowlerPlayer",
     data() {
         return {
-            mainplayer: undefined,
             currentIndex: 0,
             playlist: [
                 {
@@ -33,7 +32,6 @@ export default {
                     fadeInDuration: 10000,
                     player: undefined
                 },
-
                 {
                     title: "Gerudo Valley - Ocarina of Time",
                     src: "./music/Gerudo Valley - Ocarina of Time.wav",
@@ -51,13 +49,13 @@ export default {
         async togglePlay() {
             //TODO TogglePlay blocken, wenn noch keine Playlist geladen ist.
             //TODO Wenn nicht gecrossfadet wird, müssen Next & Prev anders pausiert/abgespielt werden
-            
+
+            //Wenn für zu spielenden Song kein Player existiert, wird neuer erstellt.
             if (typeof this.current.player === 'undefined') {
                 this.current.player = new Howl({ src: [this.current.src], volume: this.current.volume })
             }
             if (this.current.player.playing()) {
                 //Pausiert wenn Sound abgespielt wird. 
-
                 console.debug("Player is paused.")
 
                 //Nur bei Crossfade wichtig: Pausieren auch Next & Previous, wenn in Fading Process wurde
@@ -80,6 +78,9 @@ export default {
                 this.current.player.play();
             }
         },
+        toggleLoop(){
+            //TODO Toggle Loop über Button
+        },
         playNext() {
             //TODO Hier ein IF Statement einbauen, um Crossfade um/auszuschalten
             //INFO Im Moment Crossfade vom current zum next Track
@@ -89,11 +90,11 @@ export default {
 
             //Sobald zum nächstem gefadet wurde zu nächstem fertig ist.
             this.next.player.once('fade', () => {
-                if(this.current.fadeOutDuration < this.next.fadeInDuration){
+                if (this.current.fadeOutDuration < this.next.fadeInDuration) {
                     this.fadingToNext = false
                 }
                 console.debug(`Finished fading ${this.next.title}`)
-                
+
                 //Erhöhe Index auf nächsten Track
                 this.currentIndex++;
                 if (this.currentIndex > this.playlist.length - 1) {
@@ -102,7 +103,7 @@ export default {
             })
         },
         crossfade(from, to) {
-            //INFO Fadeduration in ms
+            //INFO Fade Duration in ms
 
             console.debug(`Crossfading from ${from.title} to ${to.title} track`)
 
@@ -113,7 +114,7 @@ export default {
             from.player.once('fade', () => {
                 from.player.stop()
                 console.debug(`Finished fading ${from.title}`)
-                if(from.fadeOutDuration > to.fadeInDuration){
+                if (from.fadeOutDuration > to.fadeInDuration) {
                     this.fadingToNext = false
                 }
             })
@@ -122,7 +123,7 @@ export default {
             if (typeof to.player === 'undefined') {
                 to.player = new Howl({ src: [to.src], volume: to.volume })
             }
-            
+
             to.player.play()
 
             //Beginnt den nächsten Track einzufaden
@@ -141,6 +142,7 @@ export default {
     },
     computed: {
         isPlaying() {
+            //Try Catch, da der Player nicht umbedingt schon existiert.
             try {
                 return this.current.player.playing()
             } catch (e) {
