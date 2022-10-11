@@ -136,9 +136,9 @@ export default {
         }
     },
     created() {
-        //IMPORTANT Es muss immer eine Playlist/Song selected sein, um Howl erstellen zu können.
-        //IMPORTANT Wenn einen neue Playlist geladen werden soll, muss zu
-        //TODO Block auf alle Funktion bis Howl geloaded & Auto select für Playlisten
+        //IMPORTANT Es wird für jeden Song ein neuer Player geladen.
+        //IMPORTANT Im besten Fall sollten aber nur der Current, Next & Previous Track geladen werden.
+        //TODO Implement load function: mit check, ob player existiert. Erstellt neuen Player
     },
     computed: {
         isPlaying() {
