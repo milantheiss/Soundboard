@@ -1,6 +1,7 @@
 <template>
     <p>{{current.title}}</p>
-    <button @click="setLoop" class="border border-black m-6">Loop</button>
+    <button @click="toggleLoop" class="border border-black m-6" v-show="!isLooping">Start Loop</button>
+    <button @click="toggleLoop" class="border border-black m-6" v-show="isLooping">Stop Loop</button>
     <button @click="reset" class="border border-black m-6" v-show="isPlaying">Reset</button>
     <button @click="togglePlay" class="border border-black m-6" v-show="!isPlaying">Play</button>
     <button @click="togglePlay" class="border border-black m-6" v-show="isPlaying">Pause</button>
@@ -19,7 +20,8 @@ export default {
                 {
                     title: "Song of Storms - Ocarina of Time",
                     src: "./music/Song of Storms - Ocarina of Time.wav",
-                    trackvolume: 1.0,
+                    trackvolume: 0.1,
+                    isLooping: true,
                     fadeOutDuration: 5000,
                     fadeInDuration: 10000,
                     player: undefined
@@ -28,6 +30,7 @@ export default {
                     title: "Warcraft Theme",
                     src: "./music/Warcraft The Beginning Soundtrack - (01) Warcraft.mp3",
                     trackvolume: 1.0,
+                    isLooping: false,
                     fadeOutDuration: 5000,
                     fadeInDuration: 10000,
                     player: undefined
@@ -35,7 +38,8 @@ export default {
                 {
                     title: "Gerudo Valley - Ocarina of Time",
                     src: "./music/Gerudo Valley - Ocarina of Time.wav",
-                    trackvolume: 0.5,
+                    trackvolume: 0.1,
+                    isLooping: false,
                     fadeOutDuration: 5000,
                     fadeInDuration: 1000,
                     player: undefined
@@ -98,11 +102,24 @@ export default {
         },
         toggleLoop() {
             //TODO Toggle Loop über Button
+            this.current.isLooping = !this.current.isLooping
+            console.debug("Player is looping",this.isLooping)
+            //Error catch, falls noch kein Player existiert
+            if(!(typeof this.current.player === 'undefined')){
+                this.current.player.loop(this.isLooping)
+            }
+            
         },
         playNext() {
             //Start to crossfade
             if(this.isPlaying){
+                //Loop des alten Players wird beim starten des nächsten Players aufgehoben
+                this.current.player.loop(false)
+                this.current.isLooping = false
+
                 this.fade.crossfade(this.current, this.next, true)
+            } else {
+                this.next.player.volume(this.next.trackvolume)
             }
             this._advanceToNextIndex()
         },
@@ -277,6 +294,9 @@ export default {
             } catch (e) {
                 return false
             }
+        },
+        isLooping(){
+            return this.current.isLooping
         },
         current() {
             return this.playlist[this.currentIndex]
