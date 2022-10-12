@@ -1,7 +1,7 @@
 <template>
     <p>{{current.title}}</p>
-    <button @click="toggleLoop" class="border border-black m-6" v-show="!this.isLooping">Start Loop</button>
-    <button @click="toggleLoop" class="border border-black m-6" v-show="this.isLooping">Stop Loop</button>
+    <button @click="toggleLoop" class="border border-black m-6" v-show="!isLooping">Start Loop</button>
+    <button @click="toggleLoop" class="border border-black m-6" v-show="isLooping">Stop Loop</button>
     <button @click="reset" class="border border-black m-6" v-show="isPlaying">Reset</button>
     <button @click="togglePlay" class="border border-black m-6" v-show="!isPlaying">Play</button>
     <button @click="togglePlay" class="border border-black m-6" v-show="isPlaying">Pause</button>
@@ -21,6 +21,7 @@ export default {
                     title: "Song of Storms - Ocarina of Time",
                     src: "./music/Song of Storms - Ocarina of Time.wav",
                     trackvolume: 0.1,
+                    isLooping: true,
                     fadeOutDuration: 5000,
                     fadeInDuration: 10000,
                     player: undefined
@@ -29,6 +30,7 @@ export default {
                     title: "Warcraft Theme",
                     src: "./music/Warcraft The Beginning Soundtrack - (01) Warcraft.mp3",
                     trackvolume: 0.1,
+                    isLooping: false,
                     fadeOutDuration: 5000,
                     fadeInDuration: 10000,
                     player: undefined
@@ -37,6 +39,7 @@ export default {
                     title: "Gerudo Valley - Ocarina of Time",
                     src: "./music/Gerudo Valley - Ocarina of Time.wav",
                     trackvolume: 0.1,
+                    isLooping: false,
                     fadeOutDuration: 5000,
                     fadeInDuration: 1000,
                     player: undefined
@@ -44,7 +47,6 @@ export default {
             ],
             fadingToNext: false,
             fadingToPrev: false,
-            isLooping: false,
         }
     },
     methods: {
@@ -54,9 +56,7 @@ export default {
 
             //Wenn für zu spielenden Song kein Player existiert, wird neuer erstellt.
             if (typeof this.current.player === 'undefined') {
-                this.current.player = new Howl({ src: [this.current.src], volume: this.current.trackvolume })
-                //Wenn loop vor play getoggelt wird wird der Player direkt geloopt
-                this.current.player.loop(this.isLooping)
+                this.current.player = new Howl({ src: [this.current.src], volume: this.current.trackvolume, loop: this.isLooping })              
             }
             if (this.current.player.playing()) {
                 //Pausiert wenn Sound abgespielt wird. 
@@ -84,7 +84,7 @@ export default {
         },
         toggleLoop(){
             //TODO Toggle Loop über Button
-            this.isLooping = !this.isLooping
+            this.current.isLooping = !this.current.isLooping
             console.debug("Player is looping",this.isLooping)
             //Error catch, falls noch kein Player existiert
             if(!(typeof this.current.player === 'undefined')){
@@ -97,8 +97,8 @@ export default {
             //INFO Im Moment Crossfade vom current zum next Track
 
             //Loop des alten Players wird beim starten des nächsten Players aufgehoben
-            this.isLooping = false
             this.current.player.loop(false)
+            this.current.isLooping = false
 
             this.fadingToNext = true
             this.crossfade(this.current, this.next)
@@ -163,6 +163,9 @@ export default {
             } catch (e) {
                 return false
             }
+        },
+        isLooping(){
+            return this.current.isLooping
         },
         current() {
             return this.playlist[this.currentIndex]
