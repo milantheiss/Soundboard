@@ -1,13 +1,22 @@
 <template class="font-poppins font-normal">
-  <SoundeffectButton :soundeffect="soundeffects[0]"></SoundeffectButton>
-  <HowlerPlayer></HowlerPlayer>
+  <p class="text-lg ml-5">{{audioPlayerStore.current.name}}</p>
+  <SoundeffectButton :soundeffect="audioPlayerStore.soundeffects[0]"></SoundeffectButton>
+  <MediaControls></MediaControls>
 </template>
 
 <script>
-//import BetterPlayer from './components/BetterPlayer.vue';
-import HowlerPlayer from './components/HowlerPlayer.vue';
-import SoundeffectButton from './components/SoundeffectButton.vue';
+import SoundeffectButton from '@/components/SoundeffectButton.vue';
+import MediaControls from '@/components/MediaControls.vue';
+import { useAudioPlayerStore } from '@/stores/audioPlayerStore.js'
+
 export default {
+  setup() {
+    const audioPlayerStore = useAudioPlayerStore()
+
+    return {
+      audioPlayerStore
+    }
+  },
   data() {
     return {
       soundeffects: [
@@ -19,12 +28,43 @@ export default {
           fadeOutDuration: 1000,
           fadeInDuration: 0
         }
-      ]
+      ],
+      playlist: [
+        {
+          name: "Song of Storms",
+          src: "./music/Song of Storms - Ocarina of Time.wav",
+          trackvolume: 0.1,
+          isLooping: true,
+          fadeOutDuration: 5000,
+          fadeInDuration: 10000
+        },
+        {
+          name: "Warcraft Theme",
+          src: "./music/Warcraft The Beginning Soundtrack - (01) Warcraft.mp3",
+          trackvolume: 1.0,
+          isLooping: false,
+          fadeOutDuration: 5000,
+          fadeInDuration: 10000
+        },
+        {
+          name: "Gerudo Valley",
+          src: "./music/Gerudo Valley - Ocarina of Time.wav",
+          trackvolume: 0.1,
+          isLooping: false,
+          fadeOutDuration: 5000,
+          fadeInDuration: 1000
+        }
+      ],
+      
     }
   },
   components: {
-    HowlerPlayer,
-    SoundeffectButton
+    SoundeffectButton,
+    MediaControls
+  },
+  created() {
+    this.audioPlayerStore.playlist = this.playlist
+    this.audioPlayerStore.soundeffect = this.soundeffects
   }
 }
 </script>

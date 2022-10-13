@@ -115,7 +115,8 @@ export default {
         }
     },
     watch: {
-        soundeffect(newVal) {
+        soundeffect(newVal) {            
+            console.log('auch am start')
             if (typeof this.effect.player !== 'undefined') {
                 if (!this.effect.player.playing()) {
                     this.effect.player.unload()
