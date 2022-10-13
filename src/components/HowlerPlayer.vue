@@ -1,11 +1,13 @@
 <template>
-    <p>{{current.title}}</p>
-    <button @click="toggleLoop" class="border border-black m-6" v-show="!isLooping">Start Loop</button>
-    <button @click="toggleLoop" class="border border-black m-6" v-show="isLooping">Stop Loop</button>
-    <button @click="reset" class="border border-black m-6" v-show="isPlaying">Reset</button>
-    <button @click="togglePlay" class="border border-black m-6" v-show="!isPlaying">Play</button>
-    <button @click="togglePlay" class="border border-black m-6" v-show="isPlaying">Pause</button>
-    <button @click="playNext" class="border border-black m-6">Next</button>
+    <p>{{current.name}}</p>
+    <div>
+        <button @click="toggleLoop" class="border border-black m-6" v-show="!isLooping">Start Loop</button>
+        <button @click="toggleLoop" class="border border-black m-6" v-show="isLooping">Stop Loop</button>
+        <button @click="reset" class="border border-black m-6" v-show="isPlaying">Reset</button>
+        <button @click="togglePlay" class="border border-black m-6" v-show="!isPlaying">Play</button>
+        <button @click="togglePlay" class="border border-black m-6" v-show="isPlaying">Pause</button>
+        <button @click="playNext" class="border border-black m-6">Next</button>
+    </div>
 </template>
 
 <script>
@@ -18,7 +20,7 @@ export default {
             currentIndex: 0,
             playlist: [
                 {
-                    title: "Song of Storms - Ocarina of Time",
+                    name: "Song of Storms",
                     src: "./music/Song of Storms - Ocarina of Time.wav",
                     trackvolume: 0.1,
                     isLooping: true,
@@ -27,7 +29,7 @@ export default {
                     player: undefined
                 },
                 {
-                    title: "Warcraft Theme",
+                    name: "Warcraft Theme",
                     src: "./music/Warcraft The Beginning Soundtrack - (01) Warcraft.mp3",
                     trackvolume: 1.0,
                     isLooping: false,
@@ -36,7 +38,7 @@ export default {
                     player: undefined
                 },
                 {
-                    title: "Gerudo Valley - Ocarina of Time",
+                    name: "Gerudo Valley",
                     src: "./music/Gerudo Valley - Ocarina of Time.wav",
                     trackvolume: 0.1,
                     isLooping: false,
@@ -89,7 +91,7 @@ export default {
                 }
             } else { //Startet wenn noch kein Sound gespielt wird.
 
-                console.debug(`Now playing: ${this.current.title}`)
+                console.debug(`Now playing: ${this.current.name}`)
 
                 //Nur bei Crossfade wichtig: Startet auch Next & Previous, wenn in Fading Process pausiert wurde
                 if (this.fade.isFading()) {
@@ -144,7 +146,7 @@ export default {
     
                 this.fade.isCrossfading = true
     
-                console.debug(`Fading from ${from.title} to ${to.title}`)
+                console.debug(`Fading from ${from.name} to ${to.name}`)
     
                 //Faded spielenden Track aus, für die FadeOutDuration des Tracks
                 from.player.fade(from.player.volume(), 0.0, from.fadeOutDuration)
@@ -157,7 +159,7 @@ export default {
                         //Stoppt alten Track. --> Damit ist seek wieder 0.0 aber volume immer noch 0.0
                         this.fade._from.player.stop()
     
-                        console.debug(`Finished fading ${this.fade._from.data.title}`)
+                        console.debug(`Finished fading ${this.fade._from.data.name}`)
     
                         //Erhöhe Index auf nächsten Track, wenn current schneller ausgefadet ist.
                         if (this.fade._from.data.fadeOutDuration <= this.fade._to.data.fadeInDuration) {
@@ -170,7 +172,7 @@ export default {
                         //EventListener wird entfernt
                         this.fade._from.player.off('fade')
                     } else { //Wenn Track nicht fertig ausgefadet wurde. Wird bei Abbruch des Fades ausgeführt.
-                        console.debug(`Fading from current ${this.fade._from.data.title} not finished!`)
+                        console.debug(`Fading from current ${this.fade._from.data.name} not finished!`)
                     }
     
                 })
@@ -192,7 +194,7 @@ export default {
                     if (this.fade._to.player.volume() >= this.fade._to.data.trackvolume) {
                         this.fade._to.isFading = false
     
-                        console.debug(`Finished fading ${this.fade._to.data.title}`)
+                        console.debug(`Finished fading ${this.fade._to.data.name}`)
     
                         //Erhöhe Index auf nächsten Track, wenn next schneller ausfadet.
                         if (this.fade._to.data.fadeInDuration <= this.fade._to.data.fadeOutDuration) {
@@ -205,7 +207,7 @@ export default {
                         //EventListener wird entfernt
                         this.fade._to.player.off('fade')
                     } else { //Wenn Track nicht fertig ausgefadet wurde. Wird bei Abbruch des Fades ausgeführt.
-                        console.debug(`Fading to next ${this.fade._to.data.title} not finished!`)
+                        console.debug(`Fading to next ${this.fade._to.data.name} not finished!`)
                     }
                 })
             } else {
