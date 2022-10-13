@@ -119,6 +119,7 @@ export default {
 
                 this.fade.crossfade(this.current, this.next, true)
             } else {
+                this.fade.stop()
                 this.next.player.volume(this.next.trackvolume)
             }
             this._advanceToNextIndex()
@@ -175,7 +176,7 @@ export default {
                 })
     
                 //Initialisiert nächsten Track, wenn 'undefined'
-                if (typeof to.player === 'undefined') {
+                if (typeof to.player === 'undefined') { 
                     to.player = new Howl({ src: [to.src], volume: 0.0 })
                 }
     
@@ -212,13 +213,8 @@ export default {
             }
         },
         _pauseFade() {
-            if (this.fade._from.isFading) {
-                this.fade._from.player.pause()
-            }
-
-            if (this.fade._to.isFading) {
-                this.fade._to.player.pause()
-            }
+            this.fade._from.player.pause()
+            this.fade._to.player.pause()
         },
         _resumeFade() {
             //TODO Resume für weitere Fadearten erweitern            
@@ -231,7 +227,7 @@ export default {
                 }
 
                 if (this.fade._to.isFading) {
-                    if(!this.fade._from.player.playing()){
+                    if(!this.fade._to.player.playing()){
                         this.fade._to.player.play()
                     }
                     this.fade._to.player.fade(this.fade._to.player.volume(), this.fade._to.data.trackvolume, this.fade._to.data.fadeInDuration)
@@ -240,9 +236,12 @@ export default {
         },
         _stopFade(){
             //Faded letzten Song schnell aus --> Um Knacken zu verhindern 
-            if (this.fade._from.isFading && this.fade._from.player.volume() > 0.0) {
+            if (this.fade._from.isFading && this.fade._from.player.volume() > 0.0 && this.fade._from.player.playing()) {
                 this.fade._from.player.fade(this.fade._from.player.volume(), 0.0, 250)
             }
+
+            this.fade._to.player.off('fade')
+            this.fade._from.player.off('fade')
 
             this.fade._from.data = undefined
             this.fade._from.player = undefined
