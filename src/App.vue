@@ -1,6 +1,6 @@
 <template class="font-poppins font-normal">
-  <HowlerPlayer></HowlerPlayer>
   <SoundeffectButton :soundeffect="soundeffects[0]"></SoundeffectButton>
+  <HowlerPlayer></HowlerPlayer>
 </template>
 
 <script>
@@ -16,7 +16,7 @@ export default {
           src: "./soundeffects/Zelda Open Chest.mp3",
           trackvolume: 0.5,
           isLooping: true,
-          fadeOutDuration: 5000,
+          fadeOutDuration: 1000,
           fadeInDuration: 0
         }
       ]
