@@ -296,6 +296,8 @@ export default {
             }
 
             this.playlist = newVal
+
+            console.log(this.playlist)
         },
         current(newVal){
             this.audioPlayerStore.current = newVal

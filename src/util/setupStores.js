@@ -14,29 +14,28 @@ const soundeffects = [
 ]
 const playlist = [
     {
-        name: "Song of Storms",
-        src: "./music/Song of Storms - Ocarina of Time.wav",
-        trackvolume: 0.1,
+        name: "Szene 1 Atmo 1",
+        src: "./music/Szene1/ForestAmbiente1.wav",
+        trackvolume: 1,
         isLooping: true,
         fadeOutDuration: 5000,
-        fadeInDuration: 10000
+        fadeInDuration: 5000
     },
     {
-        name: "Warcraft Theme",
-        src: "./music/Warcraft The Beginning Soundtrack - (01) Warcraft.mp3",
-        trackvolume: 1.0,
-        isLooping: false,
-        fadeOutDuration: 5000,
-        fadeInDuration: 10000
+        name: "Szene 1 Atmo 2",
+        src: "./music/Szene1/ForestAmbiente2.wav",
+        trackvolume: 1,
+        isLooping: true,
+        fadeOutDuration: 2000,
+        fadeInDuration: 2000
+    },{
+        name: "Szene 1 Magic Atmo",
+        src: "./music/Szene1/MagicSound.wav",
+        trackvolume: 1,
+        isLooping: true,
+        fadeOutDuration: 2000,
+        fadeInDuration: 2000
     },
-    {
-        name: "Gerudo Valley",
-        src: "./music/Gerudo Valley - Ocarina of Time.wav",
-        trackvolume: 0.1,
-        isLooping: false,
-        fadeOutDuration: 5000,
-        fadeInDuration: 1000
-    }
 ]
 
 //Ordnet States Werte zu.
@@ -45,6 +44,8 @@ const setupStores = () => {
     
     audioPlayerStore.soundeffects = soundeffects
     audioPlayerStore.playlist = playlist
+
+    console.log('Set up', audioPlayerStore.playlist)
 }
 
 export {
