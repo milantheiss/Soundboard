@@ -44,8 +44,6 @@ const setupStores = () => {
     
     audioPlayerStore.soundeffects = soundeffects
     audioPlayerStore.playlist = playlist
-
-    console.log('Set up', audioPlayerStore.playlist)
 }
 
 export {

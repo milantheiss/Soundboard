@@ -290,14 +290,15 @@ export default {
         }
     },
     watch: {
+        'audioPlayerStore.playlist' (newVal) {
+            this.playlist = newVal
+        },
         playlist(newVal) {
             if (this.isPlaying) {
                 this.fade.crossfade(this.current, newVal[0])
             }
 
             this.playlist = newVal
-
-            console.log(this.playlist)
         },
         current(newVal){
             this.audioPlayerStore.current = newVal
