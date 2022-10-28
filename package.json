@@ -1,10 +1,6 @@
 {
   "name": "Soundboard",
   "version": "0.0.0",
-  "contributors": [
-    "Milan Theiss (https://github.com/milantheiss)",
-    "Noah Yannik Alps (https://github.com/Noah-Alps)"
-  ],
   "private": true,
   "scripts": {
     "build": "vite build",
@@ -17,6 +13,7 @@
   "dependencies": {
     "@tauri-apps/api": "^1.1.0",
     "howler": "^2.2.3",
+    "pinia": "^2.0.23",
     "vue": "^3.2.37"
   },
   "devDependencies": {
@@ -30,6 +27,11 @@
     "prettier": "^2.7.1",
     "tailwindcss": "^3.1.8",
     "vite": "^3.0.2",
+    "vue-cli-plugin-pinia": "~0.1.5",
     "vue-cli-plugin-tauri": "~1.0.0"
-  }
+  },
+  "contributors": [
+    "Milan Theiss (https://github.com/milantheiss)",
+    "Noah Yannik Alps (https://github.com/Noah-Alps)"
+  ]
 }
