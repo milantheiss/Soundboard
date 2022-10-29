@@ -1,12 +1,12 @@
 <template>
     <div>
-        <button @click="reset" class="border border-black m-6" v-show="isPlaying">Reset</button>
+        <button @click="toggleLoop" class="border border-black m-6" v-show="!audioPlayerStore.isLooping">Start
+            Loop</button>
+        <button @click="toggleLoop" class="border border-black m-6" v-show="audioPlayerStore.isLooping">Stop
+            Loop</button>
 
-        <button @click="toggleLoop" class="border border-black m-6" v-show="!isLooping">Start Loop</button>
-        <button @click="toggleLoop" class="border border-black m-6" v-show="isLooping">Stop Loop</button>
-
-        <button @click="togglePlay" class="border border-black m-6" v-show="!isPlaying">Play</button>
-        <button @click="togglePlay" class="border border-black m-6" v-show="isPlaying">Pause</button>
+        <button @click="togglePlay" class="border border-black m-6" v-show="!audioPlayerStore.isPlaying">Play</button>
+        <button @click="togglePlay" class="border border-black m-6" v-show="audioPlayerStore.isPlaying">Pause</button>
 
         <button @click="playNext" class="border border-black m-6">Next</button>
     </div>
@@ -27,8 +27,6 @@ export default {
     },
     data() {
         return {
-            currentIndex: 0,
-            playlist: this.audioPlayerStore.playlist,
             fade: {
                 _from: {
                     data: undefined,
@@ -51,57 +49,68 @@ export default {
     },
     methods: {
         togglePlay() {
-            //TODO Wenn nicht gecrossfadet wird, müssen Next & Prev anders pausiert/abgespielt werden
-
-            //Wenn für zu spielenden Song kein Player existiert, wird neuer erstellt.
-            if (typeof this.current.player === 'undefined') {
-                this.current.player = new Howl({ src: [this.current.src], volume: this.current.trackvolume, loop: this.current.isLooping })
-                this.next.player = new Howl({ src: [this.next.src], volume: 0.0, loop: this.next.isLooping })
-                this.previous.player = new Howl({ src: [this.previous.src], volume: 0.0, loop: this.previous.isLooping })
-            }
-
-            //Pausiert wenn Sound abgespielt wird. 
-            if (this.current.player.playing()) {
-                console.debug("Player was paused.")
-
-                //Nur bei Crossfade wichtig: Pausieren auch Next & Previous, wenn in Fading Process wurde
-                if (this.fade.isFading()) {
-                    this.fade.pause()
-                } else {
-                    this.current.player.pause()
+            if (typeof this.audioPlayerStore.current !== 'undefined') {
+                //Wenn für zu spielenden Song kein Player existiert, wird neuer erstellt.
+                if (typeof this.audioPlayerStore.current.player === 'undefined') {
+                    //INFO Path ist die API URL aus Tauri
+                    //Siehe https://tauri.app/v1/api/js/tauri#convertfilesrc
+                    this.audioPlayerStore.current.player = new Howl({ src: [[this.audioPlayerStore.playlist.path, this.audioPlayerStore.current.filename].join('%5C')], volume: this.audioPlayerStore.current.trackvolume, loop: this.audioPlayerStore.current.isLooping })
+                    this.audioPlayerStore.next.player = new Howl({ src: [[this.audioPlayerStore.playlist.path, this.audioPlayerStore.next.filename].join('%5C')], volume: 0.0, loop: this.audioPlayerStore.next.isLooping })
+                    this.audioPlayerStore.previous.player = new Howl({ src: [[this.audioPlayerStore.playlist.path, this.audioPlayerStore.previous.filename].join('%5C')], volume: 0.0, loop: this.audioPlayerStore.previous.isLooping })
                 }
-            } else { //Startet wenn noch kein Sound gespielt wird.
 
-                console.debug(`Now playing: ${this.current.name}`)
 
-                //Nur bei Crossfade wichtig: Startet auch Next & Previous, wenn in Fading Process pausiert wurde
-                if (this.fade.isFading()) {
-                    console.debug("Fade triggered from togglePlay()")
-                    this.fade.resume()
-                } else {
-                    this.current.player.play();
+                //Pausiert wenn Sound abgespielt wird. 
+                if (this.audioPlayerStore.isPlaying) {
+                    console.debug("Player was paused.")
+
+                    //Nur bei Crossfade wichtig: Pausieren auch Next & Previous, wenn in Fading Process wurde
+                    if (this.fade.isFading()) {
+                        this.fade.pause()
+                    } else {
+                        this.audioPlayerStore.current.player.pause()
+                    }
+                } else { //Startet wenn noch kein Sound gespielt wird.
+                    console.debug(`Now playing: ${this.audioPlayerStore.current.name}`)
+
+                    //Nur bei Crossfade wichtig: Startet auch Next & Previous, wenn in Fading Process pausiert wurde
+                    if (this.fade.isFading()) {
+                        console.debug("Fade triggered from togglePlay()")
+                        this.fade.resume()
+                    } else {
+                        this.audioPlayerStore.current.player.play();
+                    }
                 }
+            } else {
+                console.error("No current track loaded");
             }
         },
         toggleLoop() {
-            //TODO Toggle Loop über Button
-            this.current.isLooping = !this.current.isLooping
-            console.debug("Player is looping", this.isLooping)
-            //Error catch, falls noch kein Player existiert
-            if (!(typeof this.current.player === 'undefined')) {
-                this.current.player.loop(this.isLooping)
+            if (typeof this.audioPlayerStore.current !== 'undefined') {
+                this.audioPlayerStore.current.isLooping = !this.audioPlayerStore.current.isLooping
+                console.debug("Player is looping", this.audioPlayerStore.isLooping)
+                //Error catch, falls noch kein Player existiert
+                if (!(typeof this.audioPlayerStore.current.player === 'undefined')) {
+                    this.audioPlayerStore.current.player.loop(this.audioPlayerStore.isLooping)
+                }
+            } else {
+                console.error("No current track loaded");
             }
-
         },
         playNext() {
-            //Start to crossfade
-            if (this.isPlaying) {
-                this.fade.crossfade(this.current, this.next)
+            if (typeof this.audioPlayerStore.current !== 'undefined') {
+                //Wenn schon ein Song gespielt wird, dann starte Crossfade
+                if (this.audioPlayerStore.isPlaying) {
+                    this.fade.crossfade(this.audioPlayerStore.current, this.audioPlayerStore.next)
+                } else { //Wenn Song nicht spielt, wird der Fade sicherheitshalber gecleart und das Volume angepasst.
+                    this.fade.stop()
+                    this.audioPlayerStore.next.player.volume(this.audioPlayerStore.next.trackvolume)
+                }
+                //Der Index wird verschoben
+                this.audioPlayerStore.advanceToNextIndex()
             } else {
-                this.fade.stop()
-                this.next.player.volume(this.next.trackvolume)
+                console.error("No current track loaded");
             }
-            this._advanceToNextIndex()
         },
         _startCrossfade(from, to) {
             //INFO Fade Duration in ms
@@ -116,7 +125,6 @@ export default {
             this.fade._from.player = from.player
 
             this.fade._to.data = to
-            this.fade._to.player = to.player
 
             this.fade._from.isFading = true
             this.fade._to.isFading = true
@@ -153,8 +161,10 @@ export default {
 
             //Initialisiert nächsten Track, wenn 'undefined'
             if (typeof to.player === 'undefined') {
-                to.player = new Howl({ src: [to.src], volume: 0.0, loop: to.isLooping })
+                to.player = new Howl({ src: [("/loadedPlaylist/" + to.filename)], volume: 0.0, loop: to.isLooping })
             }
+
+            this.fade._to.player = to.player
 
             if (!to.player.playing()) {
                 to.player.play()
@@ -218,21 +228,6 @@ export default {
             this.fade._to.data = undefined
             this.fade._to.player = undefined
         },
-        _advanceToNextIndex() {
-            //Erhöht Index
-            if (this.currentIndex + 1 > this.playlist.length - 1) {
-                this.currentIndex = 0;
-            } else {
-                this.currentIndex++;
-            }
-        },
-        _advanceToPreviousIndex() {
-            //Verringert Index
-            this.currentIndex++;
-            if (this.currentIndex < 0) {
-                this.currentIndex = this.playlist.length - 1;
-            }
-        },
         _isFading() {
             //Kann Error werfen, wenn _to oder _from 'undefined' ist.
             try {
@@ -246,63 +241,25 @@ export default {
             }
         },
         garbageCollector() {
-            if (this.playlist.length > 3) {
+            if (this.audioPlayerStore.playlist.tracks.length > 3) {
                 //TODO Hier alle unnötige Player löschen.
             }
         }
     },
     created() {
-        this.audioPlayerStore.current = this.current
-        this.audioPlayerStore.currentIndex = this.currentIndex
-
         //IMPORTANT Es wird für jeden Song ein neuer Player geladen.
         //IMPORTANT Im besten Fall sollten aber nur der Current, Next & Previous Track geladen werden.
         //TODO Implement load function: mit check, ob player existiert. Erstellt neuen Player
     },
-    computed: {
-        isPlaying() {
-            //Try Catch, da der Player nicht umbedingt schon existiert.
-            try {
-                return this.current.player.playing()
-            } catch (e) {
-                return false
-            }
-        },
-        isLooping() {
-            return this.current.isLooping
-        },
-        current() {
-            return this.playlist[this.currentIndex]
-        },
-        next() {
-            if (this.currentIndex + 1 > this.playlist.length - 1) {
-                return this.playlist[0]
-            } else {
-                return this.playlist[this.currentIndex + 1]
-            }
-        },
-        previous() {
-            if (this.currentIndex - 1 < 0) {
-                return this.playlist[this.playlist.length - 1]
-            } else {
-                return this.playlist[this.currentIndex - 1]
-            }
-        }
-    },
     watch: {
-        'audioPlayerStore.playlist' (newVal) {
-            this.playlist = newVal
-        },
-        playlist(newVal) {
-            if (this.isPlaying) {
-                this.fade.crossfade(this.current, newVal[0])
+        'audioPlayerStore.playlist'(newVal, oldVal) {
+            try {
+                if (oldVal.tracks[this.audioPlayerStore.oldIndex].player.playing()) {
+                    this.fade.crossfade(oldVal.tracks[this.audioPlayerStore.oldIndex], newVal.tracks[0])
+                }
+            } catch (e) {
+                console.debug('Oldplayer is undefined')
             }
-
-            this.playlist = newVal
-        },
-        current(newVal){
-            this.audioPlayerStore.current = newVal
-            this.audioPlayerStore.currentIndex = this.currentIndex
         }
     }
 }

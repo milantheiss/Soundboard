@@ -4,7 +4,7 @@
     "beforeBuildCommand": "yarn build",
     "devPath": "http://localhost:1420",
     "distDir": "../dist",
-    "withGlobalTauri": false
+    "withGlobalTauri": true
   },
   "package": {
     "productName": "Soundboard",
@@ -12,7 +12,19 @@
   },
   "tauri": {
     "allowlist": {
-      "all": true
+      "dialog": {
+        "open": true
+      },
+      "fs": {
+        "readFile": true,
+        "exists": true,
+        "scope": [ "https://asset.localhost"]
+      },
+      "protocol": {
+        "all": false,
+        "asset": true,
+        "assetScope": ["https://asset.localhost"]
+      }
     },
     "bundle": {
       "active": true,
@@ -48,7 +60,7 @@
       }
     },
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; media-src 'self' asset: https://asset.localhost"
     },
     "updater": {
       "active": false

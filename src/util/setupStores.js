@@ -1,4 +1,5 @@
-//WARNING Die ist eine Temporäte Datei, die nicht ins Endprodukt übernommen werden soll
+//WARNING Dies ist eine Temporäte Datei, die nicht ins Endprodukt übernommen werden soll
+//INFO setupStores.js setzt die default Wert in den Store ein. Dies wird später über auslesen von Dateinen geregelt.
 
 import { useAudioPlayerStore } from '@/stores/audioPlayerStore.js'
 

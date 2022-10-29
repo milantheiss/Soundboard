@@ -1,10 +1,12 @@
 <template class="font-poppins font-normal">
-  <p class="text-lg ml-5">{{audioPlayerStore.current.name}}</p>
+  <!--<p class="text-lg ml-5" v-if="typeof audioPlayerStore.current !== 'undefined'">{{audioPlayerStore.current.name}}</p>-->
 
   <button @click="switchPlaylist" class="border border-black m-6" :class="(isSzene1) ? 'bg-gray-300' : ''">Szene 1</button>
   <button @click="switchPlaylist" class="border border-black m-6" :class="(!isSzene1) ? 'bg-gray-300' : ''">Szene 2</button>
 
-  <SoundeffectButton :soundeffect="audioPlayerStore.soundeffects[0]"></SoundeffectButton>
+  <button @click="selectPlaylist" class="border border-black m-6">Playlist laden</button>
+
+  <SoundeffectButton :soundeffect="audioPlayerStore.soundeffects[0]" v-if="audioPlayerStore.soundeffects.length > 0"></SoundeffectButton>
   <MediaControls></MediaControls>
 </template>
 
@@ -12,6 +14,7 @@
 import SoundeffectButton from '@/components/SoundeffectButton.vue';
 import MediaControls from '@/components/MediaControls.vue';
 import { useAudioPlayerStore } from '@/stores/audioPlayerStore.js'
+import { loadPlaylist } from './util/fileManager';
 
 export default {
   setup() {
@@ -25,7 +28,7 @@ export default {
     return {
       playlist1: [
         {
-          name: "Szene 1Atmo 1",
+          name: "Szene 1 Atmo 1",
           src: "./music/Szene1/ForestAmbiente1.wav",
           trackvolume: 1,
           isLooping: true,
@@ -33,14 +36,14 @@ export default {
           fadeInDuration: 5000
         },
         {
-          name: "Szene 1Atmo 2",
+          name: "Szene 1 Atmo 2",
           src: "./music/Szene1/ForestAmbiente2.wav",
           trackvolume: 1,
           isLooping: true,
           fadeOutDuration: 2000,
           fadeInDuration: 2000
         }, {
-          name: "Szene 1Magic Atmo",
+          name: "Szene 1 Magic Atmo",
           src: "./music/Szene1/MagicSound.wav",
           trackvolume: 1,
           isLooping: true,
@@ -72,12 +75,15 @@ export default {
   methods: {
     switchPlaylist() {
       if (this.isSzene1) {
-        this.audioPlayerStore.playlist = this.playlist2
+        this.audioPlayerStore.setPlaylist(this.playlist2)
         this.isSzene1 = false
       } else {
-        this.audioPlayerStore.playlist = this.playlist1
+        this.audioPlayerStore.setPlaylist(this.playlist1)
         this.isSzene1 = true
       }
+    },
+    async selectPlaylist(){
+      this.audioPlayerStore.setPlaylist(await loadPlaylist())
     }
   },
   components: {
