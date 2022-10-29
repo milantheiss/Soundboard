@@ -31,30 +31,34 @@ async function loadPlaylist() {
             console.debug('Config File in Base Dir gefunden.')
             configPath = [configPath, 'playlist.config.json'].join('\\')
         } else { // Wenn gar keine Config Datei gefunden wurde, wird eine neue erstellt.
-            const _array = path.split('\\')
+            const _pathSplit = path.split('\\')
             playlistConfig = {
-                name: _array[_array.length - 1],
+                name: _pathSplit[_pathSplit.length - 1],
                 tracks: []
             }
 
             for (const track of await readDir(path)) {
-                playlistConfig.tracks.push({
-                    name: track.name.split('.')[0],
-                    filename: track.name,
-                    trackvolume: 1,
-                    isLooping: true,
-                    fadeOutDuration: 2000,
-                    fadeInDuration: 2000
-                })
+                const _nameSplit = track.name.split('.')
+                console.log(_nameSplit[_nameSplit.length - 1])
+                if (_nameSplit[_nameSplit.length - 1] === 'wav' || _nameSplit[_nameSplit.length - 1] === 'mp3' || _nameSplit[_nameSplit.length - 1] === 'ogg' || _nameSplit[_nameSplit.length - 1] === 'webm') {
+                    playlistConfig.tracks.push({
+                        name: _nameSplit[0],
+                        filename: track.name,
+                        trackvolume: 1,
+                        isLooping: true,
+                        fadeOutDuration: 2000,
+                        fadeInDuration: 2000
+                    })
+                }
             }
 
             await createDir([configPath, '.soundboard'].join('\\'), { recursive: true });
-            await writeFile({path: [configPath, '.soundboard', 'playlist.config.json'].join('\\'), contents: JSON.stringify(playlistConfig)})
+            await writeFile({ path: [configPath, '.soundboard', 'playlist.config.json'].join('\\'), contents: JSON.stringify(playlistConfig) })
 
             configPath = [configPath, '.soundboard', 'playlist.config.json'].join('\\')
         }
 
-        
+
         //Wird ausgelesen, wenn 'playlistConfig' wenn keine neue Config Datei erstellt wurde.
         playlistConfig = typeof playlistConfig !== 'undefined' ? playlistConfig : JSON.parse(await readTextFile(configPath))
 
