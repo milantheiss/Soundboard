@@ -1,5 +1,5 @@
 <template class="font-poppins font-normal">
-  <!--<p class="text-lg ml-5" v-if="typeof audioPlayerStore.current !== 'undefined'">{{audioPlayerStore.current.name}}</p>-->
+<p class="text-lg ml-5" v-if="typeof audioPlayerStore.current !== 'undefined'">{{audioPlayerStore.current.name}}</p>-->
 
   <button @click="switchPlaylist" class="border border-black m-6" :class="(isSzene1) ? 'bg-gray-300' : ''">Szene 1</button>
   <button @click="switchPlaylist" class="border border-black m-6" :class="(!isSzene1) ? 'bg-gray-300' : ''">Szene 2</button>

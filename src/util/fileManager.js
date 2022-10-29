@@ -1,5 +1,5 @@
 import { open } from "@tauri-apps/api/dialog"
-import { exists, readTextFile } from "@tauri-apps/api/fs"
+import { exists, readTextFile, readDir, writeFile, createDir } from "@tauri-apps/api/fs"
 import { convertFileSrc } from '@tauri-apps/api/tauri';
 
 
@@ -19,6 +19,7 @@ async function loadPlaylist() {
         })
 
         let configPath = path
+        let playlistConfig = undefined
 
         //INFO Gesamter Filepath muss in erstem Arg angegeben werden
 
@@ -30,13 +31,35 @@ async function loadPlaylist() {
             console.debug('Config File in Base Dir gefunden.')
             configPath = [configPath, 'playlist.config.json'].join('\\')
         } else { // Wenn gar keine Config Datei gefunden wurde, wird eine neue erstellt.
-            console.log("Überlaufen");
-            //IMPORTANT Hier muss dann neues Dir erstellt werden und Config File neu erstellt und beschrieben werden
+            const _array = path.split('\\')
+            playlistConfig = {
+                name: _array[_array.length - 1],
+                tracks: []
+            }
+
+            for (const track of await readDir(path)) {
+                playlistConfig.tracks.push({
+                    name: track.name.split('.')[0],
+                    filename: track.name,
+                    trackvolume: 1,
+                    isLooping: true,
+                    fadeOutDuration: 2000,
+                    fadeInDuration: 2000
+                })
+            }
+
+            await createDir([configPath, '.soundboard'].join('\\'), { recursive: true });
+            await writeFile({path: [configPath, '.soundboard', 'playlist.config.json'].join('\\'), contents: JSON.stringify(playlistConfig)})
+
+            configPath = [configPath, '.soundboard', 'playlist.config.json'].join('\\')
         }
+
+        
+        //Wird ausgelesen, wenn 'playlistConfig' wenn keine neue Config Datei erstellt wurde.
+        playlistConfig = typeof playlistConfig !== 'undefined' ? playlistConfig : JSON.parse(await readTextFile(configPath))
 
         //INFO Path ist die API URL aus Tauri
         //Siehe https://tauri.app/v1/api/js/tauri#convertfilesrc
-        const playlistConfig = JSON.parse(await readTextFile(configPath))
         playlistConfig.path = convertFileSrc(path)
 
         return playlistConfig

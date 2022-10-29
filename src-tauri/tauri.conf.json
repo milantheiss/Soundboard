@@ -18,6 +18,9 @@
       "fs": {
         "readFile": true,
         "exists": true,
+        "readDir": true,
+        "writeFile": true,
+        "createDir": true,
         "scope": [ "https://asset.localhost"]
       },
       "protocol": {
