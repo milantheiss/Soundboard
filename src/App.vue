@@ -1,12 +1,16 @@
 <template class="font-poppins font-normal">
-<p class="text-lg ml-5" v-if="typeof audioPlayerStore.current !== 'undefined'">{{audioPlayerStore.current.name}}</p>
+  <p class="text-lg mt-6 mb-0 mx-6" v-if="typeof audioPlayerStore.current !== 'undefined'">{{ audioPlayerStore.current.name }}</p>
+  <p class="text-lg mt-6 mb-0 mx-6" v-if="typeof audioPlayerStore.current === 'undefined'">Keine Playlist ausgewählt.</p>
 
-  <button @click="switchPlaylist" class="border border-black m-6" :class="(isSzene1) ? 'bg-gray-300' : ''">Szene 1</button>
-  <button @click="switchPlaylist" class="border border-black m-6" :class="(!isSzene1) ? 'bg-gray-300' : ''">Szene 2</button>
+  <button @click="switchPlaylist" class="border border-black m-6" :class="(isSzene1) ? 'bg-gray-300' : ''">Szene
+    1</button>
+  <button @click="switchPlaylist" class="border border-black m-6" :class="(!isSzene1) ? 'bg-gray-300' : ''">Szene
+    2</button>
 
   <button @click="selectPlaylist" class="border border-black m-6">Playlist laden</button>
 
-  <SoundeffectButton :soundeffect="audioPlayerStore.soundeffects[0]" v-if="audioPlayerStore.soundeffects.length > 0"></SoundeffectButton>
+  <SoundeffectButton :soundeffect="audioPlayerStore.soundeffects[0]" v-if="audioPlayerStore.soundeffects.length > 0">
+  </SoundeffectButton>
   <MediaControls></MediaControls>
 </template>
 
@@ -82,7 +86,7 @@ export default {
         this.isSzene1 = true
       }
     },
-    async selectPlaylist(){
+    async selectPlaylist() {
       this.audioPlayerStore.setPlaylist(await loadPlaylist())
     }
   },

@@ -104,7 +104,9 @@ export default {
                     this.fade.crossfade(this.audioPlayerStore.current, this.audioPlayerStore.next)
                 } else { //Wenn Song nicht spielt, wird der Fade sicherheitshalber gecleart und das Volume angepasst.
                     this.fade.stop()
-                    this.audioPlayerStore.next.player.volume(this.audioPlayerStore.next.trackvolume)
+                    if (typeof this.audioPlayerStore.next.player !== 'undefined') {
+                        this.audioPlayerStore.next.player.volume(this.audioPlayerStore.next.trackvolume)
+                    }
                 }
                 //Der Index wird verschoben
                 this.audioPlayerStore.advanceToNextIndex()
@@ -161,7 +163,7 @@ export default {
 
             //Initialisiert nächsten Track, wenn 'undefined'
             if (typeof to.player === 'undefined') {
-                to.player = new Howl({ src: [("/loadedPlaylist/" + to.filename)], volume: 0.0, loop: to.isLooping })
+                to.player = new Howl({ src: [[this.audioPlayerStore.playlist.path, to.filename].join('%5C')], volume: 0.0, loop: to.isLooping })
             }
 
             this.fade._to.player = to.player
@@ -214,13 +216,15 @@ export default {
             }
         },
         _stopFade() {
-            //Faded letzten Song schnell aus --> Um Knacken zu verhindern 
-            if (this.fade._from.isFading && this.fade._from.player.volume() > 0.0 && this.fade._from.player.playing()) {
-                this.fade._from.player.fade(this.fade._from.player.volume(), 0.0, 250)
+            if(typeof this.fade._from.player !== 'undefined' && typeof this.fade._to.player !== 'undefined') {
+                //Faded letzten Song schnell aus --> Um Knacken zu verhindern 
+                if (this.fade._from.isFading && this.fade._from.player.volume() > 0.0 && this.fade._from.player.playing()) {
+                    this.fade._from.player.fade(this.fade._from.player.volume(), 0.0, 250)
+                }
+    
+                this.fade._to.player.off('fade')
+                this.fade._from.player.off('fade')
             }
-
-            this.fade._to.player.off('fade')
-            this.fade._from.player.off('fade')
 
             this.fade._from.data = undefined
             this.fade._from.player = undefined
