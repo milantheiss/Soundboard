@@ -21,6 +21,7 @@
         "readDir": true,
         "writeFile": true,
         "createDir": true,
+        "removeFile": true,
         "scope": [ "https://asset.localhost"]
       },
       "protocol": {

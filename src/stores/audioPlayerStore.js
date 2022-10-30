@@ -6,7 +6,6 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
     playlist: {
       tracks: []
     },
-    soundeffects: [],
     currentIndex: 0,
     oldIndex: undefined
   }),

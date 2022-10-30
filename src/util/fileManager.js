@@ -1,16 +1,14 @@
 import { open } from "@tauri-apps/api/dialog"
-import { exists, readTextFile, readDir, writeFile, createDir } from "@tauri-apps/api/fs"
+import { exists, readTextFile, readDir, writeFile, createDir, removeFile } from "@tauri-apps/api/fs"
 import { convertFileSrc } from '@tauri-apps/api/tauri';
-
+import { useDataStore } from '@/stores/dataStore';
 
 /**
- * Öffnet Speicherplatz einer Playlist und sucht nach 'playlist.config.json'
- * Wenn 'playlist.config.json' existiert, wird die Playlist Config ausgelesen und returnt.
- * Wenn 'playlist.config.json' nicht existiert, wird ein neues '.soundboard' Dir und Config File erstellt
- * und mit allen unterstützten Sounddateien in Ordner gefüllt. 
+ * Öffnet Explorer Dialog, indem der User den Speicherplatz einer Playlist auswählen kann
+ * und übergibt diesen an {@link loadPlaylist} weiter um Playlist zu laden.
  * @returns Playlist Object
  */
-async function loadPlaylist() {
+async function loadNewPlaylist() {
     try {
         let path = await open({
             directory: true,
@@ -18,6 +16,26 @@ async function loadPlaylist() {
             title: "Open Text File"
         })
 
+        const _playlist = await loadPlaylist(path)
+
+        useDataStore().addPlaylist(_playlist.name, path)
+
+        return _playlist
+    } catch (e) {
+        console.error(e)
+    }
+}
+
+/**
+ * Öffnet Speicherplatz einer Playlist und sucht nach 'playlist.config.json'
+ * Wenn 'playlist.config.json' existiert, wird die Playlist Config ausgelesen, geupdatet und als Obj returnt.
+ * Wenn 'playlist.config.json' nicht existiert, wird ein neues '.soundboard' Dir und Config File erstellt
+ * und mit allen unterstützten Sounddateien in Ordner gefüllt. 
+ * @params {string} path - Absoluter Path zum Playlist Ordner
+ * @returns Playlist Object
+ */
+async function loadPlaylist(path) {
+    try {
         let configPath = path
         let playlistConfig = undefined
 
@@ -37,13 +55,27 @@ async function loadPlaylist() {
                 tracks: []
             }
 
-            for (const track of await readDir(path)) {
-                const _nameSplit = track.name.split('.')
-                console.log(_nameSplit[_nameSplit.length - 1])
-                if (_nameSplit[_nameSplit.length - 1] === 'wav' || _nameSplit[_nameSplit.length - 1] === 'mp3' || _nameSplit[_nameSplit.length - 1] === 'ogg' || _nameSplit[_nameSplit.length - 1] === 'webm') {
+            configPath = [configPath, '.soundboard', 'playlist.config.json'].join('\\')
+        }
+        
+        //Wird ausgelesen, wenn 'playlistConfig' wenn keine neue Config Datei erstellt wurde.
+        playlistConfig = typeof playlistConfig !== 'undefined' ? playlistConfig : JSON.parse(await readTextFile(configPath))
+
+        //Entfernt in Ordner fehlende Tracks aus playlistConfig        
+        for (const track of playlistConfig.tracks) {
+            if(!await exists([path, track.filename].join('\\'))){
+                playlistConfig.tracks.splice(playlistConfig.tracks.indexOf(track), 1)
+            }
+        }
+        
+        //Fügt in playlistConfig nicht aufgeführte Tracks hinzu
+        for (const file of (await readDir(path))) {
+            const _nameSplit = file.name.split('.')
+            if ((_nameSplit[_nameSplit.length - 1] === 'wav' || _nameSplit[_nameSplit.length - 1] === 'mp3' || _nameSplit[_nameSplit.length - 1] === 'ogg' || _nameSplit[_nameSplit.length - 1] === 'webm') && _nameSplit.length >= 2) {
+                if(!playlistConfig.tracks.some(val => val.filename === file.name)) {
                     playlistConfig.tracks.push({
                         name: _nameSplit[0],
-                        filename: track.name,
+                        filename: file.name,
                         trackvolume: 1,
                         isLooping: true,
                         fadeOutDuration: 2000,
@@ -51,17 +83,21 @@ async function loadPlaylist() {
                     })
                 }
             }
-
-            await createDir([configPath, '.soundboard'].join('\\'), { recursive: true });
-            await writeFile({ path: [configPath, '.soundboard', 'playlist.config.json'].join('\\'), contents: JSON.stringify(playlistConfig) })
-
-            configPath = [configPath, '.soundboard', 'playlist.config.json'].join('\\')
+        }   
+        
+        //Erstellt neuen '.soundboard' Ordner, wenn noch keiner existiert
+        if(!await exists([path, '.soundboard'].join('\\'))){
+            await createDir([path, '.soundboard'].join('\\'), { recursive: true });
         }
 
+        //Entfernt playlist.config.json File aus Root Ordner
+        if(await exists([path, 'playlist.config.json'].join('\\'))){
+            await removeFile([path, 'playlist.config.json'].join('\\'));
+        }
 
-        //Wird ausgelesen, wenn 'playlistConfig' wenn keine neue Config Datei erstellt wurde.
-        playlistConfig = typeof playlistConfig !== 'undefined' ? playlistConfig : JSON.parse(await readTextFile(configPath))
-
+        //Erstellt/Überschreibt playlist.config
+        await writeFile({ path: [path, '.soundboard', 'playlist.config.json'].join('\\'), contents: JSON.stringify(playlistConfig) })        
+        
         //INFO Path ist die API URL aus Tauri
         //Siehe https://tauri.app/v1/api/js/tauri#convertfilesrc
         playlistConfig.path = convertFileSrc(path)
@@ -73,5 +109,6 @@ async function loadPlaylist() {
 }
 
 export {
+    loadNewPlaylist,
     loadPlaylist
 }

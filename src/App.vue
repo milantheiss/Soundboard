@@ -2,78 +2,47 @@
   <p class="text-lg mt-6 mb-0 mx-6" v-if="typeof audioPlayerStore.current !== 'undefined'">{{ audioPlayerStore.current.name }}</p>
   <p class="text-lg mt-6 mb-0 mx-6" v-if="typeof audioPlayerStore.current === 'undefined'">Keine Playlist ausgewählt.</p>
 
+  <!--
   <button @click="switchPlaylist" class="border border-black m-6" :class="(isSzene1) ? 'bg-gray-300' : ''">Szene
     1</button>
   <button @click="switchPlaylist" class="border border-black m-6" :class="(!isSzene1) ? 'bg-gray-300' : ''">Szene
     2</button>
+  -->
+
+  <select v-model="selected" class="ml-6">
+    <option disabled value="Wähle eine Playlist">Wähle eine Playlist</option>
+    <option v-for="element in dataStore.playlists" :key="element.name" :value="element">
+      {{ element.name }}
+    </option>
+  </select>
 
   <button @click="selectPlaylist" class="border border-black m-6">Playlist laden</button>
 
-  <SoundeffectButton :soundeffect="audioPlayerStore.soundeffects[0]" v-if="audioPlayerStore.soundeffects.length > 0">
-  </SoundeffectButton>
+  <!--<SoundeffectButton :soundeffect="audioPlayerStore.soundeffects[0]" v-if="audioPlayerStore.soundeffects.length > 0">
+  </SoundeffectButton>-->
   <MediaControls></MediaControls>
 </template>
 
 <script>
-import SoundeffectButton from '@/components/SoundeffectButton.vue';
+//import SoundeffectButton from '@/components/SoundeffectButton.vue';
 import MediaControls from '@/components/MediaControls.vue';
 import { useAudioPlayerStore } from '@/stores/audioPlayerStore.js'
-import { loadPlaylist } from './util/fileManager';
+import { useDataStore } from './stores/dataStore';
+import { loadNewPlaylist, loadPlaylist } from './util/fileManager';
 
 export default {
   setup() {
     const audioPlayerStore = useAudioPlayerStore()
+    const dataStore = useDataStore()
 
     return {
-      audioPlayerStore
+      audioPlayerStore,
+      dataStore
     }
   },
   data() {
     return {
-      playlist1: [
-        {
-          name: "Szene 1 Atmo 1",
-          src: "./music/Szene1/ForestAmbiente1.wav",
-          trackvolume: 1,
-          isLooping: true,
-          fadeOutDuration: 5000,
-          fadeInDuration: 5000
-        },
-        {
-          name: "Szene 1 Atmo 2",
-          src: "./music/Szene1/ForestAmbiente2.wav",
-          trackvolume: 1,
-          isLooping: true,
-          fadeOutDuration: 2000,
-          fadeInDuration: 2000
-        }, {
-          name: "Szene 1 Magic Atmo",
-          src: "./music/Szene1/MagicSound.wav",
-          trackvolume: 1,
-          isLooping: true,
-          fadeOutDuration: 2000,
-          fadeInDuration: 2000
-        },
-      ],
-      playlist2: [
-        {
-          name: "Szene 2 Atmo 1",
-          src: "./music/Szene2/ForestAmbienteWitcher1.wav",
-          trackvolume: 1,
-          isLooping: true,
-          fadeOutDuration: 5000,
-          fadeInDuration: 5000
-        },
-        {
-          name: "Szene 2 Atmo 2",
-          src: "./music/Szene2/ForestAmbienteWitcher2.wav",
-          trackvolume: 1,
-          isLooping: true,
-          fadeOutDuration: 5000,
-          fadeInDuration: 5000
-        }
-      ],
-      isSzene1: true
+      selected: undefined
     }
   },
   methods: {
@@ -87,12 +56,17 @@ export default {
       }
     },
     async selectPlaylist() {
-      this.audioPlayerStore.setPlaylist(await loadPlaylist())
+      this.audioPlayerStore.setPlaylist(await loadNewPlaylist())
     }
   },
   components: {
-    SoundeffectButton,
+    //SoundeffectButton,
     MediaControls
+  },
+  watch: {
+    async selected(newVal) {
+      this.audioPlayerStore.setPlaylist(await loadPlaylist(newVal.path))
+    }
   }
 }
 </script>

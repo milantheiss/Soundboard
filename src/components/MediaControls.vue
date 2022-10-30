@@ -55,8 +55,6 @@ export default {
                     //INFO Path ist die API URL aus Tauri
                     //Siehe https://tauri.app/v1/api/js/tauri#convertfilesrc
                     this.audioPlayerStore.current.player = new Howl({ src: [[this.audioPlayerStore.playlist.path, this.audioPlayerStore.current.filename].join('%5C')], volume: this.audioPlayerStore.current.trackvolume, loop: this.audioPlayerStore.current.isLooping })
-                    this.audioPlayerStore.next.player = new Howl({ src: [[this.audioPlayerStore.playlist.path, this.audioPlayerStore.next.filename].join('%5C')], volume: 0.0, loop: this.audioPlayerStore.next.isLooping })
-                    this.audioPlayerStore.previous.player = new Howl({ src: [[this.audioPlayerStore.playlist.path, this.audioPlayerStore.previous.filename].join('%5C')], volume: 0.0, loop: this.audioPlayerStore.previous.isLooping })
                 }
 
 
