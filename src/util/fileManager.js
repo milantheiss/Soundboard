@@ -119,6 +119,7 @@ async function loadPreset(filename) {
         if (await exists(['.soundboard', filename].join('\\'), { dir: BaseDirectory.Data })) {
             return JSON.parse(await readTextFile(['.soundboard', filename].join('\\'), { dir: BaseDirectory.Data }))
         } else { // Wenn gar keine Config Datei gefunden wurde, wird eine neue erstellt.
+            //TODO Preset sollte dann removed werden.
             console.error('Die Config Datei des Presets konnte nicht gefunden werden')
             return undefined
         }
@@ -144,31 +145,9 @@ async function loadAllPresets() {
     return content
 }
 
-/**
- * Fügt ein gegebenes Preset der presets.config.json Datei in AppData hinzu. 
- * Wenn noch keine Config Datei existiert, wir hier eine neue erstellt.
- * @returns {Boolean} Success
- */
-async function addPreset(preset){
-    let content = loadAllPresets()
-
-    if (!await exists('.soundboard', { dir: BaseDirectory.Data })) {
-        await createDir('.soundboard', { dir: BaseDirectory.Data, recursive: true });
-    }
-
-    if (!content.some(val => val.name === preset.name)) {
-        content.push({ name: preset.name, filename: preset.filename })
-        await writeFile({ path: '.soundboard\\presets.config.json', contents: JSON.stringify(content) }, {dir: BaseDirectory.Data})
-        return true
-    } else {
-        return false
-    }
-}
-
 export {
     loadNewPlaylist,
     loadPlaylist,
     loadPreset,
-    loadAllPresets,
-    addPreset
+    loadAllPresets
 }

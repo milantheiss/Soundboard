@@ -1,7 +1,4 @@
 <template class="font-poppins font-normal">
-  <p class="text-lg mt-6 mb-0 mx-6" v-if="typeof audioPlayerStore.current !== 'undefined'">{{ audioPlayerStore.current.name }}</p>
-  <p class="text-lg mt-6 mb-0 mx-6" v-if="typeof audioPlayerStore.current === 'undefined'">Keine Playlist ausgewählt.</p>
-
   <!--
   <button @click="switchPlaylist" class="border border-black m-6" :class="(isSzene1) ? 'bg-gray-300' : ''">Szene
     1</button>
@@ -9,66 +6,107 @@
     2</button>
   -->
 
-  <!--TODO Presets laden & auswählen-->
+  <div class="flex justify-start items-center">
+    <p class="text-lg mt-6 mb-0 mx-6" v-if="typeof audioPlayer.current !== 'undefined'">{{ audioPlayer.current.name }}
+    </p>
+    <p class="text-lg mt-6 mb-0 mx-6" v-if="typeof audioPlayer.current === 'undefined'">Keine Playlist ausgewählt.</p>
+    
+  </div>
 
-  <select v-model="selected" class="ml-6">
-    <option disabled value="Wähle eine Playlist">Wähle eine Playlist</option>
-    <option v-for="element in presetStore.playlists" :key="element.name" :value="element">
-      {{ element.name }}
-    </option>
-  </select>
+  <!--
+  <div class="grid grid-cols-4">
+    <div class="w-full h-full bg-slate-500 m-4" v-for="sfx in presetStore.soundeffects" :key="sfx.name">
+      <button class="
+        w-full h-full
+        px-4 py-4
+        inline-flex justify-center
+        bg-electric-blue hover:bg-electric-blue-hover 
+        border border-transparent rounded-md shadow-sm
+        text-base font-semibold  text-black 
+        focus:outline-none focus:ring-2 focus:ring-electric-blue focus:ring-offset-2">{{ sfx.name }}</button>
+    </div>
+    <div class="w-full h-full bg-slate-500 m-4" v-for="val in emptyList" :key="val"></div>
+  </div>
+  -->
 
-  <button @click="selectPlaylist" class="border border-black m-6">Playlist laden</button>
+  <div class="flex justify-start items-center">
+    <SelectList v-model="selected" defaultValue="Wähle ein Preset" :options="presets" class="ml-6 w-64"></SelectList>
+    <button @click="this.$refs.createPreset.open = true" class="border border-black m-6">Preset erstellen</button>
+  </div>
+
+  <!--TODO Neue Playlisten laden/erstellen und zum Preset hinzufügen-->
+  <!--TODO Playlisten auswählen-->
+
+  <div class="flex justify-start items-center">
+    <SelectList v-model="selected" defaultValue="Wähle ein Preset" :options="presets" class="ml-6 w-64"></SelectList>
+    <button @click="this.$refs.createPreset.open = true" class="border border-black m-6">Preset erstellen</button>
+    <button @click="selectPlaylist" class="border border-black m-6">Playlist laden</button>
+  </div>
 
   <!--<SoundeffectButton :soundeffect="audioPlayerStore.soundeffects[0]" v-if="audioPlayerStore.soundeffects.length > 0">
   </SoundeffectButton>-->
   <MediaControls></MediaControls>
+  <PromptDialog ref="createPreset" @onCommit="(name) => createPreset(name)"></PromptDialog>
 </template>
 
 <script>
 //import SoundeffectButton from '@/components/SoundeffectButton.vue';
 import MediaControls from '@/components/MediaControls.vue';
+import SelectList from '@/components/SelectList.vue';
 import { useAudioPlayerStore } from '@/stores/audioPlayerStore.js'
+import PromptDialog from './components/PromptDialog.vue';
 import { usePresetStore } from './stores/presetStore';
-import { loadNewPlaylist, loadPlaylist } from './util/fileManager';
+import { loadNewPlaylist, loadAllPresets } from './util/fileManager';
 
 export default {
   setup() {
-    const audioPlayerStore = useAudioPlayerStore()
+    const audioPlayer = useAudioPlayerStore()
     const presetStore = usePresetStore()
 
     return {
-      audioPlayerStore,
+      audioPlayer,
       presetStore
     }
   },
   data() {
     return {
-      selected: undefined
+      selected: undefined,
+      presets: []
     }
   },
   methods: {
     switchPlaylist() {
       if (this.isSzene1) {
-        this.audioPlayerStore.setPlaylist(this.playlist2)
+        this.audioPlayer.setPlaylist(this.playlist2)
         this.isSzene1 = false
       } else {
-        this.audioPlayerStore.setPlaylist(this.playlist1)
+        this.audioPlayer.setPlaylist(this.playlist1)
         this.isSzene1 = true
       }
     },
     async selectPlaylist() {
-      this.audioPlayerStore.setPlaylist(await loadNewPlaylist())
+      this.audioPlayer.setPlaylist(await loadNewPlaylist())
+    },
+    async createPreset(presetName) {
+      console.log(await this.presetStore.createNewPreset(presetName));
+      this.presets = await loadAllPresets()
     }
   },
   components: {
     //SoundeffectButton,
-    MediaControls
+    MediaControls,
+    PromptDialog,
+    SelectList
   },
   watch: {
     async selected(newVal) {
-      this.audioPlayerStore.setPlaylist(await loadPlaylist(newVal.path))
+      console.log(newVal);
+      this.presetStore.setPreset(newVal.filename)
+      //this.audioPlayerStore.setPlaylist(await loadPlaylist(newVal.path))
     }
+  },
+  async created() {
+    this.presets = await loadAllPresets()
   }
 }
 </script>
