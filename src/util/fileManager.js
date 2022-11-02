@@ -1,7 +1,7 @@
 import { open } from "@tauri-apps/api/dialog"
-import { exists, readTextFile, readDir, writeFile, createDir, removeFile } from "@tauri-apps/api/fs"
+import { exists, readTextFile, readDir, writeFile, createDir, removeFile, BaseDirectory } from "@tauri-apps/api/fs"
 import { convertFileSrc } from '@tauri-apps/api/tauri';
-import { useDataStore } from '@/stores/dataStore';
+import { useGroupStore } from '@/stores/groupStore';
 
 /**
  * Öffnet Explorer Dialog, indem der User den Speicherplatz einer Playlist auswählen kann
@@ -18,7 +18,7 @@ async function loadNewPlaylist() {
 
         const _playlist = await loadPlaylist(path)
 
-        useDataStore().addPlaylist(_playlist.name, path)
+        useGroupStore().addPlaylist(_playlist.name, path)
 
         return _playlist
     } catch (e) {
@@ -106,6 +106,50 @@ async function loadPlaylist(path) {
     } catch (e) {
         console.error(e)
     }
+}
+
+/**
+ * Löst
+ */
+async function loadPlaylistGroup(groupName){
+    //TODO Hier einlesen
+    let content = {}
+
+        if(await exists('.soundboard\\playlistGroups.config.json', {dir: BaseDirectory.Data})){
+            content = JSON.parse(await readTextFile('.soundboard\\playlistGroups.config.json', {dir: BaseDirectory.Data}))
+        }
+
+        if(!content.some(val => val.name === _playlist.name)){
+            content.push({name: _playlist, path: path})
+            await writeFile({ path: [path, '.soundboard', 'playlistGroups.config.json'].join('\\'), contents: JSON.stringify(content) }) 
+        }
+
+}
+
+/**
+ * Lädt gewähltes Preset
+ * @param {String} filename Name der Config File des Presets
+ */
+async function loadPreset(filename){
+    try {
+        //INFO Gesamter Filepath muss in erstem Arg angegeben werden
+        //Sucht erst im '.soundboard' Unterordner
+        if (await exists(['.soundboard', filename].join('\\'), {dir: BaseDirectory.Data})) {
+            return JSON.parse(await readTextFile(['.soundboard', filename].join('\\'), {dir: BaseDirectory.Data}))
+        } else { // Wenn gar keine Config Datei gefunden wurde, wird eine neue erstellt.
+            console.error('Die Config Datei des Presets konnte nicht gefunden werden')
+            return undefined
+        }
+    } catch (e) {
+        console.error(e)
+    }
+}
+
+/**
+ * Lädt alle gespeicherten Presets
+ */
+async function loadAllPresets(){
+
 }
 
 export {

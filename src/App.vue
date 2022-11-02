@@ -11,7 +11,7 @@
 
   <select v-model="selected" class="ml-6">
     <option disabled value="Wähle eine Playlist">Wähle eine Playlist</option>
-    <option v-for="element in dataStore.playlists" :key="element.name" :value="element">
+    <option v-for="element in presetStore.playlists" :key="element.name" :value="element">
       {{ element.name }}
     </option>
   </select>
@@ -27,17 +27,17 @@
 //import SoundeffectButton from '@/components/SoundeffectButton.vue';
 import MediaControls from '@/components/MediaControls.vue';
 import { useAudioPlayerStore } from '@/stores/audioPlayerStore.js'
-import { useDataStore } from './stores/dataStore';
+import { usePresetStore } from './stores/presetStore';
 import { loadNewPlaylist, loadPlaylist } from './util/fileManager';
 
 export default {
   setup() {
     const audioPlayerStore = useAudioPlayerStore()
-    const dataStore = useDataStore()
+    const presetStore = usePresetStore()
 
     return {
       audioPlayerStore,
-      dataStore
+      presetStore
     }
   },
   data() {
