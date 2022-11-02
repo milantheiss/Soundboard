@@ -1,7 +1,7 @@
 import { open } from "@tauri-apps/api/dialog"
 import { exists, readTextFile, readDir, writeFile, createDir, removeFile, BaseDirectory } from "@tauri-apps/api/fs"
 import { convertFileSrc } from '@tauri-apps/api/tauri';
-import { useGroupStore } from '@/stores/groupStore';
+import { usePresetStore } from '@/stores/presetStore';
 
 /**
  * Öffnet Explorer Dialog, indem der User den Speicherplatz einer Playlist auswählen kann
@@ -18,7 +18,8 @@ async function loadNewPlaylist() {
 
         const _playlist = await loadPlaylist(path)
 
-        useGroupStore().addPlaylist(_playlist.name, path)
+
+        usePresetStore().addPlaylist(_playlist.name, path)
 
         return _playlist
     } catch (e) {
@@ -57,22 +58,22 @@ async function loadPlaylist(path) {
 
             configPath = [configPath, '.soundboard', 'playlist.config.json'].join('\\')
         }
-        
+
         //Wird ausgelesen, wenn 'playlistConfig' wenn keine neue Config Datei erstellt wurde.
         playlistConfig = typeof playlistConfig !== 'undefined' ? playlistConfig : JSON.parse(await readTextFile(configPath))
 
         //Entfernt in Ordner fehlende Tracks aus playlistConfig        
         for (const track of playlistConfig.tracks) {
-            if(!await exists([path, track.filename].join('\\'))){
+            if (!await exists([path, track.filename].join('\\'))) {
                 playlistConfig.tracks.splice(playlistConfig.tracks.indexOf(track), 1)
             }
         }
-        
+
         //Fügt in playlistConfig nicht aufgeführte Tracks hinzu
         for (const file of (await readDir(path))) {
             const _nameSplit = file.name.split('.')
             if ((_nameSplit[_nameSplit.length - 1] === 'wav' || _nameSplit[_nameSplit.length - 1] === 'mp3' || _nameSplit[_nameSplit.length - 1] === 'ogg' || _nameSplit[_nameSplit.length - 1] === 'webm') && _nameSplit.length >= 2) {
-                if(!playlistConfig.tracks.some(val => val.filename === file.name)) {
+                if (!playlistConfig.tracks.some(val => val.filename === file.name)) {
                     playlistConfig.tracks.push({
                         name: _nameSplit[0],
                         filename: file.name,
@@ -83,21 +84,21 @@ async function loadPlaylist(path) {
                     })
                 }
             }
-        }   
-        
+        }
+
         //Erstellt neuen '.soundboard' Ordner, wenn noch keiner existiert
-        if(!await exists([path, '.soundboard'].join('\\'))){
+        if (!await exists([path, '.soundboard'].join('\\'))) {
             await createDir([path, '.soundboard'].join('\\'), { recursive: true });
         }
 
         //Entfernt playlist.config.json File aus Root Ordner
-        if(await exists([path, 'playlist.config.json'].join('\\'))){
+        if (await exists([path, 'playlist.config.json'].join('\\'))) {
             await removeFile([path, 'playlist.config.json'].join('\\'));
         }
 
         //Erstellt/Überschreibt playlist.config
-        await writeFile({ path: [path, '.soundboard', 'playlist.config.json'].join('\\'), contents: JSON.stringify(playlistConfig) })        
-        
+        await writeFile({ path: [path, '.soundboard', 'playlist.config.json'].join('\\'), contents: JSON.stringify(playlistConfig) })
+
         //INFO Path ist die API URL aus Tauri
         //Siehe https://tauri.app/v1/api/js/tauri#convertfilesrc
         playlistConfig.path = convertFileSrc(path)
@@ -109,33 +110,14 @@ async function loadPlaylist(path) {
 }
 
 /**
- * Löst
- */
-async function loadPlaylistGroup(groupName){
-    //TODO Hier einlesen
-    let content = {}
-
-        if(await exists('.soundboard\\playlistGroups.config.json', {dir: BaseDirectory.Data})){
-            content = JSON.parse(await readTextFile('.soundboard\\playlistGroups.config.json', {dir: BaseDirectory.Data}))
-        }
-
-        if(!content.some(val => val.name === _playlist.name)){
-            content.push({name: _playlist, path: path})
-            await writeFile({ path: [path, '.soundboard', 'playlistGroups.config.json'].join('\\'), contents: JSON.stringify(content) }) 
-        }
-
-}
-
-/**
- * Lädt gewähltes Preset
+ * Lädt gewähltes Preset anhand des Filename
  * @param {String} filename Name der Config File des Presets
+ * @returns
  */
-async function loadPreset(filename){
+async function loadPreset(filename) {
     try {
-        //INFO Gesamter Filepath muss in erstem Arg angegeben werden
-        //Sucht erst im '.soundboard' Unterordner
-        if (await exists(['.soundboard', filename].join('\\'), {dir: BaseDirectory.Data})) {
-            return JSON.parse(await readTextFile(['.soundboard', filename].join('\\'), {dir: BaseDirectory.Data}))
+        if (await exists(['.soundboard', filename].join('\\'), { dir: BaseDirectory.Data })) {
+            return JSON.parse(await readTextFile(['.soundboard', filename].join('\\'), { dir: BaseDirectory.Data }))
         } else { // Wenn gar keine Config Datei gefunden wurde, wird eine neue erstellt.
             console.error('Die Config Datei des Presets konnte nicht gefunden werden')
             return undefined
@@ -146,13 +128,47 @@ async function loadPreset(filename){
 }
 
 /**
- * Lädt alle gespeicherten Presets
+ * Lädt alle gespeicherten Presets aus presets.config.json ein. 
+ * presets.config.json liegt im AppData des Nutzers und sollte nur vom Programm beschrieben werden.
+ * Wenn noch kein presets.config.json Datei existiert, wird ein leerer Array zurückgegeben.
+ * Eine Config Datei wir neu erstellt, wenn {@link addPreset} aufgerufen wird.
+ * @returns {Array} Liste aller gespeicherten Presets
  */
-async function loadAllPresets(){
+async function loadAllPresets() {
+    let content = []
 
+    if (await exists('.soundboard\\presets.config.json', { dir: BaseDirectory.Data })) {
+        content = JSON.parse(await readTextFile('.soundboard\\presets.config.json', { dir: BaseDirectory.Data }))
+    }
+
+    return content
+}
+
+/**
+ * Fügt ein gegebenes Preset der presets.config.json Datei in AppData hinzu. 
+ * Wenn noch keine Config Datei existiert, wir hier eine neue erstellt.
+ * @returns {Boolean} Success
+ */
+async function addPreset(preset){
+    let content = loadAllPresets()
+
+    if (!await exists('.soundboard', { dir: BaseDirectory.Data })) {
+        await createDir('.soundboard', { dir: BaseDirectory.Data, recursive: true });
+    }
+
+    if (!content.some(val => val.name === preset.name)) {
+        content.push({ name: preset.name, filename: preset.filename })
+        await writeFile({ path: '.soundboard\\presets.config.json', contents: JSON.stringify(content) }, {dir: BaseDirectory.Data})
+        return true
+    } else {
+        return false
+    }
 }
 
 export {
     loadNewPlaylist,
-    loadPlaylist
+    loadPlaylist,
+    loadPreset,
+    loadAllPresets,
+    addPreset
 }

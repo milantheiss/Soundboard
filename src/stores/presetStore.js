@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { exists, readTextFile, writeFile, createDir, BaseDirectory } from "@tauri-apps/api/fs"
+import { addPreset } from '../util/fileManager'
 
 export const usePresetStore = defineStore('presetStore', {
   state: () => ({
@@ -11,35 +12,44 @@ export const usePresetStore = defineStore('presetStore', {
     soundeffects: []
   }),
   getters: {
-    configFile() {
+    filename() {
       return [this.name.replace(/\s/g, ''), 'preset', 'json'].join('.')
     }
   },
   actions: {
     /**
+     * Erstellt ein neues Preset. 
+     * @param {String} presetName Eindeutiger Name für das Preset
+     * @returns {Boolean} Success
+     */
+    async createNewPreset(presetName){
+      return addPreset(presetName)
+    },
+
+    /**
      * Fügt Playlist dem Preset hinzu.
      * @param {String} playlistName Ein eindeutiger Name für die Playlist
      * @param {String} path Absoluter Path zum Playlist Ordner 
      */
-    async addPlaylist(playlistName, path) {
+    async addPlaylist(playlist) {
       //Wenn Playlist noch nicht in der Group ist
-      if (!this.playlists.some(val => val.name === playlistName)) {
+      if (!this.playlists.some(val => val.name === playlist.name)) {
         this.playlists.push({
-          name: playlistName,
-          path: path
+          name: playlist.name,
+          path: playlist.path
         })
         if (!await exists('.soundboard', { dir: BaseDirectory.Data })) {
           await createDir('.soundboard', { dir: BaseDirectory.Data })
         }
 
-        const content = JSON.parse(await readTextFile(['.soundboard', this.configFile].join('\\'), {dir: BaseDirectory.Data}))
+        const content = JSON.parse(await readTextFile(['.soundboard', this.filename].join('\\'), {dir: BaseDirectory.Data}))
 
         content.playlists.push({
-          name: playlistName,
-          path: path
+          name: playlist.name,
+          path: playlist.path
         })
 
-        await writeFile({ path: ['.soundboard', this.configFile].join('\\'), contents: JSON.stringify(content) }, { dir: BaseDirectory.Data })
+        await writeFile({ path: ['.soundboard', this.filename].join('\\'), contents: JSON.stringify(content) }, { dir: BaseDirectory.Data })
       }
     },
     /**

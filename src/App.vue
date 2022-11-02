@@ -9,6 +9,8 @@
     2</button>
   -->
 
+  <!--TODO Presets laden & auswählen-->
+
   <select v-model="selected" class="ml-6">
     <option disabled value="Wähle eine Playlist">Wähle eine Playlist</option>
     <option v-for="element in presetStore.playlists" :key="element.name" :value="element">
