@@ -4,9 +4,9 @@
                         px-1.5 py-0.5
                         text-inherit text-lg md:text-xl
                         placeholder:text-gray-200
-                        focus:outline-none
+                        focus:outline-none focus:border-electric-blue-hover
                         bg-inherit
-                        border-0 border-b-2 border-white rounded-none"
+                        border-0 border-b-2 border-electric-blue rounded-none"
         :type="type" :name="name" v-model="input" :placeholder="placeholder" />
 </template>
 

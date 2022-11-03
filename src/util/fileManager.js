@@ -1,7 +1,6 @@
 import { open } from "@tauri-apps/api/dialog"
 import { exists, readTextFile, readDir, writeFile, createDir, removeFile, BaseDirectory } from "@tauri-apps/api/fs"
 import { convertFileSrc } from '@tauri-apps/api/tauri';
-import { usePresetStore } from '@/stores/presetStore';
 
 /**
  * Öffnet Explorer Dialog, indem der User den Speicherplatz einer Playlist auswählen kann
@@ -18,8 +17,7 @@ async function loadNewPlaylist() {
 
         const _playlist = await loadPlaylist(path)
 
-
-        usePresetStore().addPlaylist(_playlist.name, path)
+        console.log(path);
 
         return _playlist
     } catch (e) {
@@ -36,76 +34,84 @@ async function loadNewPlaylist() {
  * @returns Playlist Object
  */
 async function loadPlaylist(path) {
-    try {
-        let configPath = path
-        let playlistConfig = undefined
-
-        //INFO Gesamter Filepath muss in erstem Arg angegeben werden
-
-        //Sucht erst im '.soundboard' Unterordner
-        if (await exists([configPath, '.soundboard', 'playlist.config.json'].join('\\'))) {
-            console.debug("Config File in '.soundboard' gefunden.")
-            configPath = [configPath, '.soundboard', 'playlist.config.json'].join('\\')
-        } else if (await exists([configPath, 'playlist.config.json'].join('\\'))) { //Wenn Config nicht im Unterordner gefunden wird, dann wird das Base Dir durchsucht
-            console.debug('Config File in Base Dir gefunden.')
-            configPath = [configPath, 'playlist.config.json'].join('\\')
-        } else { // Wenn gar keine Config Datei gefunden wurde, wird eine neue erstellt.
-            const _pathSplit = path.split('\\')
-            playlistConfig = {
-                name: _pathSplit[_pathSplit.length - 1],
-                tracks: []
+    if(typeof path !== 'undefined'){
+        try {
+            //Convertiert Path zurück zu normalem Path
+            if(path.startsWith('https://asset.localhost/')){
+                path = path.slice(24).replaceAll('%3A', ':').replaceAll('%5C', '\\').replaceAll('%20', ' ')
+                console.log(path);
             }
 
-            configPath = [configPath, '.soundboard', 'playlist.config.json'].join('\\')
-        }
-
-        //Wird ausgelesen, wenn 'playlistConfig' wenn keine neue Config Datei erstellt wurde.
-        playlistConfig = typeof playlistConfig !== 'undefined' ? playlistConfig : JSON.parse(await readTextFile(configPath))
-
-        //Entfernt in Ordner fehlende Tracks aus playlistConfig        
-        for (const track of playlistConfig.tracks) {
-            if (!await exists([path, track.filename].join('\\'))) {
-                playlistConfig.tracks.splice(playlistConfig.tracks.indexOf(track), 1)
+            let configPath = path
+            let playlistConfig = undefined
+    
+            //INFO Gesamter Filepath muss in erstem Arg angegeben werden
+    
+            //Sucht erst im '.soundboard' Unterordner
+            if (await exists([configPath, '.soundboard', 'playlist.config.json'].join('\\'))) {
+                console.debug("Config File in '.soundboard' gefunden.")
+                configPath = [configPath, '.soundboard', 'playlist.config.json'].join('\\')
+            } else if (await exists([configPath, 'playlist.config.json'].join('\\'))) { //Wenn Config nicht im Unterordner gefunden wird, dann wird das Base Dir durchsucht
+                console.debug('Config File in Base Dir gefunden.')
+                configPath = [configPath, 'playlist.config.json'].join('\\')
+            } else { // Wenn gar keine Config Datei gefunden wurde, wird eine neue erstellt.
+                const _pathSplit = path.split('\\')
+                playlistConfig = {
+                    name: _pathSplit[_pathSplit.length - 1],
+                    tracks: []
+                }
+    
+                configPath = [configPath, '.soundboard', 'playlist.config.json'].join('\\')
             }
-        }
-
-        //Fügt in playlistConfig nicht aufgeführte Tracks hinzu
-        for (const file of (await readDir(path))) {
-            const _nameSplit = file.name.split('.')
-            if ((_nameSplit[_nameSplit.length - 1] === 'wav' || _nameSplit[_nameSplit.length - 1] === 'mp3' || _nameSplit[_nameSplit.length - 1] === 'ogg' || _nameSplit[_nameSplit.length - 1] === 'webm') && _nameSplit.length >= 2) {
-                if (!playlistConfig.tracks.some(val => val.filename === file.name)) {
-                    playlistConfig.tracks.push({
-                        name: _nameSplit[0],
-                        filename: file.name,
-                        trackvolume: 1,
-                        isLooping: true,
-                        fadeOutDuration: 2000,
-                        fadeInDuration: 2000
-                    })
+    
+            //Wird ausgelesen, wenn 'playlistConfig' wenn keine neue Config Datei erstellt wurde.
+            playlistConfig = typeof playlistConfig !== 'undefined' ? playlistConfig : JSON.parse(await readTextFile(configPath))
+    
+            //Entfernt in Ordner fehlende Tracks aus playlistConfig        
+            for (const track of playlistConfig.tracks) {
+                if (!await exists([path, track.filename].join('\\'))) {
+                    playlistConfig.tracks.splice(playlistConfig.tracks.indexOf(track), 1)
                 }
             }
+    
+            //Fügt in playlistConfig nicht aufgeführte Tracks hinzu
+            for (const file of (await readDir(path))) {
+                const _nameSplit = file.name.split('.')
+                if ((_nameSplit[_nameSplit.length - 1] === 'wav' || _nameSplit[_nameSplit.length - 1] === 'mp3' || _nameSplit[_nameSplit.length - 1] === 'ogg' || _nameSplit[_nameSplit.length - 1] === 'webm') && _nameSplit.length >= 2) {
+                    if (!playlistConfig.tracks.some(val => val.filename === file.name)) {
+                        playlistConfig.tracks.push({
+                            name: _nameSplit[0],
+                            filename: file.name,
+                            trackvolume: 1,
+                            isLooping: true,
+                            fadeOutDuration: 2000,
+                            fadeInDuration: 2000
+                        })
+                    }
+                }
+            }
+    
+            //Erstellt neuen '.soundboard' Ordner, wenn noch keiner existiert
+            if (!await exists([path, '.soundboard'].join('\\'))) {
+                await createDir([path, '.soundboard'].join('\\'), { recursive: true });
+            }
+    
+            //Entfernt playlist.config.json File aus Root Ordner
+            if (await exists([path, 'playlist.config.json'].join('\\'))) {
+                await removeFile([path, 'playlist.config.json'].join('\\'));
+            }
+    
+            //Erstellt/Überschreibt playlist.config
+            await writeFile({ path: [path, '.soundboard', 'playlist.config.json'].join('\\'), contents: JSON.stringify(playlistConfig) })
+    
+            //INFO Path ist die API URL aus Tauri
+            //Siehe https://tauri.app/v1/api/js/tauri#convertfilesrc
+            playlistConfig.path = convertFileSrc(path)
+    
+            return playlistConfig
+        } catch (e) {
+            console.error(e)
         }
-
-        //Erstellt neuen '.soundboard' Ordner, wenn noch keiner existiert
-        if (!await exists([path, '.soundboard'].join('\\'))) {
-            await createDir([path, '.soundboard'].join('\\'), { recursive: true });
-        }
-
-        //Entfernt playlist.config.json File aus Root Ordner
-        if (await exists([path, 'playlist.config.json'].join('\\'))) {
-            await removeFile([path, 'playlist.config.json'].join('\\'));
-        }
-
-        //Erstellt/Überschreibt playlist.config
-        await writeFile({ path: [path, '.soundboard', 'playlist.config.json'].join('\\'), contents: JSON.stringify(playlistConfig) })
-
-        //INFO Path ist die API URL aus Tauri
-        //Siehe https://tauri.app/v1/api/js/tauri#convertfilesrc
-        playlistConfig.path = convertFileSrc(path)
-
-        return playlistConfig
-    } catch (e) {
-        console.error(e)
     }
 }
 
@@ -130,7 +136,7 @@ async function loadPreset(filename) {
 
 /**
  * Lädt alle gespeicherten Presets aus presets.config.json ein. 
- * presets.config.json liegt im AppData des Nutzers und sollte nur vom Programm beschrieben werden.
+ * 'presets.config.json' liegt im AppData des Nutzers und sollte nur vom Programm beschrieben werden.
  * Wenn noch kein presets.config.json Datei existiert, wird ein leerer Array zurückgegeben.
  * Eine Config Datei wir neu erstellt, wenn {@link addPreset} aufgerufen wird.
  * @returns {Array} Liste aller gespeicherten Presets

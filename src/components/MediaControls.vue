@@ -254,7 +254,7 @@ export default {
         //TODO Implement load function: mit check, ob player existiert. Erstellt neuen Player
     },
     watch: {
-        'audioPlayerStore.playlist'(newVal, oldVal) {
+        'audioPlayer.playlist'(newVal, oldVal) {
             try {
                 if (oldVal.tracks[this.audioPlayer.oldIndex].player.playing()) {
                     this.fade.crossfade(oldVal.tracks[this.audioPlayer.oldIndex], newVal.tracks[0])

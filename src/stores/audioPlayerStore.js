@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { loadPlaylist } from '../util/fileManager'
 
 export const useAudioPlayerStore = defineStore('audioPlayerStore', {
   state: () => ({
@@ -61,12 +62,16 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
         this.currentIndex = this.playlist.tracks.length - 1;
       }
     },
-    setPlaylist(playlist) {
+    /**
+     * Lädt ein Playlist
+     * @param {String} path Absoluter Path zur Playlist Ordner
+     */
+    async setPlaylist(path) {
       //FIXME Playlist wird nicht an State übergeben
       this.oldIndex = this.currentIndex
-      this.playlist = playlist
+      this.playlist = await loadPlaylist(path)
       this.currentIndex = 0
-    }
+    },
   },
 
 })

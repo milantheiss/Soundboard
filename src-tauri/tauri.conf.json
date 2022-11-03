@@ -22,12 +22,12 @@
         "writeFile": true,
         "createDir": true,
         "removeFile": true,
-        "scope": [ "https://asset.localhost", "$DATA/*"]
+        "scope": [ "https://asset.localhost", "$DATA/*", "*"]
       },
       "protocol": {
         "all": false,
         "asset": true,
-        "assetScope": ["https://asset.localhost"]
+        "assetScope": ["https://asset.localhost", "*"]
       }
     },
     "bundle": {

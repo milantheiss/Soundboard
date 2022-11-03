@@ -30,7 +30,7 @@
   -->
 
   <div class="flex justify-start items-center">
-    <SelectList v-model="selected" defaultValue="Wähle ein Preset" :options="presets" class="ml-6 w-64"></SelectList>
+    <SelectList v-model="_selectedPreset" defaultValue="Wähle ein Preset" :options="presets" class="ml-6 w-64"></SelectList>
     <button @click="this.$refs.createPreset.open = true" class="border border-black m-6">Preset erstellen</button>
   </div>
 
@@ -38,15 +38,16 @@
   <!--TODO Playlisten auswählen-->
 
   <div class="flex justify-start items-center">
-    <SelectList v-model="selected" defaultValue="Wähle ein Preset" :options="presets" class="ml-6 w-64"></SelectList>
-    <button @click="this.$refs.createPreset.open = true" class="border border-black m-6">Preset erstellen</button>
-    <button @click="selectPlaylist" class="border border-black m-6">Playlist laden</button>
+    <SelectList v-model="_selectedPlaylist" defaultValue="Wähle ein Playlist" :options="preset.playlists" class="ml-6 w-64"></SelectList>
+    <button @click="addPlaylistToPreset" class="border border-black m-6">Playlist laden</button>
+    <!--<button @click="this.$refs.createPlaylist.open = true" class="border border-black m-6">Neue Playlist erstellen</button>-->
   </div>
 
   <!--<SoundeffectButton :soundeffect="audioPlayerStore.soundeffects[0]" v-if="audioPlayerStore.soundeffects.length > 0">
   </SoundeffectButton>-->
   <MediaControls></MediaControls>
-  <PromptDialog ref="createPreset" @onCommit="(name) => createPreset(name)"></PromptDialog>
+  <PromptDialog ref="createPreset" @onCommit="(name) => createPreset(name)" header="Wie soll das neue Preset heißen?" text="*Der Name muss einzigartig sein."></PromptDialog>
+  <!--<PromptDialog ref="createPlaylist" @onCommit="(name) => createPlaylist(name)" header="Wie soll die neue Playlist heißen?" text="*Der Name muss einzigartig sein."></PromptDialog>-->
 </template>
 
 <script>
@@ -61,16 +62,19 @@ import { loadNewPlaylist, loadAllPresets } from './util/fileManager';
 export default {
   setup() {
     const audioPlayer = useAudioPlayerStore()
-    const presetStore = usePresetStore()
+    const preset = usePresetStore()
 
     return {
       audioPlayer,
-      presetStore
+      preset
     }
   },
   data() {
     return {
-      selected: undefined,
+      // eslint-disable-next-line vue/no-reserved-keys
+      _selectedPreset: undefined,
+      // eslint-disable-next-line vue/no-reserved-keys
+      _selectedPlaylist: undefined,
       presets: []
     }
   },
@@ -84,12 +88,17 @@ export default {
         this.isSzene1 = true
       }
     },
-    async selectPlaylist() {
-      this.audioPlayer.setPlaylist(await loadNewPlaylist())
-    },
     async createPreset(presetName) {
-      console.log(await this.presetStore.createNewPreset(presetName));
+      console.log(await this.preset.createNewPreset(presetName));
       this.presets = await loadAllPresets()
+    },
+    async addPlaylistToPreset(){
+      if(this.preset.name.length > 0){
+        this.preset.addPlaylist(await loadNewPlaylist())
+        console.log(this.preset.playlists);
+      } else {
+        console.error('Kein Preset gesetzt')
+      }
     }
   },
   components: {
@@ -99,9 +108,14 @@ export default {
     SelectList
   },
   watch: {
-    async selected(newVal) {
+    async _selectedPreset(newVal) {
       console.log(newVal);
-      this.presetStore.setPreset(newVal.filename)
+      this.preset.setPreset(newVal.filename)
+      //this.audioPlayerStore.setPlaylist(await loadPlaylist(newVal.path))
+    },
+    async _selectedPlaylist(newVal) {
+      console.log(newVal);
+      this.audioPlayer.setPlaylist(newVal.path)
       //this.audioPlayerStore.setPlaylist(await loadPlaylist(newVal.path))
     }
   },

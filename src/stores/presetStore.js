@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { exists, readTextFile, writeFile, createDir, BaseDirectory } from "@tauri-apps/api/fs"
 import { loadPreset, loadAllPresets } from '../util/fileManager'
+import { useAudioPlayerStore } from './audioPlayerStore'
 
 export const usePresetStore = defineStore('presetStore', {
   state: () => ({
@@ -25,6 +26,9 @@ export const usePresetStore = defineStore('presetStore', {
       this.name = temp.name
       this.filename = filename
       this.playlists = temp.playlists
+      if(typeof this.playlists[0] !== 'undefined') {
+        useAudioPlayerStore().setPlaylist(this.playlists[0].path)
+      }
       this.soundeffects = temp.soundeffects
     },
 
@@ -34,7 +38,7 @@ export const usePresetStore = defineStore('presetStore', {
      * @returns {String} Generierter Filename im Format name.preset.json
      */
     getFilename(name = this.name) {
-      return [name.replace(/\s/g, ''), 'preset', 'json'].join('.')
+      return [name.replace(/[/\\?%*:|"<>+]/g, '').replace(/\s/g, ''), 'preset', 'json'].join('.')
     },
 
     /**
@@ -52,7 +56,7 @@ export const usePresetStore = defineStore('presetStore', {
       }
 
       if (typeof content !== 'undefined' && content !== null) {
-        if (!content.some(val => val.name === presetName)) {
+        if (!content.some(val => val.name === presetName) && this.getFilename(presetName).length !== 0 && !await exists(['.soundboard', this.getFilename(presetName)].join('\\'), { dir: BaseDirectory.Data })) {
           console.log("Writing to Preset");
           content.push({ name: presetName, filename: this.getFilename(presetName) })
           await writeFile({ path: '.soundboard\\presets.config.json', contents: JSON.stringify(content) }, { dir: BaseDirectory.Data })
@@ -64,10 +68,8 @@ export const usePresetStore = defineStore('presetStore', {
             soundeffects: []
           }
 
-          console.log(['.soundboard', this.getFilename(presetName)].join('\\'));
-
           await writeFile({ path: ['.soundboard', this.getFilename(presetName)].join('\\'), contents: JSON.stringify(_presetData) }, { dir: BaseDirectory.Data })
-          this.setPreset(this.getFilename(presetName))
+          //this.setPreset(this.getFilename(presetName))
           return true
         }
       }
@@ -83,10 +85,6 @@ export const usePresetStore = defineStore('presetStore', {
     async addPlaylist(playlist) {
       //Wenn Playlist noch nicht in der Group ist
       if (!this.playlists.some(val => val.name === playlist.name)) {
-        this.playlists.push({
-          name: playlist.name,
-          path: playlist.path
-        })
         if (!await exists('.soundboard', { dir: BaseDirectory.Data })) {
           await createDir('.soundboard', { dir: BaseDirectory.Data })
         }
@@ -97,6 +95,10 @@ export const usePresetStore = defineStore('presetStore', {
           name: playlist.name,
           path: playlist.path
         })
+
+        this.playlists = content.playlists
+
+        console.log(this.playlists);
 
         await writeFile({ path: ['.soundboard', this.filename].join('\\'), contents: JSON.stringify(content) }, { dir: BaseDirectory.Data })
       }
