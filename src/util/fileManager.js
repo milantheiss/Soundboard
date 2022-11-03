@@ -39,7 +39,6 @@ async function loadPlaylist(path) {
             //Convertiert Path zurück zu normalem Path
             if(path.startsWith('https://asset.localhost/')){
                 path = path.slice(24).replaceAll('%3A', ':').replaceAll('%5C', '\\').replaceAll('%20', ' ')
-                console.log(path);
             }
 
             let configPath = path

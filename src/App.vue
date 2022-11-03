@@ -109,7 +109,6 @@ export default {
   },
   watch: {
     async _selectedPreset(newVal) {
-      console.log(newVal);
       this.preset.setPreset(newVal.filename)
       //this.audioPlayerStore.setPlaylist(await loadPlaylist(newVal.path))
     },

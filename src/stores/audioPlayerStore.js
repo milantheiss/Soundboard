@@ -67,10 +67,16 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
      * @param {String} path Absoluter Path zur Playlist Ordner
      */
     async setPlaylist(path) {
-      //FIXME Playlist wird nicht an State übergeben
       this.oldIndex = this.currentIndex
-      this.playlist = await loadPlaylist(path)
       this.currentIndex = 0
+      if(typeof path !== 'undefined'){
+        this.playlist = await loadPlaylist(path)
+        console.log("Load Playlist");
+      } else {
+        this.playlist = {
+          tracks: []
+        }
+      }
     },
   },
 

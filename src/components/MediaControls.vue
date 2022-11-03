@@ -256,10 +256,12 @@ export default {
     watch: {
         'audioPlayer.playlist'(newVal, oldVal) {
             try {
+                console.log("Old Val: ", oldVal);
                 if (oldVal.tracks[this.audioPlayer.oldIndex].player.playing()) {
                     this.fade.crossfade(oldVal.tracks[this.audioPlayer.oldIndex], newVal.tracks[0])
                 }
             } catch (e) {
+                console.error(e)
                 console.debug('Oldplayer is undefined')
             }
         }

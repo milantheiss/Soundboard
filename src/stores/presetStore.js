@@ -28,6 +28,8 @@ export const usePresetStore = defineStore('presetStore', {
       this.playlists = temp.playlists
       if(typeof this.playlists[0] !== 'undefined') {
         useAudioPlayerStore().setPlaylist(this.playlists[0].path)
+      } else {
+        useAudioPlayerStore().setPlaylist()
       }
       this.soundeffects = temp.soundeffects
     },
