@@ -1,16 +1,49 @@
 <template>
     <div>
-        <button @click="toggleLoop" class="border border-white m-6" v-show="!audioPlayer.isLooping">Start
+        <button @click="toggleLoop" class="w-fit inline-flex justify-center
+        m-6 px-3 py-2 
+        border border-transparent bg-electric-blue rounded-md shadow-sm
+        text-base font-medium text-black 
+        hover:bg-electric-blue-hover focus:outline-none focus:ring-2 
+        focus:ring-electric-blue-hover focus:ring-offset-2" v-show="!audioPlayer.isLooping">Start
             Loop</button>
-        <button @click="toggleLoop" class="border border-white m-6" v-show="audioPlayer.isLooping">Stop
+        <button @click="toggleLoop" class="w-fit inline-flex justify-center
+        m-6 px-3 py-2 
+        border border-transparent bg-electric-blue rounded-md shadow-sm
+        text-base font-medium text-black 
+        hover:bg-electric-blue-hover focus:outline-none focus:ring-2 
+        focus:ring-electric-blue-hover focus:ring-offset-2" v-show="audioPlayer.isLooping">Stop
             Loop</button>
 
-        <button @click="playPrev" class="border border-white m-6">Prev</button>
+        <button @click="playPrev" class="
+        w-fit inline-flex justify-center
+        m-6 px-3 py-2 
+        border border-transparent bg-electric-blue rounded-md shadow-sm
+        text-base font-medium text-black 
+        hover:bg-electric-blue-hover focus:outline-none focus:ring-2 
+        focus:ring-electric-blue-hover focus:ring-offset-2">Prev</button>
 
-        <button @click="togglePlay" class="border border-white m-6" v-show="!audioPlayer.isPlaying">Play</button>
-        <button @click="togglePlay" class="border border-white m-6" v-show="audioPlayer.isPlaying">Pause</button>
+        <button @click="togglePlay" class="
+        w-fit inline-flex justify-center
+        m-6 px-3 py-2 
+        border border-transparent bg-electric-blue rounded-md shadow-sm
+        text-base font-medium text-black 
+        hover:bg-electric-blue-hover focus:outline-none focus:ring-2 
+        focus:ring-electric-blue-hover focus:ring-offset-2" v-show="!audioPlayer.isPlaying">Play</button>
+        <button @click="togglePlay" class="
+        w-fit inline-flex justify-center
+        m-6 px-3 py-2 
+        border border-transparent bg-electric-blue rounded-md shadow-sm
+        text-base font-medium text-black 
+        hover:bg-electric-blue-hover focus:outline-none focus:ring-2 
+        focus:ring-electric-blue-hover focus:ring-offset-2" v-show="audioPlayer.isPlaying">Pause</button>
 
-        <button @click="playNext" class="border border-white m-6">Next</button>
+        <button @click="playNext" class="w-fit inline-flex justify-center
+        m-6 px-3 py-2 
+        border border-transparent bg-electric-blue rounded-md shadow-sm
+        text-base font-medium text-black 
+        hover:bg-electric-blue-hover focus:outline-none focus:ring-2 
+        focus:ring-electric-blue-hover focus:ring-offset-2">Next</button>
     </div>
 </template>
 

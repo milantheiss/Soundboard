@@ -23,20 +23,39 @@
   -->
 
   <div class="flex justify-start items-center">
-    <SelectList v-model="_selectedPreset" defaultValue="Wähle ein Preset" :options="presets" class="ml-6 w-64">
-    </SelectList>
-    <button @click="this.$refs.createPresetPrompt.open = true" class="border border-white m-6">Preset erstellen</button>
+    <span class="bg-background-dark-gray">
+      <SelectList v-model="_selectedPreset" defaultValue="Wähle ein Preset" :options="presets" class="ml-6 w-64">
+      </SelectList>
+    </span>
+    <button @click="this.$refs.createPresetPrompt.open = true" class="w-fit inline-flex justify-center
+        m-6 px-3 py-2 
+        border border-transparent bg-electric-blue rounded-md shadow-sm
+        text-base font-medium text-black 
+        hover:bg-electric-blue-hover focus:outline-none focus:ring-2 
+        focus:ring-electric-blue-hover focus:ring-offset-2">Preset erstellen</button>
   </div>
 
   <!--TODO Neue Playlisten laden/erstellen und zum Preset hinzufügen-->
   <!--TODO Playlisten auswählen-->
 
   <div class="flex justify-start items-center">
-    <SelectList v-model="_selectedPlaylist" defaultValue="Wähle ein Playlist" :options="preset.playlists"
-      class="ml-6 w-64"></SelectList>
-    <button @click="addPlaylistToPreset" class="border border-white m-6">Playlist laden</button>
+    <span class="bg-background-dark-gray">
+      <SelectList v-model="_selectedPlaylist" defaultValue="Wähle ein Playlist" :options="preset.playlists"
+        class="ml-6 w-64"></SelectList>
+    </span>
+    <button @click="addPlaylistToPreset" class="w-fit inline-flex justify-center
+        m-6 px-3 py-2 
+        border border-transparent bg-electric-blue rounded-md shadow-sm
+        text-base font-medium text-black 
+        hover:bg-electric-blue-hover focus:outline-none focus:ring-2 
+        focus:ring-electric-blue-hover focus:ring-offset-2">Playlist laden</button>
     <!--TODO Button ausgrauen, wenn Player spielt.-->
-    <button @click="reloadPlaylist" class="border border-white m-6">Playlist aktualisieren</button>
+    <button @click="reloadPlaylist" class="w-fit inline-flex justify-center
+        m-6 px-3 py-2 
+        border border-transparent bg-electric-blue rounded-md shadow-sm
+        text-base font-medium text-black 
+        hover:bg-electric-blue-hover focus:outline-none focus:ring-2 
+        focus:ring-electric-blue-hover focus:ring-offset-2">Playlist aktualisieren</button>
     <!--<button @click="this.$refs.createPlaylist.open = true" class="border border-white m-6">Neue Playlist erstellen</button>-->
   </div>
 
@@ -44,7 +63,12 @@
     <p class="text-lg mt-6 mb-0 mx-6" v-if="typeof audioPlayer.current !== 'undefined'">{{ audioPlayer.current.name }}
     </p>
     <p class="text-lg mt-6 mb-0 mx-6" v-if="typeof audioPlayer.current === 'undefined'">Keine Playlist ausgewählt.</p>
-    <button @click="$refs.addSongPrompt.open = true" class="border border-white m-6">Song hinzufügen</button>
+    <button @click="$refs.addSongPrompt.open = true" class="w-fit inline-flex justify-center
+        m-6 px-3 py-2 
+        border border-transparent bg-electric-blue rounded-md shadow-sm
+        text-base font-medium text-black 
+        hover:bg-electric-blue-hover focus:outline-none focus:ring-2 
+        focus:ring-electric-blue-hover focus:ring-offset-2">Song hinzufügen</button>
   </div>
 
 
@@ -87,7 +111,9 @@
     </div>
   </div>
 
-  <ConfirmationPrompt ref="confirmTrackRemoval" buttonText="Löschen" header="Möchtest du den Track wirklich löschen?" text="Die Datei wird aus dem Playlist Ordner gelöscht." @onConfirm="audioPlayer.removeTrack(audioPlayer.current)"></ConfirmationPrompt>
+  <ConfirmationPrompt ref="confirmTrackRemoval" buttonText="Löschen" header="Möchtest du den Track wirklich löschen?"
+    text="Die Datei wird aus dem Playlist Ordner gelöscht." @onConfirm="audioPlayer.removeTrack(audioPlayer.current)">
+  </ConfirmationPrompt>
   <PromptDialog ref="createPresetPrompt" @onCommit="(name) => createPreset(name)"
     header="Wie soll das neue Preset heißen?" text="* Der Name muss einzigartig sein."></PromptDialog>
   <NewTrackPrompt ref="addSongPrompt" @onCommit="(song) => audioPlayer.addSong(song)"></NewTrackPrompt>
@@ -175,7 +201,7 @@ export default {
   },
   watch: {
     'audioPlayer.current'() {
-      if(typeof this.audioPlayer.current !== 'undefined'){
+      if (typeof this.audioPlayer.current !== 'undefined') {
         this.trackSettings.name = this.audioPlayer.current.name
         this.trackSettings.trackvolume = this.audioPlayer.current.trackvolume
         this.trackSettings.fadeInDuration = this.audioPlayer.current.fadeInDuration
@@ -184,7 +210,7 @@ export default {
       }
     },
     'audioPlayer.current.isLooping'() {
-      if(typeof this.audioPlayer.current !== 'undefined'){
+      if (typeof this.audioPlayer.current !== 'undefined') {
         this.trackSettings.isLooping = this.audioPlayer.current.isLooping
       }
     },
