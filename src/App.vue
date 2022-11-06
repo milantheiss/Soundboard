@@ -52,7 +52,7 @@
   </SoundeffectButton>-->
   <MediaControls></MediaControls>
 
-  <div>
+  <div class="mx-6">
     <p>Current Track Settings</p>
     <div class="flex justify-between items-center mt-4">
       <TextInput v-model="trackSettings.name" class="w-full text-white" placeholder="Songname">
