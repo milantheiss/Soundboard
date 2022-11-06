@@ -6,8 +6,8 @@
                         placeholder:text-gray-200
                         focus:outline-none focus:border-electric-blue-hover
                         bg-inherit
-                        border-0 border-b-2 border-electric-blue rounded-none"
-        :type="type" :name="name" v-model="input" :placeholder="placeholder" />
+                        border-0 border-b-2 border-electric-blue rounded-none" :type="type" :name="name"
+        v-model="input" :placeholder="placeholder" />
 </template>
 
 <script>
@@ -35,6 +35,9 @@ export default {
     watch: {
         input() {
             this.$emit('update:modelValue', this.input)
+        },
+        modelValue() {
+            this.input = this.modelValue
         }
     }
 };

@@ -20,21 +20,26 @@ export const usePresetStore = defineStore('presetStore', {
     /**
      * Setzt ein neues Preset im Preset Store
      * @param {String} Filename der Preset Config Datei
+     * @returns {Boolean} Success
      */
     async setPreset(filename) {
       const temp = await loadPreset(filename)
-      this.name = temp.name
-      this.filename = filename
-      this.playlists = temp.playlists
-      if(typeof this.playlists[0] !== 'undefined') {
-        useAudioPlayerStore().setPlaylist(this.playlists[0].path)
+      if(typeof temp === 'undefined') {
+        console.log("Undefined");
+        return false
       } else {
-        useAudioPlayerStore().setPlaylist()
+        this.name = temp.name
+        this.filename = filename
+        this.playlists = temp.playlists
+        if(typeof this.playlists[0] !== 'undefined') {
+          useAudioPlayerStore().setPlaylist(this.playlists[0].path)
+        } else {
+          useAudioPlayerStore().setPlaylist()
+        }
+        this.soundeffects = temp.soundeffects
+        return true
       }
-      this.soundeffects = temp.soundeffects
     },
-
-
     /**
      * Generiert Filename vom Preset Name im Format name.preset.json
      * @returns {String} Generierter Filename im Format name.preset.json
@@ -85,26 +90,28 @@ export const usePresetStore = defineStore('presetStore', {
      * @param {String} path Absoluter Path zum Playlist Ordner 
      */
     async addPlaylist(playlist) {
-      //Wenn Playlist noch nicht in der Group ist
-      if (!this.playlists.some(val => val.name === playlist.name)) {
-        if (!await exists('.soundboard', { dir: BaseDirectory.Data })) {
-          await createDir('.soundboard', { dir: BaseDirectory.Data })
+      if(typeof playlist !== 'undefined') {
+        //Wenn Playlist noch nicht in der Group ist
+        if (!this.playlists.some(val => val.name === playlist.name)) {
+          if (!await exists('.soundboard', { dir: BaseDirectory.Data })) {
+            await createDir('.soundboard', { dir: BaseDirectory.Data })
+          }
+  
+          const content = JSON.parse(await readTextFile(['.soundboard', this.filename].join('\\'), { dir: BaseDirectory.Data }))
+  
+          content.playlists.push({
+            name: playlist.name,
+            path: playlist.path
+          })
+  
+          this.playlists = content.playlists
+  
+          console.log(this.playlists);
+  
+          await writeFile({ path: ['.soundboard', this.filename].join('\\'), contents: JSON.stringify(content) }, { dir: BaseDirectory.Data })
         }
-
-        const content = JSON.parse(await readTextFile(['.soundboard', this.filename].join('\\'), { dir: BaseDirectory.Data }))
-
-        content.playlists.push({
-          name: playlist.name,
-          path: playlist.path
-        })
-
-        this.playlists = content.playlists
-
-        console.log(this.playlists);
-
-        await writeFile({ path: ['.soundboard', this.filename].join('\\'), contents: JSON.stringify(content) }, { dir: BaseDirectory.Data })
       }
-    },
+    },  
     /**
      * Entfernt Playlist aus dem Preset
      * @param {String} playlistName Der eindeutige Name der Playlist

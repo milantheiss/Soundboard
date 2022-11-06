@@ -12,8 +12,10 @@ module.exports = {
       colors: {
         'electric-blue': '#00D7FF',
         'electric-blue-hover': '#00c3e6',
-        'background': '#5e686c',
-        'background-dark-gray': '#434849'
+        'background': '#252525',
+        'background-dark-gray': '#0f0f0f',
+        'special-red': '#FF1F28',
+        'special-red-hover': '#e60008'
       }
     },
   },

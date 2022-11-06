@@ -22,6 +22,7 @@
         "writeFile": true,
         "createDir": true,
         "removeFile": true,
+        "copyFile": true,
         "scope": [ "https://asset.localhost", "$DATA/*", "*"]
       },
       "protocol": {
