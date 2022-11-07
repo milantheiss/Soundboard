@@ -104,7 +104,7 @@
     <div class="flex justify-between items-center mt-4">
       <p class="text-xl font-semibold text-gray-200">Playlist Position:</p>
       <NumberInput v-model="trackSettings.pos" class="w-32 text-white" :step="1" min="1"
-        :max="(audioPlayer.playlist.tracks.length + 1).toString()">
+        :max="(audioPlayer.playlist.tracks.length).toString()">
       </NumberInput>
     </div>
     <div class="flex justify-end items-center mt-4">
