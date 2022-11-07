@@ -1,7 +1,5 @@
 <template>
-    <input class="
-                        px-1.5 py-0.5
-                        focus:outline-none" type="checkbox" :name="name" v-model="input" :placeholder="placeholder" />
+    <input type="checkbox" :name="name" v-model="input" :placeholder="placeholder" />
 </template>
 
 <script>
@@ -49,8 +47,8 @@ input[type="checkbox"] {
 
 input[type="checkbox"]::before {
     content: "";
-    width: 0.85em;
-    height: 0.85em;
+    width: 0.8em;
+    height: 0.8em;
     transform: scale(0);
     transition: 75ms transform ease-in-out;
     box-shadow: inset 1em 1em var(--form-control-color);

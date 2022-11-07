@@ -73,10 +73,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 800,
+        "height": 700,
         "resizable": false,
         "title": "Soundboard",
-        "width": 1000
+        "width": 900
       }
     ]
   }

@@ -116,22 +116,24 @@ export default {
             this.$emit('onCommit', {
                 origin: this.path,
                 settings: {
-                name: this.name,
-                filename: this.filename,
-                trackvolume: this.volume,
-                isLooping: this.looping,
-                fadeInDuration: this.fadeIn,
-                fadeOutDuration: this.fadeOut
-            }})
+                    name: this.name,
+                    filename: this.filename,
+                    trackvolume: this.volume,
+                    isLooping: this.looping,
+                    fadeInDuration: this.fadeIn,
+                    fadeOutDuration: this.fadeOut
+                }
+            })
             this.reset()
         },
         reset() {
             this.open = false
-            this.path = undefined,
-                this.volume = 1,
-                this.fadeIn = 2000,
-                this.fadeOut = 2000,
-                this.looping = false
+            this.path = undefined
+            this.volume = 1
+            this.fadeIn = 2000
+            this.fadeOut = 2000
+            this.looping = false
+            this.name = undefined
         }
     },
     computed: {

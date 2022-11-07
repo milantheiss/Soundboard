@@ -76,7 +76,7 @@
   </SoundeffectButton>-->
   <MediaControls></MediaControls>
 
-  <div class="mx-6">
+  <div class="mx-6 bg-background rounded-lg p-4">
     <p>Current Track Settings</p>
     <div class="flex justify-between items-center mt-4">
       <TextInput v-model="trackSettings.name" class="w-full text-white" placeholder="Songname">
