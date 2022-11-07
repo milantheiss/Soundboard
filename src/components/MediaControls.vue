@@ -111,6 +111,11 @@ export default {
                     this.audioPlayer.current.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.current.filename].join('%5C')], volume: this.audioPlayer.current.trackvolume, loop: this.audioPlayer.current.isLooping })
                     this.blockTrackChange = true
                     this.audioPlayer.current.player.on('load', () => { this.blockTrackChange = false })
+                    console.log('Setting Up')
+                    this.audioPlayer.current.player.on('end', () => {
+                        console.log('Here')
+                        this.skipToNext()
+                    })
                 }
 
                 //Pausiert wenn Sound abgespielt wird. 
@@ -148,6 +153,30 @@ export default {
                 }
             } else {
                 console.error("No current track loaded");
+            }
+        },
+        skipToNext() {
+            if (!this.audioPlayer.current.isLooping) {
+                //Muss Next blockieren, da loading von Howl Player lange braucht. Es entsteht ansonsten ein Bug, wenn man Next bei undefined Player spamt
+                if (!this.blockTrackChange) {
+                    if (typeof this.audioPlayer.current !== 'undefined') {
+                        //Wenn schon ein Song gespielt wird, dann starte Crossfade
+                        if (typeof this.audioPlayer.next.player === 'undefined') {
+                            this.blockTrackChange = true
+                            this.audioPlayer.next.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.next.filename].join('%5C')], volume: 0.0, loop: this.audioPlayer.next.isLooping })
+                            this.audioPlayer.next.player.on('load', () => {
+                                this.blockTrackChange = false
+                            })
+                        }
+                        this.fade.crossfade(this.audioPlayer.current, this.audioPlayer.next)
+                        //Der Index wird verschoben
+                        this.audioPlayer.advanceToNextIndex()
+                    } else {
+                        console.error("No current track loaded");
+                    }
+                } else {
+                    console.error("Next is blocked")
+                }
             }
         },
         playNext() {
@@ -283,8 +312,6 @@ export default {
                     this.fade._to.isFading = false
                     //EventListener wird entfernt
                     this.fade._to.player.off('fade')
-
-                    console.log(this.audioPlayer.current)
                 } else { //Wenn Track nicht fertig ausgefadet wurde. Wird bei Abbruch des Fades ausgeführt.
                     console.debug(`Fading to next ${this.fade._to.data.name} not finished!`)
                 }
@@ -363,8 +390,6 @@ export default {
     watch: {
         'audioPlayer.playlist'(newVal, oldVal) {
             try {
-                console.log("New Playlist");
-                console.log(oldVal);
                 if (oldVal.tracks[this.audioPlayer.oldIndex].player.playing()) {
                     //Player muss vorher erstellt sein, da ansonsten der Player nicht in Current übernommen wird
                     //Der Player wird auf undefined gesetzt, um Bugs und Überschreiben zu vermeiden.
