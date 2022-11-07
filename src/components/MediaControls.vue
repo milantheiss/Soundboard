@@ -206,7 +206,6 @@ export default {
                     console.error("No current track loaded");
                 }
             } else {
-                console.log(this.blockTrackChange);
                 console.error("Previous is blocked")
             }
         },
@@ -284,6 +283,8 @@ export default {
                     this.fade._to.isFading = false
                     //EventListener wird entfernt
                     this.fade._to.player.off('fade')
+
+                    console.log(this.audioPlayer.current)
                 } else { //Wenn Track nicht fertig ausgefadet wurde. Wird bei Abbruch des Fades ausgeführt.
                     console.debug(`Fading to next ${this.fade._to.data.name} not finished!`)
                 }
@@ -362,8 +363,19 @@ export default {
     watch: {
         'audioPlayer.playlist'(newVal, oldVal) {
             try {
+                console.log("New Playlist");
+                console.log(oldVal);
                 if (oldVal.tracks[this.audioPlayer.oldIndex].player.playing()) {
-                    this.fade.crossfade(oldVal.tracks[this.audioPlayer.oldIndex], newVal.tracks[0])
+                    //Player muss vorher erstellt sein, da ansonsten der Player nicht in Current übernommen wird
+                    //Der Player wird auf undefined gesetzt, um Bugs und Überschreiben zu vermeiden.
+                    this.audioPlayer.current.player = undefined
+                    this.audioPlayer.current.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.current.filename].join('%5C')], volume: this.audioPlayer.current.trackvolume, loop: this.audioPlayer.current.isLooping })
+                    this.blockTrackChange = true
+                    this.audioPlayer.current.player.on('load', () => {
+                        this.blockTrackChange = false
+                    })
+                    this.fade.crossfade(oldVal.tracks[this.audioPlayer.oldIndex], this.audioPlayer.current)
+
                 }
             } catch {
                 console.debug('Could not fade into new playlist')
