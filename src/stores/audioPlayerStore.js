@@ -45,10 +45,14 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
     },
     path() {
       let _path = this.playlist.path
-      if (_path.startsWith('https://asset.localhost/')) {
-        _path = _path.slice(24).replaceAll('%3A', ':').replaceAll('%5C', '\\').replaceAll('%20', ' ')
+      if (typeof _path !== 'undefined') {
+        if (_path.startsWith('https://asset.localhost/')) {
+          _path = _path.slice(24).replaceAll('%3A', ':').replaceAll('%5C', '\\').replaceAll('%20', ' ')
+        }
+        return _path
+      } else {
+        return undefined
       }
-      return _path
     }
   },
   actions: {
@@ -93,16 +97,48 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
      * @param {Object} Song Settings 
      */
     async addSong(song) {
-      if (!this.playlist.tracks.some(val => val.filename === song.settings.filename)) {
-        this.playlist.tracks.push(song.settings)
+      if (!this.playlist.tracks.some(val => val.name === song.settings.name)) {
         if (!await exists([this.path, song.settings.filename].join('\\'))) {
           await copyFile(song.origin, [this.path, song.settings.filename].join('\\'))
           //File in Playlist Ordner kopieren.
           //File in Playlist Config schreiben.
         }
 
+        console.log(this.playlist.tracks);
+        this.playlist.tracks.splice(song.settings.pos, 0, song.settings)
+        this._triggerPosUpdate()
+        console.log(this.playlist.tracks);
+
         this.writeToConfig(this.playlist)
       }
+    },
+
+    _triggerPosUpdate() {
+      this.playlist.tracks.forEach(element => element.pos = this.playlist.tracks.indexOf(element))
+    },
+
+    _sortTracks(playlist) {
+      let temp = []
+      let tail = []
+      playlist.tracks.forEach(element => {
+        if (typeof temp[element.pos] === 'undefined') {
+          temp[element.pos] = element
+        } else {
+          tail.push(element)
+        }
+      });
+
+      temp = temp.concat(tail)
+
+      if (tail.length > 0) {
+        tail.forEach(element => {
+          temp[temp.indexOf(element)].pos = temp.indexOf(element)
+        })
+      }
+
+      playlist.tracks = temp
+
+      return playlist
     },
 
     /**
@@ -120,8 +156,31 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
           track.player.volume(track.trackvolume)
           track.player.loop(track.isLooping)
         }
+        if (track.pos !== settings.pos) {
+          if (this.currentIndex <= settings.pos) {
+            //FIXME
+            if (this.currentIndex > track.pos) {
+              this.advanceToPreviousIndex()
+            } else if (this.currentIndex === settings.pos) {
+              this.advanceToNextIndex()
+            } else if (this.currentIndex === track.pos) {
+              this.currentIndex = settings.pos
+            }
+          } else {
+            if (this.currentIndex > track.pos) {
+              this.advanceNextIndex()
+            } else if (this.currentIndex === track.pos) {
+              this.currentIndex = settings.pos
+            }
+          }
+          this.playlist.tracks.splice(track.pos, 1)
+          this.playlist.tracks.splice(settings.pos, 0, track)
+          track.pos = settings.pos
+          this._triggerPosUpdate()
+        }
+        this._triggerPosUpdate()
+        this.playlist = this._sortTracks(this.playlist)
       }
-
 
       this.writeToConfig(this.playlist)
     },
@@ -148,7 +207,7 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
         tracks: []
       }
 
-      const objMask = ({ name, filename, trackvolume, fadeInDuration, fadeOutDuration, isLooping }) => ({ name, filename, trackvolume, fadeInDuration, fadeOutDuration, isLooping })
+      const objMask = ({ name, filename, trackvolume, fadeInDuration, fadeOutDuration, isLooping, pos }) => ({ name, filename, trackvolume, fadeInDuration, fadeOutDuration, isLooping, pos })
 
       content.tracks.forEach(track => temp.tracks.push(objMask(track)))
 

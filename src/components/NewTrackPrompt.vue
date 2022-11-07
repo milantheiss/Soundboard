@@ -54,6 +54,11 @@
                                     <p class="text-xl font-semibold text-gray-200">Looping:</p>
                                     <CheckboxInput v-model="looping"></CheckboxInput>
                                 </div>
+                                <div class="flex justify-between items-center mt-4">
+                                    <p class="text-xl font-semibold text-gray-200">Playlist Position:</p>
+                                    <NumberInput v-model="pos" class="w-32 text-white" :step="1" min="1" :max="(audioPlayer.playlist.tracks.length + 1).toString()">
+                                    </NumberInput>
+                                </div>
                             </div>
                             <div class="bg-inherit px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                                 <button type="button"
@@ -77,8 +82,16 @@ import CheckboxInput from './CheckboxInput.vue';
 import NumberInput from './NumberInput.vue';
 import { openSong } from '../util/fileManager';
 import TextInput from './TextInput.vue';
+import { useAudioPlayerStore } from '../stores/audioPlayerStore';
 
 export default {
+    setup() {
+        const audioPlayer = useAudioPlayerStore()
+
+        return {
+            audioPlayer
+        }
+    },
     name: "NewTrackPrompt",
     expose: ['open'],
     components: {
@@ -104,7 +117,8 @@ export default {
             volume: 1,
             fadeIn: 2000,
             fadeOut: 2000,
-            looping: false
+            looping: false,
+            pos: this.audioPlayer.playlist.tracks.length + 1
         }
     },
     methods: {
@@ -121,7 +135,8 @@ export default {
                     trackvolume: this.volume,
                     isLooping: this.looping,
                     fadeInDuration: this.fadeIn,
-                    fadeOutDuration: this.fadeOut
+                    fadeOutDuration: this.fadeOut,
+                    pos: this.pos - 1
                 }
             })
             this.reset()
@@ -133,7 +148,8 @@ export default {
             this.fadeIn = 2000
             this.fadeOut = 2000
             this.looping = false
-            this.name = undefined
+            this.name = undefined,
+            this.pos = this.audioPlayer.playlist.tracks.length + 1
         }
     },
     computed: {

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { exists, readTextFile, writeFile, createDir, BaseDirectory } from "@tauri-apps/api/fs"
 import { loadPreset, loadAllPresets } from '../util/fileManager'
-import { useAudioPlayerStore } from './audioPlayerStore'
+// import { useAudioPlayerStore } from './audioPlayerStore'
 
 export const usePresetStore = defineStore('presetStore', {
   state: () => ({
@@ -31,11 +31,11 @@ export const usePresetStore = defineStore('presetStore', {
         this.name = temp.name
         this.filename = filename
         this.playlists = temp.playlists
-        if(typeof this.playlists[0] !== 'undefined') {
-          useAudioPlayerStore().setPlaylist(this.playlists[0].path)
-        } else {
-          useAudioPlayerStore().setPlaylist()
-        }
+        // if(typeof this.playlists[0] !== 'undefined') {
+        //   useAudioPlayerStore().setPlaylist(this.playlists[0].path)
+        // } else {
+        //   useAudioPlayerStore().setPlaylist()
+        // }
         this.soundeffects = temp.soundeffects
         return true
       }

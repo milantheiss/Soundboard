@@ -86,11 +86,14 @@ async function loadPlaylist(path) {
                             trackvolume: 1,
                             isLooping: true,
                             fadeInDuration: 2000,
-                            fadeOutDuration: 2000
+                            fadeOutDuration: 2000,
+                            pos: playlistConfig.tracks.length
                         })
                     }
                 }
             }
+
+            playlistConfig = _sortTracks(playlistConfig)
 
             //Erstellt neuen '.soundboard' Ordner, wenn noch keiner existiert
             if (!await exists([path, '.soundboard'].join('\\'))) {
@@ -115,6 +118,31 @@ async function loadPlaylist(path) {
         }
     }
 }
+
+function _sortTracks(playlist) {
+    let temp = []
+    let tail = []
+    playlist.tracks.forEach(element => {
+        if (typeof temp[element.pos] === 'undefined') {
+            temp[element.pos] = element
+        } else {
+            tail.push(element)
+        }
+    });
+
+    temp = temp.concat(tail)
+
+    if(tail.length > 0){
+        tail.forEach(element => {
+            temp[temp.indexOf(element)].pos = temp.indexOf(element)
+        })
+    }
+
+    playlist.tracks = temp
+
+    return playlist
+}
+
 
 /**
  * Lädt gewähltes Preset anhand des Filename

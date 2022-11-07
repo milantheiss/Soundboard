@@ -101,13 +101,19 @@
       <p class="text-xl font-semibold text-gray-200">Looping:</p>
       <CheckboxInput v-model="trackSettings.isLooping"></CheckboxInput>
     </div>
+    <div class="flex justify-between items-center mt-4">
+      <p class="text-xl font-semibold text-gray-200">Playlist Position:</p>
+      <NumberInput v-model="trackSettings.pos" class="w-32 text-white" :step="1" min="1"
+        :max="(audioPlayer.playlist.tracks.length + 1).toString()">
+      </NumberInput>
+    </div>
     <div class="flex justify-end items-center mt-4">
       <button type="button"
         class="inline-flex w-full justify-center rounded-md border border-transparent bg-special-red px-4 py-2 text-base font-medium text-black shadow-sm hover:bg-special-red-hover focus:outline-none focus:ring-2 focus:ring-special-red-hover focus:ring-offset-2 ml-5 sm:w-auto sm:text-sm"
         @click="$refs.confirmTrackRemoval.open = true">Entfernen</button>
       <button type="button"
         class="inline-flex w-full justify-center rounded-md border border-transparent bg-electric-blue px-4 py-2 text-base font-medium text-black shadow-sm hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue focus:ring-offset-2 ml-5 sm:w-auto sm:text-sm"
-        @click="audioPlayer.changeTrackSettings(audioPlayer.current, trackSettings)">Speichern</button>
+        @click="changeTrackSettings">Speichern</button>
     </div>
   </div>
 
@@ -157,7 +163,8 @@ export default {
         trackvolume: undefined,
         fadeInDuration: undefined,
         fadeOutDuration: undefined,
-        isLooping: undefined
+        isLooping: undefined,
+        pos: undefined
       }
     }
   },
@@ -186,6 +193,12 @@ export default {
           console.error('Playlist kann nur aktualisiert werden, wenn Player pausiert ist.')
         }
       }
+    },
+
+    changeTrackSettings(){
+      this.trackSettings.pos--
+      this.audioPlayer.changeTrackSettings(this.audioPlayer.current, this.trackSettings)
+      this.trackSettings.pos++
     }
   },
   components: {
@@ -207,6 +220,7 @@ export default {
         this.trackSettings.fadeInDuration = this.audioPlayer.current.fadeInDuration
         this.trackSettings.fadeOutDuration = this.audioPlayer.current.fadeOutDuration
         this.trackSettings.isLooping = this.audioPlayer.current.isLooping
+        this.trackSettings.pos = this.audioPlayer.current.pos + 1
       }
     },
     'audioPlayer.current.isLooping'() {
