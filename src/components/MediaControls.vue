@@ -63,11 +63,13 @@
             </span>
         </button>
     </div>
+    <SeekUpdater ref="seekUpdate" v-model="seek"></SeekUpdater>
 </template>
 
 <script>
 import { Howl } from "howler"
 import { useAudioPlayerStore } from '@/stores/audioPlayerStore.js'
+import SeekUpdater from "./SeekUpdater.vue"
 
 export default {
     name: "MediaControls",
@@ -98,8 +100,12 @@ export default {
                 pause: this._pauseFade,
                 stop: this._stopFade
             },
-            blockTrackChange: false
+            blockTrackChange: false,
+            seek: undefined
         }
+    },
+    components: {
+        SeekUpdater
     },
     methods: {
         togglePlay() {
@@ -111,9 +117,7 @@ export default {
                     this.audioPlayer.current.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.current.filename].join('%5C')], volume: this.audioPlayer.current.trackvolume, loop: this.audioPlayer.current.isLooping })
                     this.blockTrackChange = true
                     this.audioPlayer.current.player.on('load', () => { this.blockTrackChange = false })
-                    console.log('Setting Up')
                     this.audioPlayer.current.player.on('end', () => {
-                        console.log('Here')
                         this.skipToNext()
                     })
                 }
@@ -189,17 +193,26 @@ export default {
                     //Wenn schon ein Song gespielt wird, dann starte Crossfade
                     if (this.audioPlayer.isPlaying) {
                         console.log("Crossfade");
-                        if (typeof this.audioPlayer.next.player === 'undefined') {
-                            this.blockTrackChange = true
-                            this.audioPlayer.next.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.next.filename].join('%5C')], volume: 0.0, loop: this.audioPlayer.next.isLooping })
-                            this.audioPlayer.next.player.on('load', () => {
-                                this.blockTrackChange = false
-                            })
-                            this.audioPlayer.next.player.on('end', () => {
-                                this.skipToNext()
-                            })
+                        if (this.audioPlayer.playlist.tracks.length > 1) {
+                            if (typeof this.audioPlayer.next.player === 'undefined') {
+                                this.blockTrackChange = true
+                                this.audioPlayer.next.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.next.filename].join('%5C')], volume: 0.0, loop: this.audioPlayer.next.isLooping })
+                                this.audioPlayer.next.player.on('load', () => {
+                                    this.blockTrackChange = false
+                                })
+                                this.audioPlayer.next.player.on('end', () => {
+                                    this.skipToNext()
+                                })
+                            }
+                            this.fade.crossfade(this.audioPlayer.current, this.audioPlayer.next)
+                        } else { //Notlösung für wenn nur ein Track in Playlist ist
+                            this.fade.stop()
+                            this.audioPlayer.current.player.stop()
+                            if (typeof this.audioPlayer.next.player !== 'undefined') {
+                                this.audioPlayer.next.player.volume(this.audioPlayer.next.trackvolume)
+                                this.audioPlayer.next.player.play()
+                            }
                         }
-                        this.fade.crossfade(this.audioPlayer.current, this.audioPlayer.next)
                     } else { //Wenn Song nicht spielt, wird der Fade sicherheitshalber gecleart und das Volume angepasst.
                         this.fade.stop()
                         if (typeof this.audioPlayer.next.player !== 'undefined') {
@@ -221,17 +234,27 @@ export default {
                 if (typeof this.audioPlayer.current !== 'undefined') {
                     //Wenn schon ein Song gespielt wird, dann starte Crossfade
                     if (this.audioPlayer.isPlaying) {
-                        if (typeof this.audioPlayer.previous.player === 'undefined') {
-                            this.blockTrackChange = true
-                            this.audioPlayer.previous.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.previous.filename].join('%5C')], volume: 0.0, loop: this.audioPlayer.previous.isLooping })
-                            this.audioPlayer.previous.player.on('load', () => {
-                                this.blockTrackChange = false
-                            })
-                            this.audioPlayer.previous.player.on('end', () => {
-                                this.skipToNext()
-                            })
+
+                        if (this.audioPlayer.playlist.tracks.length > 1) {
+                            if (typeof this.audioPlayer.previous.player === 'undefined') {
+                                this.blockTrackChange = true
+                                this.audioPlayer.previous.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.previous.filename].join('%5C')], volume: 0.0, loop: this.audioPlayer.previous.isLooping })
+                                this.audioPlayer.previous.player.on('load', () => {
+                                    this.blockTrackChange = false
+                                })
+                                this.audioPlayer.previous.player.on('end', () => {
+                                    this.skipToNext()
+                                })
+                            }
+                            this.fade.crossfade(this.audioPlayer.current, this.audioPlayer.previous)
+                        } else { //Notlösung für wenn nur ein Track in Playlist ist
+                            this.fade.stop()
+                            this.audioPlayer.current.player.stop()
+                            if (typeof this.audioPlayer.previous.player !== 'undefined') {
+                                this.audioPlayer.previous.player.volume(this.audioPlayer.previous.trackvolume)
+                                this.audioPlayer.previous.player.play()
+                            }
                         }
-                        this.fade.crossfade(this.audioPlayer.current, this.audioPlayer.previous)
                     } else { //Wenn Song nicht spielt, wird der Fade sicherheitshalber gecleart und das Volume angepasst.
                         this.fade.stop()
                         if (typeof this.audioPlayer.previous.player !== 'undefined') {
@@ -420,6 +443,9 @@ export default {
             } catch {
                 console.debug('Could not fade into new playlist')
             }
+        },
+        seek(newVal){
+            console.log(newVal);
         }
     }
 }

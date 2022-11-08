@@ -42,7 +42,7 @@ async function loadPlaylist(path) {
             if (path.startsWith('https://asset.localhost/')) {
                 path = path.slice(24).replaceAll('%3A', ':').replaceAll('%5C', '\\').replaceAll('%20', ' ')
             }
-
+            
             let configPath = path
             let playlistConfig = undefined
 

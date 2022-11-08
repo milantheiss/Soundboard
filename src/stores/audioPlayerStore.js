@@ -13,21 +13,33 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
   }),
   getters: {
     next() {
-      if (this.currentIndex + 1 > this.playlist.tracks.length - 1) {
-        return this.playlist.tracks[0]
+      if (this.playlist.tracks.length > 0) {
+        if (this.currentIndex + 1 > this.playlist.tracks.length - 1) {
+          return this.playlist.tracks[0]
+        } else {
+          return this.playlist.tracks[this.currentIndex + 1]
+        }
       } else {
-        return this.playlist.tracks[this.currentIndex + 1]
+        return undefined
       }
     },
     previous() {
-      if (this.currentIndex - 1 < 0) {
-        return this.playlist.tracks[this.playlist.tracks.length - 1]
+      if (this.playlist.tracks.length > 0) {
+        if (this.currentIndex - 1 < 0) {
+          return this.playlist.tracks[this.playlist.tracks.length - 1]
+        } else {
+          return this.playlist.tracks[this.currentIndex - 1]
+        }
       } else {
-        return this.playlist.tracks[this.currentIndex - 1]
+        return undefined
       }
     },
     current() {
-      return this.playlist.tracks[this.currentIndex]
+      if (this.playlist.tracks.length > 0) {
+        return this.playlist.tracks[this.currentIndex]
+      } else {
+        return undefined
+      }
     },
     isPlaying() {
       if (typeof this.current !== 'undefined' && typeof this.current.player !== 'undefined') {

@@ -144,7 +144,7 @@ export default {
   setup() {
     const audioPlayer = useAudioPlayerStore()
     const preset = usePresetStore()
-
+    
     return {
       audioPlayer,
       preset
@@ -157,7 +157,6 @@ export default {
       // eslint-disable-next-line vue/no-reserved-keys
       _selectedPlaylist: undefined,
       presets: [],
-      test: "Test",
       trackSettings: {
         name: undefined,
         trackvolume: undefined,
