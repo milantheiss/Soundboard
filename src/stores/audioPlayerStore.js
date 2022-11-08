@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { loadPlaylist } from '../util/fileManager'
-import { exists, copyFile, writeFile, removeFile } from "@tauri-apps/api/fs"
+import { exists, copyFile, writeFile } from "@tauri-apps/api/fs"
 
 export const useAudioPlayerStore = defineStore('audioPlayerStore', {
   state: () => ({
@@ -104,10 +104,8 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
           //File in Playlist Config schreiben.
         }
 
-        console.log(this.playlist.tracks);
         this.playlist.tracks.splice(song.settings.pos, 0, song.settings)
         this._triggerPosUpdate()
-        console.log(this.playlist.tracks);
 
         this.writeToConfig(this.playlist)
       }
@@ -193,7 +191,6 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
         this.advanceToNextIndex()
         this.playlist.tracks.splice(this.playlist.tracks.indexOf(track), 1)
         this.writeToConfig(this.playlist)
-        await removeFile([this.path, track.filename].join('\\'))
       }
     },
 

@@ -75,24 +75,6 @@ async function loadPlaylist(path) {
                 }
             }
 
-            //Fügt in playlistConfig nicht aufgeführte Tracks hinzu
-            for (const file of (await readDir(path))) {
-                const _nameSplit = file.name.split('.')
-                if ((_nameSplit[_nameSplit.length - 1] === 'wav' || _nameSplit[_nameSplit.length - 1] === 'mp3' || _nameSplit[_nameSplit.length - 1] === 'ogg' || _nameSplit[_nameSplit.length - 1] === 'webm') && _nameSplit.length >= 2) {
-                    if (!playlistConfig.tracks.some(val => val.filename === file.name)) {
-                        playlistConfig.tracks.push({
-                            name: _nameSplit[0],
-                            filename: file.name,
-                            trackvolume: 1,
-                            isLooping: true,
-                            fadeInDuration: 2000,
-                            fadeOutDuration: 2000,
-                            pos: playlistConfig.tracks.length
-                        })
-                    }
-                }
-            }
-
             playlistConfig = _sortTracks(playlistConfig)
 
             //Erstellt neuen '.soundboard' Ordner, wenn noch keiner existiert
