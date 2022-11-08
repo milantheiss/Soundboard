@@ -167,6 +167,9 @@ export default {
                             this.audioPlayer.next.player.on('load', () => {
                                 this.blockTrackChange = false
                             })
+                            this.audioPlayer.next.player.on('end', () => {
+                                this.skipToNext()
+                            })
                         }
                         this.fade.crossfade(this.audioPlayer.current, this.audioPlayer.next)
                         //Der Index wird verschoben
@@ -191,6 +194,9 @@ export default {
                             this.audioPlayer.next.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.next.filename].join('%5C')], volume: 0.0, loop: this.audioPlayer.next.isLooping })
                             this.audioPlayer.next.player.on('load', () => {
                                 this.blockTrackChange = false
+                            })
+                            this.audioPlayer.next.player.on('end', () => {
+                                this.skipToNext()
                             })
                         }
                         this.fade.crossfade(this.audioPlayer.current, this.audioPlayer.next)
@@ -220,6 +226,9 @@ export default {
                             this.audioPlayer.previous.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.previous.filename].join('%5C')], volume: 0.0, loop: this.audioPlayer.previous.isLooping })
                             this.audioPlayer.previous.player.on('load', () => {
                                 this.blockTrackChange = false
+                            })
+                            this.audioPlayer.previous.player.on('end', () => {
+                                this.skipToNext()
                             })
                         }
                         this.fade.crossfade(this.audioPlayer.current, this.audioPlayer.previous)
@@ -288,6 +297,9 @@ export default {
             //Initialisiert nächsten Track, wenn 'undefined'
             if (typeof to.player === 'undefined') {
                 to.player = new Howl({ src: [[this.audioPlayer.playlist.path, to.filename].join('%5C')], volume: 0.0, loop: to.isLooping })
+                to.player.on('end', () => {
+                    this.skipToNext()
+                })
             }
 
             this.fade._to.player = to.player
@@ -395,6 +407,9 @@ export default {
                     //Der Player wird auf undefined gesetzt, um Bugs und Überschreiben zu vermeiden.
                     this.audioPlayer.current.player = undefined
                     this.audioPlayer.current.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.current.filename].join('%5C')], volume: this.audioPlayer.current.trackvolume, loop: this.audioPlayer.current.isLooping })
+                    this.audioPlayer.current.player.on('end', () => {
+                        this.skipToNext()
+                    })
                     this.blockTrackChange = true
                     this.audioPlayer.current.player.on('load', () => {
                         this.blockTrackChange = false

@@ -189,7 +189,8 @@ async function loadAllPresets() {
 
     //Fügt in playlistConfig nicht aufgeführte Tracks hinzu
     for (const file of (await readDir('.soundboard', { dir: BaseDirectory.Data }))) {
-        if (!content.some(val => val.filename === file.name) && file.name !== 'presets.config.json') {
+        const nameArr = file.name.split('.')
+        if (!content.some(val => val.filename === file.name) && nameArr[nameArr.length - 2] === 'preset' && nameArr[nameArr.length -1] === 'json') {
             content.push({
                 name: JSON.parse(await readTextFile(['.soundboard', file.name].join('\\'), { dir: BaseDirectory.Data })).name,
                 filename: file.name
