@@ -1,3 +1,4 @@
+import { Howl } from "howler"
 import { defineStore } from 'pinia'
 import { loadPlaylist } from '../util/fileManager'
 import { exists, copyFile, writeFile } from "@tauri-apps/api/fs"
@@ -9,7 +10,8 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
       tracks: []
     },
     currentIndex: 0,
-    oldIndex: undefined
+    oldIndex: undefined,
+    resetSong: false
   }),
   getters: {
     next() {
@@ -200,9 +202,17 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
      */
     async removeTrack(track) {
       if (typeof track !== 'undefined') {
-        this.advanceToNextIndex()
-        this.playlist.tracks.splice(this.playlist.tracks.indexOf(track), 1)
-        this.writeToConfig(this.playlist)
+        if(!this.isPlaying) {
+          this.playlist.tracks.splice(this.playlist.tracks.indexOf(track), 1)
+  
+          await this.writeToConfig(this.playlist)
+
+          if(this.playlist.tracks.length === track.pos) {
+            this.advanceToNextIndex()
+          }
+        } else {
+          console.error("Track kann nicht removed werden, wenn Player spielt.");
+        }
       }
     },
 
@@ -219,8 +229,34 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
       const objMask = ({ name, filename, trackvolume, fadeInDuration, fadeOutDuration, isLooping, pos }) => ({ name, filename, trackvolume, fadeInDuration, fadeOutDuration, isLooping, pos })
 
       content.tracks.forEach(track => temp.tracks.push(objMask(track)))
+      
+      this._triggerPosUpdate()
 
       await writeFile({ path: [this.path, '.soundboard', 'playlist.config.json'].join('\\'), contents: JSON.stringify(temp) })
+      console.debug('Written to config')
+    },
+
+    /**
+     * Devtool: Resetet Song & Block
+     */
+    resetSong() {
+      //Triggert in MediaControls.vue einen Watcher, der blockTrackChange auf false setzt
+      this.resetSong = !this.resetSong
+      try{
+        this.current.player.stop()
+        this.next.player.stop()
+        this.previous.player.stop()
+      }catch{
+        console.error("Reset Song: Fehler beim reseten des Songs");
+      }
+
+      try{
+        this.current.player = new Howl({ src: [[this.playlist.path, this.current.filename].join('%5C')], volume: this.current.trackvolume, loop: this.current.isLooping })
+        this.next.player = new Howl({ src: [[this.playlist.path, this.next.filename].join('%5C')], volume: this.next.trackvolume, loop: this.next.isLooping })
+        this.previous.player = new Howl({ src: [[this.playlist.path, this.previous.filename].join('%5C')], volume: this.previous.trackvolume, loop: this.previous.isLooping })
+      } catch {
+        console.error("Reset Song: Fehler beim erstellen der neuen Player");
+      }
     }
   }
 })

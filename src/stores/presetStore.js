@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { exists, readTextFile, writeFile, createDir, BaseDirectory } from "@tauri-apps/api/fs"
 import { loadPreset, loadAllPresets } from '../util/fileManager'
-// import { useAudioPlayerStore } from './audioPlayerStore'
+import { useAudioPlayerStore } from './audioPlayerStore'
 
 export const usePresetStore = defineStore('presetStore', {
   state: () => ({
@@ -25,7 +25,6 @@ export const usePresetStore = defineStore('presetStore', {
     async setPreset(filename) {
       const temp = await loadPreset(filename)
       if(typeof temp === 'undefined') {
-        console.log("Undefined");
         return false
       } else {
         this.name = temp.name
@@ -64,7 +63,6 @@ export const usePresetStore = defineStore('presetStore', {
 
       if (typeof content !== 'undefined' && content !== null) {
         if (!content.some(val => val.name === presetName) && this.getFilename(presetName).length !== 0 && !await exists(['.soundboard', this.getFilename(presetName)].join('\\'), { dir: BaseDirectory.Data })) {
-          console.log("Writing to Preset");
           content.push({ name: presetName, filename: this.getFilename(presetName) })
           await writeFile({ path: '.soundboard\\presets.config.json', contents: JSON.stringify(content) }, { dir: BaseDirectory.Data })
 
@@ -106,8 +104,6 @@ export const usePresetStore = defineStore('presetStore', {
   
           this.playlists = content.playlists
   
-          console.log(this.playlists);
-  
           await writeFile({ path: ['.soundboard', this.filename].join('\\'), contents: JSON.stringify(content) }, { dir: BaseDirectory.Data })
         }
       }
@@ -120,6 +116,25 @@ export const usePresetStore = defineStore('presetStore', {
       const element = this.playlists.find(val => val.name === playlistName)
       this.playlists.splice(this.playlists.indexOf(element), 1)
       //TODO Playlisten werden noch nicht aus File entfernt
+    },
+
+    /**
+     * Devtool: Lädt nächste Playlist
+     */
+    nextPlaylist(){
+      let index = this.playlists.indexOf(this.playlists.filter(val => val.name === useAudioPlayerStore().playlist.name)[0])
+      if (this.playlists.length > 0) {
+        if ((index + 1) >= this.playlists.length) {
+          index = 0
+        } else {
+          index++
+        }
+
+        return this.playlists[index]
+      } else {
+        console.error('Keine Playlisten geladen')
+        return undefined
+      }
     }
   },
 

@@ -14,16 +14,10 @@ export default {
             audioPlayer
         }
     },
-    data(){
-        return{
-            seek: undefined
-        }
-    },
     props: {
         modelValue: Number
     }, 
-    emits: ['update:modelValue', 'onChange', 'on'],    
-    expose: ['seek'], 
+    emits: ['update:modelValue', 'onChange', 'on'],
     methods: {
         startUpdates() {
             setInterval(() => {
@@ -31,7 +25,6 @@ export default {
                     if (typeof this.audioPlayer.current.player !== 'undefined') {
                         if (this.audioPlayer.current.player.playing()) {
                             this.$emit('update:modelValue', this.audioPlayer.current.player.seek())
-                            this.seek = this.audioPlayer.current.player.seek()
                         }
                     }
                 }

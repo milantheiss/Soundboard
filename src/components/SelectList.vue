@@ -32,6 +32,7 @@
       options: Array,
       showError: Boolean
     },
+    expose: ['selected'],
     watch: {
       selected() {
         this.$emit("update:modelValue", this.selected);

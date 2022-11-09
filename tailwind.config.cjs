@@ -15,7 +15,9 @@ module.exports = {
         'background': '#252525',
         'background-dark-gray': '#0f0f0f',
         'special-red': '#FF1F28',
-        'special-red-hover': '#e60008'
+        'special-red-hover': '#e60008',
+        'developer-yellow': "#d39f0f",
+        "developer-yellow-backgroud": '#332b00'
       }
     },
   },
