@@ -116,7 +116,11 @@ export default {
                     //Siehe https://tauri.app/v1/api/js/tauri#convertfilesrc
                     this.audioPlayer.current.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.current.filename].join('%5C')], volume: this.audioPlayer.current.trackvolume, loop: this.audioPlayer.current.isLooping })
                     this.blockTrackChange = true
-                    this.audioPlayer.current.player.on('load', () => { this.blockTrackChange = false })
+                    console.log("Set in TogglePlay");
+                    this.audioPlayer.current.player.on('load', () => {
+                        console.log("Blocke aus in Toggle play");
+                        this.blockTrackChange = false
+                    })
                     this.audioPlayer.current.player.on('end', () => {
                         this.skipToNext()
                     })
@@ -166,6 +170,7 @@ export default {
                     if (typeof this.audioPlayer.current !== 'undefined') {
                         //Wenn schon ein Song gespielt wird, dann starte Crossfade
                         if (typeof this.audioPlayer.next.player === 'undefined') {
+                            console.log("Block set in SkipToNext");
                             this.blockTrackChange = true
                             this.audioPlayer.next.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.next.filename].join('%5C')], volume: 0.0, loop: this.audioPlayer.next.isLooping })
                             this.audioPlayer.next.player.on('load', () => {
@@ -195,6 +200,7 @@ export default {
                         console.log("Crossfade");
                         if (this.audioPlayer.playlist.tracks.length > 1) {
                             if (typeof this.audioPlayer.next.player === 'undefined') {
+                                console.log("Block set in PlayNext");
                                 this.blockTrackChange = true
                                 this.audioPlayer.next.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.next.filename].join('%5C')], volume: 0.0, loop: this.audioPlayer.next.isLooping })
                                 this.audioPlayer.next.player.on('load', () => {
@@ -206,6 +212,7 @@ export default {
                             }
                             this.fade.crossfade(this.audioPlayer.current, this.audioPlayer.next)
                         } else { //Notlösung für wenn nur ein Track in Playlist ist
+                            console.log("Stop Fade");
                             this.fade.stop()
                             this.audioPlayer.current.player.stop()
                             if (typeof this.audioPlayer.next.player !== 'undefined') {
@@ -217,6 +224,9 @@ export default {
                         this.fade.stop()
                         if (typeof this.audioPlayer.next.player !== 'undefined') {
                             this.audioPlayer.next.player.volume(this.audioPlayer.next.trackvolume)
+                        }
+                        if (typeof this.audioPlayer.current.player !== 'undefined') {
+                            this.audioPlayer.current.player.stop()
                         }
                     }
                     //Der Index wird verschoben
@@ -237,6 +247,7 @@ export default {
 
                         if (this.audioPlayer.playlist.tracks.length > 1) {
                             if (typeof this.audioPlayer.previous.player === 'undefined') {
+                                console.log("Block set in PlayPrev");
                                 this.blockTrackChange = true
                                 this.audioPlayer.previous.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.previous.filename].join('%5C')], volume: 0.0, loop: this.audioPlayer.previous.isLooping })
                                 this.audioPlayer.previous.player.on('load', () => {
@@ -259,6 +270,9 @@ export default {
                         this.fade.stop()
                         if (typeof this.audioPlayer.previous.player !== 'undefined') {
                             this.audioPlayer.previous.player.volume(this.audioPlayer.previous.trackvolume)
+                        }
+                        if (typeof this.audioPlayer.current.player !== 'undefined') {
+                            this.audioPlayer.current.player.stop()
                         }
                     }
                     //Der Index wird verschoben
@@ -395,7 +409,7 @@ export default {
             this.fade._from.data = undefined
             this.fade._from.player = undefined
 
-            this.fade._from.isFading = false
+            this.fade._to.isFading = false
             this.fade._to.data = undefined
             this.fade._to.player = undefined
         },
@@ -434,6 +448,7 @@ export default {
                         this.skipToNext()
                     })
                     this.blockTrackChange = true
+                    console.log('Block set in Watch')
                     this.audioPlayer.current.player.on('load', () => {
                         this.blockTrackChange = false
                     })
@@ -444,8 +459,8 @@ export default {
                 console.debug('Could not fade into new playlist')
             }
         },
-        seek(newVal){
-            console.log(newVal);
+        seek() {
+            //Use seek hier
         }
     }
 }
