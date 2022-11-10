@@ -95,6 +95,7 @@ export default {
             seek: undefined
         }
     },
+    expose: ['blockTrackChange'],
     components: {
         SeekUpdater
     },

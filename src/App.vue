@@ -79,7 +79,7 @@
       </span>
       <p class="font-semibold text-xl ml-4 text-developer-yellow">Developer Tools</p>
     </span>
-    <div v-show="showDeveloperTools">
+    <div v-show="showDeveloperTools" class="flex justify-between items-center">
       <button @click="reloadPlaylist" class="
           w-fit
           mt-6 mr-4 px-3 py-2 
@@ -87,13 +87,13 @@
           text-base font-medium text-black 
           hover:bg-developer-yellow-backgroud focus:outline-none focus:ring-2 
           focus:ring-developer-yellow focus:ring-offset-2">Playlist aktualisieren</button>
-      <button @click="audioPlayer.resetSong" class="
+      <button @click="resetSong" class="
           w-fit
           mt-6 mr-4 px-3 py-2 
           border border-transparent bg-developer-yellow rounded-md shadow-sm
           text-base font-medium text-black 
           hover:bg-developer-yellow-backgroud focus:outline-none focus:ring-2 
-          focus:ring-developer-yellow focus:ring-offset-2">Song reseten</button>
+          focus:ring-developer-yellow focus:ring-offset-2">Block reseten</button>
       <button @click="nextPlaylist" class="
           w-fit
           mt-6 mr-4 px-3 py-2 
@@ -109,7 +109,7 @@
         audioPlayer.current.pos + 1
     }}: <span class="italic"> {{ audioPlayer.current.name }} </span></p>
     <p class="text-2xl font-semibold" v-if="typeof audioPlayer.current === 'undefined'">Kein Song geladen.</p>
-    <MediaControls></MediaControls>
+    <MediaControls ref="mediaControls"></MediaControls>
   </div>
   <div>
     <button @click="$refs.addSongPrompt.open = true" class="w-fit inline-flex justify-center
@@ -288,6 +288,12 @@ export default {
       } else {
         console.error('App: Could not go to next Playlist (Return was undefined)')
       }
+    },
+
+    resetSong() {
+      console.log(this.$refs.mediaControls.blockTrackChange);
+      this.$refs.mediaControls.blockTrackChange = false
+      console.log(this.$refs.mediaControls.blockTrackChange);
     }
   },
   components: {
