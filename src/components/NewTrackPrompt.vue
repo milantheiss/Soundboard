@@ -118,7 +118,7 @@ export default {
             fadeIn: 2000,
             fadeOut: 2000,
             looping: false,
-            pos: this.audioPlayer.playlist.tracks.length + 1
+            pos: this.audioPlayer.currentIndex + 2
         }
     },
     methods: {
@@ -149,7 +149,7 @@ export default {
             this.fadeOut = 2000
             this.looping = false
             this.name = undefined,
-            this.pos = this.audioPlayer.playlist.tracks.length + 1
+            this.pos = this.audioPlayer.currentIndex + 2
         }
     },
     computed: {
@@ -159,6 +159,11 @@ export default {
             } else {
                 return this.path.split('\\')[this.path.split('\\').length - 1]
             }
+        }
+    },
+    watch: {
+        'audioPlayer.currentIndex'(newVal) {
+            this.pos = newVal + 2
         }
     }
 }
