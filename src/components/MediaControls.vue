@@ -6,7 +6,8 @@
         border border-transparent bg-electric-blue rounded-md shadow-sm
         text-base font-medium text-black 
         hover:bg-electric-blue-hover focus:outline-none focus:ring-2 
-        focus:ring-electric-blue-hover focus:ring-offset-2" :class="blockTrackChange === true ? 'outline outline-red-600 outline-2 outline-offset-2' : ''">
+        focus:ring-electric-blue-hover focus:ring-offset-2"
+            :class="blockTrackChange === true ? 'outline outline-red-600 outline-2 outline-offset-2' : ''">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7">
                 <path
                     d="M9.195 18.44c1.25.713 2.805-.19 2.805-1.629v-2.34l6.945 3.968c1.25.714 2.805-.188 2.805-1.628V8.688c0-1.44-1.555-2.342-2.805-1.628L12 11.03v-2.34c0-1.44-1.555-2.343-2.805-1.629l-7.108 4.062c-1.26.72-1.26 2.536 0 3.256l7.108 4.061z" />
@@ -47,7 +48,8 @@
         border border-transparent bg-electric-blue rounded-md shadow-sm
         text-base font-medium text-black 
         hover:bg-electric-blue-hover focus:outline-none focus:ring-2 
-        focus:ring-electric-blue-hover focus:ring-offset-2 " :class="blockTrackChange === true ? 'outline outline-red-600 outline-2 outline-offset-2' : ''">
+        focus:ring-electric-blue-hover focus:ring-offset-2 "
+            :class="blockTrackChange === true ? 'outline outline-red-600 outline-2 outline-offset-2' : ''">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7">
                 <path
                     d="M5.055 7.06c-1.25-.714-2.805.189-2.805 1.628v8.123c0 1.44 1.555 2.342 2.805 1.628L12 14.471v2.34c0 1.44 1.555 2.342 2.805 1.628l7.108-4.061c1.26-.72 1.26-2.536 0-3.256L14.805 7.06C13.555 6.346 12 7.25 12 8.688v2.34L5.055 7.06z" />
@@ -102,23 +104,6 @@ export default {
     methods: {
         togglePlay() {
             if (typeof this.audioPlayer.current !== 'undefined') {
-                //Wenn für zu spielenden Song kein Player existiert, wird neuer erstellt.
-                if (typeof this.audioPlayer.current.player === 'undefined') {
-                    //INFO Path ist die API URL aus Tauri
-                    //Siehe https://tauri.app/v1/api/js/tauri#convertfilesrc
-                    this.blockTrackChange = true
-                    this.audioPlayer.current.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.current.filename].join('%5C')], volume: this.audioPlayer.current.trackvolume, loop: this.audioPlayer.current.isLooping })
-                    this.audioPlayer.current.player.on('play', () => {
-                        console.log("Block aus in Toggle play");
-                        this.blockTrackChange = false
-                        this.audioPlayer.current.player.off('play')
-                    })
-                    console.log("Set in TogglePlay");
-                    this.audioPlayer.current.player.on('end', () => {
-                        this.skipToNext()
-                    })
-                }
-
                 //Pausiert wenn Sound abgespielt wird. 
                 if (this.audioPlayer.isPlaying) {
                     console.debug("Player was paused.")
@@ -137,6 +122,10 @@ export default {
                         console.debug("Fade triggered from togglePlay()")
                         this.fade.resume()
                     } else {
+                        this.audioPlayer.current.player.load()
+                        this.audioPlayer.current.player.on('end', () => {
+                            this.skipToNext()
+                        })
                         this.audioPlayer.current.player.play();
                     }
                 }
@@ -194,7 +183,7 @@ export default {
                     if (this.audioPlayer.isPlaying) {
                         if (this.audioPlayer.playlist.tracks.length > 1) {
                             if (typeof this.audioPlayer.next.player === 'undefined') {
-                                console.log(this.audioPlayer.next.name,  "Block set in PlayNext");
+                                console.log(this.audioPlayer.next.name, "Block set in PlayNext");
                                 this.blockTrackChange = true
                                 this.audioPlayer.next.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.next.filename].join('%5C')], volume: 0.0, loop: this.audioPlayer.next.isLooping })
                                 this.audioPlayer.next.player.on('play', () => {
@@ -441,7 +430,7 @@ export default {
                     //Player muss vorher erstellt sein, da ansonsten der Player nicht in Current übernommen wird
                     //Der Player wird auf undefined gesetzt, um Bugs und Überschreiben zu vermeiden.
                     this.audioPlayer.current.player = undefined
-                    if(!this.audioPlayer.current.player === 'undefined'){
+                    if (!this.audioPlayer.current.player === 'undefined') {
                         this.blockTrackChange = true
                         this.audioPlayer.current.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.current.filename].join('%5C')], volume: this.audioPlayer.current.trackvolume, loop: this.audioPlayer.current.isLooping })
                         this.audioPlayer.current.player.on('play', () => {

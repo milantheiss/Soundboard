@@ -78,6 +78,30 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
       } else {
         this.currentIndex++;
       }
+
+      const getIndexForwardsBuffer = () => {
+        if (this.currentIndex + 2 > this.playlist.tracks.length - 1) {
+          return 0;
+        } else {
+          return this.currentIndex + 2;
+        }
+      }
+
+      const getIndexOldBackwardsBuffer = () => {
+        if (this.currentIndex - 3 < 0) {
+          return this.playlist.tracks.length - 2;
+        } else {
+          return this.currentIndex - 3
+        }
+      }
+
+      if (this.playlist.tracks.length > 5) {
+        if (typeof this.playlist.tracks[getIndexForwardsBuffer()].player === 'undefined') {
+          this.playlist.tracks[getIndexForwardsBuffer()].player = new Howl({ src: [[this.playlist.path, this.playlist.tracks[getIndexForwardsBuffer()].filename].join('%5C')], volume: this.playlist.tracks[getIndexForwardsBuffer()].trackvolume, loop: this.playlist.tracks[getIndexForwardsBuffer()].isLooping })
+        }
+
+        this.playlist.tracks[getIndexOldBackwardsBuffer()].player.unload()
+      }
     },
 
     advanceToPreviousIndex() {
@@ -87,6 +111,30 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
         this.currentIndex = this.playlist.tracks.length - 1;
       } else {
         this.currentIndex--
+      } 
+
+      const getIndexOldForwardsBuffer = () => {
+        if (this.currentIndex + 3 > this.playlist.tracks.length - 1) {
+          return 0;
+        } else {
+          return this.currentIndex + 3;
+        }
+      }
+
+      const getIndexBackwardsBuffer = () => {
+        if (this.currentIndex - 2 < 0) {
+          return this.playlist.tracks.length - 1;
+        } else {
+          return this.currentIndex - 2
+        }
+      }
+
+      if (this.playlist.tracks.length > 5) {
+        if (typeof this.playlist.tracks[getIndexBackwardsBuffer()].player === 'undefined') {
+          this.playlist.tracks[getIndexBackwardsBuffer()].player = new Howl({ src: [[this.playlist.path, this.playlist.tracks[getIndexBackwardsBuffer()].filename].join('%5C')], volume: this.playlist.tracks[getIndexBackwardsBuffer()].trackvolume, loop: this.playlist.tracks[getIndexBackwardsBuffer()].isLooping})
+        }
+
+        this.playlist.tracks[getIndexOldForwardsBuffer()].player.unload()
       }
     },
 
@@ -99,6 +147,7 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
       this.currentIndex = 0
       if (typeof path !== 'undefined') {
         this.playlist = await loadPlaylist(path)
+        this.loadPlayerBuffer()
       } else {
         this.playlist = {
           tracks: []
@@ -202,12 +251,12 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
      */
     async removeTrack(track) {
       if (typeof track !== 'undefined') {
-        if(!this.isPlaying) {
+        if (!this.isPlaying) {
           this.playlist.tracks.splice(this.playlist.tracks.indexOf(track), 1)
-  
+
           await this.writeToConfig(this.playlist)
 
-          if(this.playlist.tracks.length === track.pos) {
+          if (this.playlist.tracks.length === track.pos) {
             this.advanceToNextIndex()
           }
         } else {
@@ -242,21 +291,66 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
     resetSong() {
       //Triggert in MediaControls.vue einen Watcher, der blockTrackChange auf false setzt
       this.resetSong = !this.resetSong
-      try{
+      try {
         this.current.player.stop()
         this.next.player.stop()
         this.previous.player.stop()
-      }catch{
+      } catch {
         console.error("Reset Song: Fehler beim reseten des Songs");
       }
 
-      try{
+      try {
         this.current.player = new Howl({ src: [[this.playlist.path, this.current.filename].join('%5C')], volume: this.current.trackvolume, loop: this.current.isLooping })
         this.next.player = new Howl({ src: [[this.playlist.path, this.next.filename].join('%5C')], volume: this.next.trackvolume, loop: this.next.isLooping })
         this.previous.player = new Howl({ src: [[this.playlist.path, this.previous.filename].join('%5C')], volume: this.previous.trackvolume, loop: this.previous.isLooping })
       } catch {
         console.error("Reset Song: Fehler beim erstellen der neuen Player");
       }
+    },
+
+    loadPlayerBuffer() {
+      console.log('Create Player Buffer')
+      const getIndexForwardsBuffer = () => {
+        if (this.currentIndex + 2 > this.playlist.tracks.length - 1) {
+          return 0;
+        } else {
+          return this.currentIndex + 2;
+        }
+      }
+
+      const getIndexBackwardsBuffer = () => {
+        if (this.currentIndex - 2 < 0) {
+          return this.playlist.tracks.length - 2;
+        } else {
+          return this.currentIndex - 2
+        }
+      }
+
+      //Lädt wenn es genügend Elemente gibt den Player für Current und die zwei davor und danach liegenden Tracks
+      if (this.playlist.tracks.length > 0) {
+        this.current.player = new Howl({ src: [[this.playlist.path, this.current.filename].join('%5C')], volume: this.current.trackvolume, loop: this.current.isLooping })
+        if (this.playlist.tracks.length > 1) {
+          this.next.player = new Howl({ src: [[this.playlist.path, this.next.filename].join('%5C')], volume: this.next.trackvolume, loop: this.next.isLooping })
+          if (this.playlist.tracks.length > 2) {
+            this.previous.player = new Howl({ src: [[this.playlist.path, this.previous.filename].join('%5C')], volume: this.previous.trackvolume, loop: this.previous.isLooping })
+            if (this.playlist.tracks.length > 3) {
+              this.playlist.tracks[getIndexForwardsBuffer()].player = new Howl({
+                src: [[this.playlist.path, this.playlist.tracks[getIndexForwardsBuffer()].filename].join('%5C')],
+                volume: this.playlist.tracks[getIndexForwardsBuffer()].trackvolume, loop: this.playlist.tracks[getIndexForwardsBuffer()].isLooping
+              })
+              if (this.playlist.tracks.length > 4) {
+                this.playlist.tracks[getIndexBackwardsBuffer()].player = new Howl({
+                  src: [[this.playlist.path, this.playlist.tracks[getIndexForwardsBuffer()].filename].join('%5C')],
+                  volume: this.playlist.tracks[getIndexBackwardsBuffer()].trackvolume, loop: this.playlist.tracks[getIndexBackwardsBuffer()].isLooping
+                })
+              }
+            }
+          }
+        }
+      } else {
+        console.error('No Player loaded')
+      }
+
     }
   }
 })
