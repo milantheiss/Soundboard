@@ -226,11 +226,11 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
         tracks: []
       }
 
+      this._triggerPosUpdate()
+
       const objMask = ({ name, filename, trackvolume, fadeInDuration, fadeOutDuration, isLooping, pos }) => ({ name, filename, trackvolume, fadeInDuration, fadeOutDuration, isLooping, pos })
 
       content.tracks.forEach(track => temp.tracks.push(objMask(track)))
-      
-      this._triggerPosUpdate()
 
       await writeFile({ path: [this.path, '.soundboard', 'playlist.config.json'].join('\\'), contents: JSON.stringify(temp) })
       console.debug('Written to config')
