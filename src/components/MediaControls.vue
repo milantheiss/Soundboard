@@ -6,8 +6,7 @@
         border border-transparent bg-electric-blue rounded-md shadow-sm
         text-base font-medium text-black 
         hover:bg-electric-blue-hover focus:outline-none focus:ring-2 
-        focus:ring-electric-blue-hover focus:ring-offset-2"
-            :class="blockTrackChange === true ? 'outline outline-red-600 outline-2 outline-offset-2' : ''">
+        focus:ring-electric-blue-hover focus:ring-offset-2">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7">
                 <path
                     d="M9.195 18.44c1.25.713 2.805-.19 2.805-1.629v-2.34l6.945 3.968c1.25.714 2.805-.188 2.805-1.628V8.688c0-1.44-1.555-2.342-2.805-1.628L12 11.03v-2.34c0-1.44-1.555-2.343-2.805-1.629l-7.108 4.062c-1.26.72-1.26 2.536 0 3.256l7.108 4.061z" />
@@ -48,8 +47,7 @@
         border border-transparent bg-electric-blue rounded-md shadow-sm
         text-base font-medium text-black 
         hover:bg-electric-blue-hover focus:outline-none focus:ring-2 
-        focus:ring-electric-blue-hover focus:ring-offset-2 "
-            :class="blockTrackChange === true ? 'outline outline-red-600 outline-2 outline-offset-2' : ''">
+        focus:ring-electric-blue-hover focus:ring-offset-2 ">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7">
                 <path
                     d="M5.055 7.06c-1.25-.714-2.805.189-2.805 1.628v8.123c0 1.44 1.555 2.342 2.805 1.628L12 14.471v2.34c0 1.44 1.555 2.342 2.805 1.628l7.108-4.061c1.26-.72 1.26-2.536 0-3.256L14.805 7.06C13.555 6.346 12 7.25 12 8.688v2.34L5.055 7.06z" />
@@ -60,7 +58,6 @@
 </template>
 
 <script>
-import { Howl } from "howler"
 import { useAudioPlayerStore } from '@/stores/audioPlayerStore.js'
 import SeekUpdater from "./SeekUpdater.vue"
 
@@ -93,11 +90,9 @@ export default {
                 pause: this._pauseFade,
                 stop: this._stopFade
             },
-            blockTrackChange: false,
             seek: undefined
         }
     },
-    expose: ['blockTrackChange'],
     components: {
         SeekUpdater
     },
@@ -148,56 +143,30 @@ export default {
         skipToNext() {
             if (!this.audioPlayer.current.isLooping) {
                 //Muss Next blockieren, da loading von Howl Player lange braucht. Es entsteht ansonsten ein Bug, wenn man Next bei undefined Player spamt
-                if (!this.blockTrackChange) {
                     if (typeof this.audioPlayer.current !== 'undefined') {
                         //Wenn schon ein Song gespielt wird, dann starte Crossfade
-                        if (typeof this.audioPlayer.next.player === 'undefined') {
-                            console.log("Block set in SkipToNext");
-                            this.blockTrackChange = true
-                            this.audioPlayer.next.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.next.filename].join('%5C')], volume: 0.0, loop: this.audioPlayer.next.isLooping })
-                            this.audioPlayer.next.player.on('play', () => {
-                                console.log('Block aus in SkipToNext')
-                                this.blockTrackChange = false
-                                this.audioPlayer.next.player.off('play')
-                            })
-                            this.audioPlayer.next.player.on('end', () => {
-                                this.skipToNext()
-                            })
-                        }
+                        this.audioPlayer.next.player.on('end', () => {
+                            this.skipToNext()
+                        })
                         this.fade.crossfade(this.audioPlayer.current, this.audioPlayer.next)
                         //Der Index wird verschoben
                         this.audioPlayer.advanceToNextIndex()
                     } else {
                         console.error("No current track loaded");
                     }
-                } else {
-                    console.error("Next is blocked")
-                }
             }
         },
         playNext() {
             //Muss Next blockieren, da loading von Howl Player lange braucht. Es entsteht ansonsten ein Bug, wenn man Next bei undefined Player spamt
-            if (!this.blockTrackChange) {
                 if (typeof this.audioPlayer.current !== 'undefined') {
                     //Wenn schon ein Song gespielt wird, dann starte Crossfade
                     if (this.audioPlayer.isPlaying) {
                         if (this.audioPlayer.playlist.tracks.length > 1) {
-                            if (typeof this.audioPlayer.next.player === 'undefined') {
-                                console.log(this.audioPlayer.next.name, "Block set in PlayNext");
-                                this.blockTrackChange = true
-                                this.audioPlayer.next.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.next.filename].join('%5C')], volume: 0.0, loop: this.audioPlayer.next.isLooping })
-                                this.audioPlayer.next.player.on('play', () => {
-                                    this.blockTrackChange = false
-                                    console.log("Block aus in PlayNext");
-                                    this.audioPlayer.next.player.off('play')
-                                })
-                                this.audioPlayer.next.player.on('end', () => {
-                                    this.skipToNext()
-                                })
-                            }
+                            this.audioPlayer.next.player.on('end', () => {
+                                this.skipToNext()
+                            })
                             this.fade.crossfade(this.audioPlayer.current, this.audioPlayer.next)
                         } else { //Notlösung für wenn nur ein Track in Playlist ist
-                            console.log("Stop Fade");
                             this.fade.stop()
                             this.audioPlayer.current.player.stop()
                             if (typeof this.audioPlayer.next.player !== 'undefined') {
@@ -219,31 +188,16 @@ export default {
                 } else {
                     console.error("No current track loaded");
                 }
-            } else {
-                console.error("Next is blocked")
-            }
         },
         playPrev() {
             //Muss Prev blockieren, da loading von Howl Player lange braucht. Es entsteht ansonsten ein Bug, wenn man Prev bei undefined Player spamt
-            if (!this.blockTrackChange) {
                 if (typeof this.audioPlayer.current !== 'undefined') {
                     //Wenn schon ein Song gespielt wird, dann starte Crossfade
                     if (this.audioPlayer.isPlaying) {
-
                         if (this.audioPlayer.playlist.tracks.length > 1) {
-                            if (typeof this.audioPlayer.previous.player === 'undefined') {
-                                console.log("Block set in PlayPrev");
-                                this.blockTrackChange = true
-                                this.audioPlayer.previous.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.previous.filename].join('%5C')], volume: 0.0, loop: this.audioPlayer.previous.isLooping })
-                                this.audioPlayer.previous.player.on('play', () => {
-                                    this.blockTrackChange = false
-                                    console.log("Block aus in PlayPrev");
-                                    this.audioPlayer.previous.player.off('play')
-                                })
-                                this.audioPlayer.previous.player.on('end', () => {
-                                    this.skipToNext()
-                                })
-                            }
+                            this.audioPlayer.previous.player.on('end', () => {
+                                this.skipToNext()
+                            })
                             this.fade.crossfade(this.audioPlayer.current, this.audioPlayer.previous)
                         } else { //Notlösung für wenn nur ein Track in Playlist ist
                             this.fade.stop()
@@ -267,9 +221,6 @@ export default {
                 } else {
                     console.error("No current track loaded");
                 }
-            } else {
-                console.error("Previous is blocked")
-            }
         },
         _startCrossfade(from, to) {
             //INFO Fade Duration in ms
@@ -284,6 +235,7 @@ export default {
             this.fade._from.player = from.player
 
             this.fade._to.data = to
+            this.fade._to.player = to.player
 
             this.fade._from.isFading = true
             this.fade._to.isFading = true
@@ -318,17 +270,8 @@ export default {
                 }
             })
 
-            //Initialisiert nächsten Track, wenn 'undefined'
-            if (typeof to.player === 'undefined') {
-                to.player = new Howl({ src: [[this.audioPlayer.playlist.path, to.filename].join('%5C')], volume: 0.0, loop: to.isLooping })
-                to.player.on('end', () => {
-                    this.skipToNext()
-                })
-            }
-
-            this.fade._to.player = to.player
-
             if (!to.player.playing()) {
+                to.player.load()
                 to.player.play()
             }
 
@@ -427,35 +370,15 @@ export default {
         'audioPlayer.playlist'(newVal, oldVal) {
             try {
                 if (oldVal.tracks[this.audioPlayer.oldIndex].player.playing()) {
-                    //Player muss vorher erstellt sein, da ansonsten der Player nicht in Current übernommen wird
-                    //Der Player wird auf undefined gesetzt, um Bugs und Überschreiben zu vermeiden.
-                    this.audioPlayer.current.player = undefined
-                    if (!this.audioPlayer.current.player === 'undefined') {
-                        this.blockTrackChange = true
-                        this.audioPlayer.current.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.current.filename].join('%5C')], volume: this.audioPlayer.current.trackvolume, loop: this.audioPlayer.current.isLooping })
-                        this.audioPlayer.current.player.on('play', () => {
-                            console.log('Block aus in Watcher')
-                            this.blockTrackChange = false
-                            this.audioPlayer.current.player.off('play')
-                        })
-                        console.log(this.audioPlayer.current.name, 'Block set in Watcher')
-                        this.audioPlayer.current.player.on('end', () => {
-                            this.skipToNext()
-                        })
-                    }
+                    this.audioPlayer.current.player.on('end', () => {
+                        this.skipToNext()
+                    })
                     this.fade.crossfade(oldVal.tracks[this.audioPlayer.oldIndex], this.audioPlayer.current)
 
                 }
             } catch {
                 console.debug('Could not fade into new playlist')
             }
-        },
-        /**
-         * Wird getriggert wenn Reset Song Button gedrückt wird
-         */
-        'audioPlayer.resetSong'() {
-            this.fade.stop()
-            this.blockTrackChange = false
         },
         seek() {
             //Use seek hier

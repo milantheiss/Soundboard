@@ -60,11 +60,10 @@
   <!--TODO Neue Playlisten laden/erstellen und zum Preset hinzufügen-->
   <!--TODO Playlisten auswählen-->
 
-  <div v-if="typeof $refs.mediaControls !== 'undefined'">
-    <div class="bg-developer-yellow-backgroud p-4 mx-6 mt-6 mb-3 rounded-lg" :class="$refs.mediaControls.blockTrackChange === true ? 'bg-red-700 bg-opacity-20' : ''">
+  <div>
+    <div class="bg-developer-yellow-backgroud p-4 mx-6 mt-6 mb-3 rounded-lg">
       <span class="flex justify-start items-center" @click="showDeveloperTools = !showDeveloperTools">
-        <span v-show="!showDeveloperTools" class="text-developer-yellow flex items-center"
-        :class="$refs.mediaControls.blockTrackChange === true ? 'text-red-600' : ''">
+        <span v-show="!showDeveloperTools" class="text-developer-yellow flex items-center">
           <!--Show More Icon-->
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
             class="w-7 h-7">
@@ -72,16 +71,14 @@
           </svg>
 
         </span>
-        <span v-show="showDeveloperTools" class="text-developer-yellow flex items-center"
-        :class="$refs.mediaControls.blockTrackChange === true ? 'text-red-600' : ''">
+        <span v-show="showDeveloperTools" class="text-developer-yellow flex items-center">
           <!--Show Less Icon-->
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
             class="w-7 h-7">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
           </svg>
         </span>
-        <p class="font-semibold text-xl ml-4 text-developer-yellow"
-        :class="$refs.mediaControls.blockTrackChange === true ? 'text-red-600' : ''">Developer Tools</p>
+        <p class="font-semibold text-xl ml-4 text-developer-yellow">Developer Tools</p>
       </span>
       <div v-show="showDeveloperTools" class="flex justify-between items-center mt-3">
         <button @click="reloadPlaylist" class="
@@ -90,24 +87,22 @@
           border border-transparent bg-developer-yellow rounded-md shadow-sm
           text-base font-medium text-black 
           hover:bg-yellow-700 focus:outline-none focus:ring-2 
-          focus:ring-developer-yellow focus:ring-offset-2"
-          :class="$refs.mediaControls.blockTrackChange === true ? 'bg-red-700 hover:bg-red-400' : ''">Playlist aktualisieren</button>
+          focus:ring-developer-yellow focus:ring-offset-2">Playlist
+          aktualisieren</button>
         <button @click="nextPlaylist" class="
           w-fit
           mr-4 px-3 py-2 
           border border-transparent bg-developer-yellow rounded-md shadow-sm
           text-base font-medium text-black 
           hover:bg-yellow-700 focus:outline-none focus:ring-2 
-          focus:ring-developer-yellow focus:ring-offset-2"
-          :class="$refs.mediaControls.blockTrackChange === true ? 'bg-red-700 hover:bg-red-400' : ''">Nächste Playlist</button>
+          focus:ring-developer-yellow focus:ring-offset-2">Nächste Playlist</button>
         <button @click="resetSong" class="
           w-fit
           mr-4 px-3 py-2 
           border border-transparent bg-developer-yellow rounded-md shadow-sm
           text-base font-medium text-black 
           hover:bg-yellow-700 focus:outline-none focus:ring-2 
-          focus:ring-developer-yellow focus:ring-offset-2"
-          :class="$refs.mediaControls.blockTrackChange === true ? 'bg-red-700 hover:bg-red-400 outline outline-2 outline-offset-4  outline-red-700' : ''">Block reseten</button>
+          focus:ring-developer-yellow focus:ring-offset-2">Block reseten</button>
       </div>
     </div>
   </div>
@@ -296,12 +291,6 @@ export default {
       } else {
         console.error('App: Could not go to next Playlist (Return was undefined)')
       }
-    },
-
-    resetSong() {
-      console.log(this.$refs.mediaControls.blockTrackChange);
-      this.$refs.mediaControls.blockTrackChange = false
-      console.log(this.$refs.mediaControls.blockTrackChange);
     }
   },
   components: {
