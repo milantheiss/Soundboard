@@ -106,13 +106,14 @@ export default {
                 if (typeof this.audioPlayer.current.player === 'undefined') {
                     //INFO Path ist die API URL aus Tauri
                     //Siehe https://tauri.app/v1/api/js/tauri#convertfilesrc
-                    this.audioPlayer.current.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.current.filename].join('%5C')], volume: this.audioPlayer.current.trackvolume, loop: this.audioPlayer.current.isLooping })
                     this.blockTrackChange = true
-                    console.log("Set in TogglePlay");
-                    this.audioPlayer.current.player.on('load', () => {
+                    this.audioPlayer.current.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.current.filename].join('%5C')], volume: this.audioPlayer.current.trackvolume, loop: this.audioPlayer.current.isLooping })
+                    this.audioPlayer.current.player.on('play', () => {
                         console.log("Block aus in Toggle play");
                         this.blockTrackChange = false
+                        this.audioPlayer.current.player.off('play')
                     })
+                    console.log("Set in TogglePlay");
                     this.audioPlayer.current.player.on('end', () => {
                         this.skipToNext()
                     })
@@ -165,9 +166,10 @@ export default {
                             console.log("Block set in SkipToNext");
                             this.blockTrackChange = true
                             this.audioPlayer.next.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.next.filename].join('%5C')], volume: 0.0, loop: this.audioPlayer.next.isLooping })
-                            this.audioPlayer.next.player.on('load', () => {
+                            this.audioPlayer.next.player.on('play', () => {
                                 console.log('Block aus in SkipToNext')
                                 this.blockTrackChange = false
+                                this.audioPlayer.next.player.off('play')
                             })
                             this.audioPlayer.next.player.on('end', () => {
                                 this.skipToNext()
@@ -190,15 +192,15 @@ export default {
                 if (typeof this.audioPlayer.current !== 'undefined') {
                     //Wenn schon ein Song gespielt wird, dann starte Crossfade
                     if (this.audioPlayer.isPlaying) {
-                        console.log("Crossfade");
                         if (this.audioPlayer.playlist.tracks.length > 1) {
                             if (typeof this.audioPlayer.next.player === 'undefined') {
-                                console.log("Block set in PlayNext");
+                                console.log(this.audioPlayer.next.name,  "Block set in PlayNext");
                                 this.blockTrackChange = true
                                 this.audioPlayer.next.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.next.filename].join('%5C')], volume: 0.0, loop: this.audioPlayer.next.isLooping })
-                                this.audioPlayer.next.player.on('load', () => {
+                                this.audioPlayer.next.player.on('play', () => {
                                     this.blockTrackChange = false
                                     console.log("Block aus in PlayNext");
+                                    this.audioPlayer.next.player.off('play')
                                 })
                                 this.audioPlayer.next.player.on('end', () => {
                                     this.skipToNext()
@@ -244,9 +246,10 @@ export default {
                                 console.log("Block set in PlayPrev");
                                 this.blockTrackChange = true
                                 this.audioPlayer.previous.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.previous.filename].join('%5C')], volume: 0.0, loop: this.audioPlayer.previous.isLooping })
-                                this.audioPlayer.previous.player.on('load', () => {
+                                this.audioPlayer.previous.player.on('play', () => {
                                     this.blockTrackChange = false
                                     console.log("Block aus in PlayPrev");
+                                    this.audioPlayer.previous.player.off('play')
                                 })
                                 this.audioPlayer.previous.player.on('end', () => {
                                     this.skipToNext()
@@ -438,16 +441,19 @@ export default {
                     //Player muss vorher erstellt sein, da ansonsten der Player nicht in Current übernommen wird
                     //Der Player wird auf undefined gesetzt, um Bugs und Überschreiben zu vermeiden.
                     this.audioPlayer.current.player = undefined
-                    this.audioPlayer.current.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.current.filename].join('%5C')], volume: this.audioPlayer.current.trackvolume, loop: this.audioPlayer.current.isLooping })
-                    this.audioPlayer.current.player.on('end', () => {
-                        this.skipToNext()
-                    })
-                    this.blockTrackChange = true
-                    console.log('Block set in Watcher')
-                    this.audioPlayer.current.player.on('load', () => {
-                        console.log('Block aus in Watcher')
-                        this.blockTrackChange = false
-                    })
+                    if(!this.audioPlayer.current.player === 'undefined'){
+                        this.blockTrackChange = true
+                        this.audioPlayer.current.player = new Howl({ src: [[this.audioPlayer.playlist.path, this.audioPlayer.current.filename].join('%5C')], volume: this.audioPlayer.current.trackvolume, loop: this.audioPlayer.current.isLooping })
+                        this.audioPlayer.current.player.on('play', () => {
+                            console.log('Block aus in Watcher')
+                            this.blockTrackChange = false
+                            this.audioPlayer.current.player.off('play')
+                        })
+                        console.log(this.audioPlayer.current.name, 'Block set in Watcher')
+                        this.audioPlayer.current.player.on('end', () => {
+                            this.skipToNext()
+                        })
+                    }
                     this.fade.crossfade(oldVal.tracks[this.audioPlayer.oldIndex], this.audioPlayer.current)
 
                 }
