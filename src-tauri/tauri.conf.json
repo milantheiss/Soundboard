@@ -29,6 +29,12 @@
         "all": false,
         "asset": true,
         "assetScope": ["https://asset.localhost", "*"]
+      },
+      "globalShortcut": {
+        "all": true
+      },
+      "window": {
+        "hide": true 
       }
     },
     "bundle": {
@@ -73,7 +79,7 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 800,
+        "height": 825,
         "resizable": true,
         "title": "Soundboard",
         "width": 950

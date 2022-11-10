@@ -55,11 +55,13 @@
         </button>
     </div>
     <SeekUpdater v-model="seek"></SeekUpdater>
+    <div @keyup.space="keyTest"></div>
 </template>
 
 <script>
 import { useAudioPlayerStore } from '@/stores/audioPlayerStore.js'
 import SeekUpdater from "./SeekUpdater.vue"
+import { register, unregisterAll } from '@tauri-apps/api/globalShortcut';
 
 export default {
     name: "MediaControls",
@@ -90,9 +92,11 @@ export default {
                 pause: this._pauseFade,
                 stop: this._stopFade
             },
-            seek: undefined
+            seek: undefined,
+            useHotkeys: false
         }
     },
+    expose: ['toggleHotkeys', 'useHotkeys'],
     components: {
         SeekUpdater
     },
@@ -143,84 +147,84 @@ export default {
         skipToNext() {
             if (!this.audioPlayer.current.isLooping) {
                 //Muss Next blockieren, da loading von Howl Player lange braucht. Es entsteht ansonsten ein Bug, wenn man Next bei undefined Player spamt
-                    if (typeof this.audioPlayer.current !== 'undefined') {
-                        //Wenn schon ein Song gespielt wird, dann starte Crossfade
-                        this.audioPlayer.next.player.on('end', () => {
-                            this.skipToNext()
-                        })
-                        this.fade.crossfade(this.audioPlayer.current, this.audioPlayer.next)
-                        //Der Index wird verschoben
-                        this.audioPlayer.advanceToNextIndex()
-                    } else {
-                        console.error("No current track loaded");
-                    }
-            }
-        },
-        playNext() {
-            //Muss Next blockieren, da loading von Howl Player lange braucht. Es entsteht ansonsten ein Bug, wenn man Next bei undefined Player spamt
                 if (typeof this.audioPlayer.current !== 'undefined') {
                     //Wenn schon ein Song gespielt wird, dann starte Crossfade
-                    if (this.audioPlayer.isPlaying) {
-                        if (this.audioPlayer.playlist.tracks.length > 1) {
-                            this.audioPlayer.next.player.on('end', () => {
-                                this.skipToNext()
-                            })
-                            this.fade.crossfade(this.audioPlayer.current, this.audioPlayer.next)
-                        } else { //Notlösung für wenn nur ein Track in Playlist ist
-                            this.fade.stop()
-                            this.audioPlayer.current.player.stop()
-                            if (typeof this.audioPlayer.next.player !== 'undefined') {
-                                this.audioPlayer.next.player.volume(this.audioPlayer.next.trackvolume)
-                                this.audioPlayer.next.player.play()
-                            }
-                        }
-                    } else { //Wenn Song nicht spielt, wird der Fade sicherheitshalber gecleart und das Volume angepasst.
-                        this.fade.stop()
-                        if (typeof this.audioPlayer.next.player !== 'undefined') {
-                            this.audioPlayer.next.player.volume(this.audioPlayer.next.trackvolume)
-                        }
-                        if (typeof this.audioPlayer.current.player !== 'undefined') {
-                            this.audioPlayer.current.player.stop()
-                        }
-                    }
+                    this.audioPlayer.next.player.on('end', () => {
+                        this.skipToNext()
+                    })
+                    this.fade.crossfade(this.audioPlayer.current, this.audioPlayer.next)
                     //Der Index wird verschoben
                     this.audioPlayer.advanceToNextIndex()
                 } else {
                     console.error("No current track loaded");
                 }
+            }
+        },
+        playNext() {
+            //Muss Next blockieren, da loading von Howl Player lange braucht. Es entsteht ansonsten ein Bug, wenn man Next bei undefined Player spamt
+            if (typeof this.audioPlayer.current !== 'undefined') {
+                //Wenn schon ein Song gespielt wird, dann starte Crossfade
+                if (this.audioPlayer.isPlaying) {
+                    if (this.audioPlayer.playlist.tracks.length > 1) {
+                        this.audioPlayer.next.player.on('end', () => {
+                            this.skipToNext()
+                        })
+                        this.fade.crossfade(this.audioPlayer.current, this.audioPlayer.next)
+                    } else { //Notlösung für wenn nur ein Track in Playlist ist
+                        this.fade.stop()
+                        this.audioPlayer.current.player.stop()
+                        if (typeof this.audioPlayer.next.player !== 'undefined') {
+                            this.audioPlayer.next.player.volume(this.audioPlayer.next.trackvolume)
+                            this.audioPlayer.next.player.play()
+                        }
+                    }
+                } else { //Wenn Song nicht spielt, wird der Fade sicherheitshalber gecleart und das Volume angepasst.
+                    this.fade.stop()
+                    if (typeof this.audioPlayer.next.player !== 'undefined') {
+                        this.audioPlayer.next.player.volume(this.audioPlayer.next.trackvolume)
+                    }
+                    if (typeof this.audioPlayer.current.player !== 'undefined') {
+                        this.audioPlayer.current.player.stop()
+                    }
+                }
+                //Der Index wird verschoben
+                this.audioPlayer.advanceToNextIndex()
+            } else {
+                console.error("No current track loaded");
+            }
         },
         playPrev() {
             //Muss Prev blockieren, da loading von Howl Player lange braucht. Es entsteht ansonsten ein Bug, wenn man Prev bei undefined Player spamt
-                if (typeof this.audioPlayer.current !== 'undefined') {
-                    //Wenn schon ein Song gespielt wird, dann starte Crossfade
-                    if (this.audioPlayer.isPlaying) {
-                        if (this.audioPlayer.playlist.tracks.length > 1) {
-                            this.audioPlayer.previous.player.on('end', () => {
-                                this.skipToNext()
-                            })
-                            this.fade.crossfade(this.audioPlayer.current, this.audioPlayer.previous)
-                        } else { //Notlösung für wenn nur ein Track in Playlist ist
-                            this.fade.stop()
-                            this.audioPlayer.current.player.stop()
-                            if (typeof this.audioPlayer.previous.player !== 'undefined') {
-                                this.audioPlayer.previous.player.volume(this.audioPlayer.previous.trackvolume)
-                                this.audioPlayer.previous.player.play()
-                            }
-                        }
-                    } else { //Wenn Song nicht spielt, wird der Fade sicherheitshalber gecleart und das Volume angepasst.
+            if (typeof this.audioPlayer.current !== 'undefined') {
+                //Wenn schon ein Song gespielt wird, dann starte Crossfade
+                if (this.audioPlayer.isPlaying) {
+                    if (this.audioPlayer.playlist.tracks.length > 1) {
+                        this.audioPlayer.previous.player.on('end', () => {
+                            this.skipToNext()
+                        })
+                        this.fade.crossfade(this.audioPlayer.current, this.audioPlayer.previous)
+                    } else { //Notlösung für wenn nur ein Track in Playlist ist
                         this.fade.stop()
+                        this.audioPlayer.current.player.stop()
                         if (typeof this.audioPlayer.previous.player !== 'undefined') {
                             this.audioPlayer.previous.player.volume(this.audioPlayer.previous.trackvolume)
-                        }
-                        if (typeof this.audioPlayer.current.player !== 'undefined') {
-                            this.audioPlayer.current.player.stop()
+                            this.audioPlayer.previous.player.play()
                         }
                     }
-                    //Der Index wird verschoben
-                    this.audioPlayer.advanceToPreviousIndex()
-                } else {
-                    console.error("No current track loaded");
+                } else { //Wenn Song nicht spielt, wird der Fade sicherheitshalber gecleart und das Volume angepasst.
+                    this.fade.stop()
+                    if (typeof this.audioPlayer.previous.player !== 'undefined') {
+                        this.audioPlayer.previous.player.volume(this.audioPlayer.previous.trackvolume)
+                    }
+                    if (typeof this.audioPlayer.current.player !== 'undefined') {
+                        this.audioPlayer.current.player.stop()
+                    }
                 }
+                //Der Index wird verschoben
+                this.audioPlayer.advanceToPreviousIndex()
+            } else {
+                console.error("No current track loaded");
+            }
         },
         _startCrossfade(from, to) {
             //INFO Fade Duration in ms
@@ -355,16 +359,23 @@ export default {
                 return false
             }
         },
-        garbageCollector() {
-            if (this.audioPlayer.playlist.tracks.length > 3) {
-                //TODO Hier alle unnötige Player löschen.
+        async toggleHotkeys() {
+            this.useHotkeys = !this.useHotkeys
+            if (this.useHotkeys) {
+                await register('Space', () => {
+                    this.togglePlay()
+                });
+                await register('F', () => {
+                    this.playPrev()
+                });
+                await register('J', () => {
+                    this.playNext()
+                });
+            } else {
+                await unregisterAll()
             }
+            console.log("Keypressed");
         }
-    },
-    created() {
-        //IMPORTANT Es wird für jeden Song ein neuer Player geladen.
-        //IMPORTANT Im besten Fall sollten aber nur der Current, Next & Previous Track geladen werden.
-        //TODO Implement load function: mit check, ob player existiert. Erstellt neuen Player
     },
     watch: {
         'audioPlayer.playlist'(newVal, oldVal) {

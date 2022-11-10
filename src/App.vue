@@ -81,6 +81,13 @@
         <p class="font-semibold text-xl ml-4 text-developer-yellow">Developer Tools</p>
       </span>
       <div v-show="showDeveloperTools" class="flex justify-between items-center mt-3">
+        <button @click="resetSong" class="
+          w-fit
+          mr-4 px-3 py-2 
+          border border-transparent bg-developer-yellow rounded-md shadow-sm
+          text-base font-medium text-black 
+          hover:bg-yellow-700 focus:outline-none focus:ring-2 
+          focus:ring-developer-yellow focus:ring-offset-2">Song Reset</button>
         <button @click="reloadPlaylist" class="
           w-fit
           mr-4 px-3 py-2 
@@ -89,6 +96,17 @@
           hover:bg-yellow-700 focus:outline-none focus:ring-2 
           focus:ring-developer-yellow focus:ring-offset-2">Playlist
           aktualisieren</button>
+        <div v-if="typeof $refs.mediaControls !== 'undefined'">
+          <button @click="$refs.mediaControls.toggleHotkeys" class="
+          w-fit
+          mr-4 px-3 py-2 
+          border border-transparent bg-developer-yellow rounded-md shadow-sm
+          text-base font-medium text-black 
+          hover:bg-yellow-700 focus:outline-none focus:ring-2 
+          focus:ring-developer-yellow focus:ring-offset-2"
+            :class="$refs.mediaControls.useHotkeys ? 'bg-lime-500 hover:bg-lime-700 focus:ring-lime-400' : ''">Hotkeys
+            toggeln</button>
+        </div>
         <button @click="nextPlaylist" class="
           w-fit
           mr-4 px-3 py-2 
@@ -96,13 +114,6 @@
           text-base font-medium text-black 
           hover:bg-yellow-700 focus:outline-none focus:ring-2 
           focus:ring-developer-yellow focus:ring-offset-2">Nächste Playlist</button>
-        <button @click="resetSong" class="
-          w-fit
-          mr-4 px-3 py-2 
-          border border-transparent bg-developer-yellow rounded-md shadow-sm
-          text-base font-medium text-black 
-          hover:bg-yellow-700 focus:outline-none focus:ring-2 
-          focus:ring-developer-yellow focus:ring-offset-2">Block reseten</button>
       </div>
     </div>
   </div>
@@ -290,6 +301,17 @@ export default {
         this._selectedPlaylist = temp
       } else {
         console.error('App: Could not go to next Playlist (Return was undefined)')
+      }
+    },
+
+    resetSong() {
+      if (typeof this.audioPlayer.current !== 'undefined') {
+        if (typeof this.audioPlayer.current.player !== 'undefined') {
+          this.audioPlayer.current.player.load()
+          this.audioPlayer.current.player.seek(0.0)
+          this.audioPlayer.current.player.volume(this.audioPlayer.current.trackvolume)
+          this.audioPlayer.current.player.loop(this.audioPlayer.current.isLooping)
+        }
       }
     }
   },
