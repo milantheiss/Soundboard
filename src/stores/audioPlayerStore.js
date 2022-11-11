@@ -83,7 +83,7 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
 
       const getIndexForwardsBuffer = () => {
         if (this.currentIndex + 2 > this.playlist.tracks.length - 1) {
-          return 0;
+          return 1;
         } else {
           return this.currentIndex + 2;
         }
@@ -91,13 +91,15 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
 
       const getIndexOldBackwardsBuffer = () => {
         if (this.currentIndex - 3 < 0) {
-          return this.playlist.tracks.length - 2;
+          return this.playlist.tracks.length - 1;
         } else {
+          console.log("Here");
           return this.currentIndex - 3
         }
       }
 
       if (this.playlist.tracks.length > 5) {
+        console.log(getIndexForwardsBuffer());
         if (typeof this.playlist.tracks[getIndexForwardsBuffer()].player === 'undefined') {
           this.playlist.tracks[getIndexForwardsBuffer()].player = new Howl({
             src: [[this.playlist.path, this.playlist.tracks[getIndexForwardsBuffer()].filename].join('%5C')],
@@ -107,6 +109,8 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
 
         this.playlist.tracks[getIndexOldBackwardsBuffer()].player.unload()
       }
+
+      console.log(this.currentIndex );
     },
 
     advanceToPreviousIndex() {
@@ -128,7 +132,7 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
 
       const getIndexBackwardsBuffer = () => {
         if (this.currentIndex - 2 < 0) {
-          return this.playlist.tracks.length - 1;
+          return this.playlist.tracks.length - 2;
         } else {
           return this.currentIndex - 2
         }
@@ -322,7 +326,7 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
       console.log('Create Player Buffer')
       const getIndexForwardsBuffer = () => {
         if (this.currentIndex + 2 > this.playlist.tracks.length - 1) {
-          return 0;
+          return 1;
         } else {
           return this.currentIndex + 2;
         }
@@ -344,11 +348,13 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
           if (this.playlist.tracks.length > 2) {
             this.previous.player = new Howl({ src: [[this.playlist.path, this.previous.filename].join('%5C')], volume: this.previous.trackvolume, loop: this.previous.isLooping })
             if (this.playlist.tracks.length > 3) {
+              console.log(getIndexForwardsBuffer());
               this.playlist.tracks[getIndexForwardsBuffer()].player = new Howl({
                 src: [[this.playlist.path, this.playlist.tracks[getIndexForwardsBuffer()].filename].join('%5C')],
                 volume: this.playlist.tracks[getIndexForwardsBuffer()].trackvolume, loop: this.playlist.tracks[getIndexForwardsBuffer()].isLooping
               })
               if (this.playlist.tracks.length > 4) {
+                console.log(getIndexBackwardsBuffer());
                 this.playlist.tracks[getIndexBackwardsBuffer()].player = new Howl({
                   src: [[this.playlist.path, this.playlist.tracks[getIndexForwardsBuffer()].filename].join('%5C')],
                   volume: this.playlist.tracks[getIndexBackwardsBuffer()].trackvolume, loop: this.playlist.tracks[getIndexBackwardsBuffer()].isLooping
