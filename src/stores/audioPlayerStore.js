@@ -61,8 +61,10 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
       let _path = this.playlist.path
       if (typeof _path !== 'undefined') {
         if (_path.startsWith('https://asset.localhost/')) {
-          _path = _path.slice(24).replaceAll('%3A', ':').replaceAll('%5C', '\\').replaceAll('%20', ' ')
-        }
+                _path = _path.slice(24)   
+                _path = decodeURI(_path).replaceAll('%3A', ':')
+            }
+
         return _path
       } else {
         return undefined
@@ -177,6 +179,8 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
         this._triggerPosUpdate()
 
         this.writeToConfig(this.playlist)
+        this.loadPlayerBuffer()
+        console.log("Loaded Buffer");
       }
     },
 
