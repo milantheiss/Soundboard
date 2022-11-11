@@ -60,10 +60,12 @@
   <!--TODO Neue Playlisten laden/erstellen und zum Preset hinzufügen-->
   <!--TODO Playlisten auswählen-->
 
-  <div>
-    <div class="bg-developer-yellow-backgroud p-4 mx-6 mt-6 mb-3 rounded-lg">
+  <div v-if="typeof $refs.mediaControls !== 'undefined'">
+    <div class="bg-developer-yellow-backgroud p-4 mx-6 mt-6 mb-3 rounded-lg"
+      :class="$refs.mediaControls.useHotkeys ? 'bg-lime-500 bg-opacity-10' : ''">
       <span class="flex justify-start items-center" @click="showDeveloperTools = !showDeveloperTools">
-        <span v-show="!showDeveloperTools" class="text-developer-yellow flex items-center">
+        <span v-show="!showDeveloperTools" class="text-developer-yellow flex items-center"
+          :class="$refs.mediaControls.useHotkeys ? 'text-lime-500' : ''">
           <!--Show More Icon-->
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
             class="w-7 h-7">
@@ -71,49 +73,54 @@
           </svg>
 
         </span>
-        <span v-show="showDeveloperTools" class="text-developer-yellow flex items-center">
+        <span v-show="showDeveloperTools" class="text-developer-yellow flex items-center"
+          :class="$refs.mediaControls.useHotkeys ? 'text-lime-500' : ''">
           <!--Show Less Icon-->
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
             class="w-7 h-7">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
           </svg>
         </span>
-        <p class="font-semibold text-xl ml-4 text-developer-yellow">Developer Tools</p>
+        <p class="font-semibold text-xl ml-4 text-developer-yellow"
+          :class="$refs.mediaControls.useHotkeys ? 'text-lime-500' : ''">Developer Tools</p>
       </span>
       <div v-show="showDeveloperTools" class="flex justify-between items-center mt-3">
         <button @click="resetSong" class="
           w-fit
           mr-4 px-3 py-2 
-          border border-transparent bg-developer-yellow rounded-md shadow-sm
+          border border-transparent  rounded-md shadow-sm
           text-base font-medium text-black 
-          hover:bg-yellow-700 focus:outline-none focus:ring-2 
-          focus:ring-developer-yellow focus:ring-offset-2">Song Reset</button>
+          focus:outline-none focus:ring-2 
+           focus:ring-offset-2"
+          :class="$refs.mediaControls.useHotkeys ? 'bg-lime-500 hover:bg-lime-700 focus:ring-lime-400' : 'bg-developer-yellow hover:bg-yellow-700 focus:ring-developer-yellow'">Song
+          Reset</button>
         <button @click="reloadPlaylist" class="
           w-fit
           mr-4 px-3 py-2 
-          border border-transparent bg-developer-yellow rounded-md shadow-sm
+          border border-transparent  rounded-md shadow-sm
           text-base font-medium text-black 
-          hover:bg-yellow-700 focus:outline-none focus:ring-2 
-          focus:ring-developer-yellow focus:ring-offset-2">Playlist
+          focus:outline-none focus:ring-2 
+           focus:ring-offset-2"
+          :class="$refs.mediaControls.useHotkeys ? 'bg-lime-500 hover:bg-lime-700 focus:ring-lime-400' : 'bg-developer-yellow hover:bg-yellow-700 focus:ring-developer-yellow'">Playlist
           aktualisieren</button>
-        <div v-if="typeof $refs.mediaControls !== 'undefined'">
-          <button @click="$refs.mediaControls.toggleHotkeys" class="
+        <button @click="toggleHotkeys" class="
           w-fit
           mr-4 px-3 py-2 
-          border border-transparent bg-developer-yellow rounded-md shadow-sm
+          border border-transparent  rounded-md shadow-sm
           text-base font-medium text-black 
-          hover:bg-yellow-700 focus:outline-none focus:ring-2 
-          focus:ring-developer-yellow focus:ring-offset-2"
-            :class="$refs.mediaControls.useHotkeys ? 'bg-lime-500 hover:bg-lime-700 focus:ring-lime-400' : ''">Hotkeys
-            toggeln</button>
-        </div>
+          focus:outline-none focus:ring-2 
+           focus:ring-offset-2"
+          :class="$refs.mediaControls.useHotkeys ? 'bg-lime-500 hover:bg-lime-700 focus:ring-lime-400' : 'bg-developer-yellow hover:bg-yellow-700 focus:ring-developer-yellow'">Hotkeys
+          toggeln</button>
         <button @click="nextPlaylist" class="
           w-fit
           mr-4 px-3 py-2 
-          border border-transparent bg-developer-yellow rounded-md shadow-sm
+          border border-transparent  rounded-md shadow-sm
           text-base font-medium text-black 
-          hover:bg-yellow-700 focus:outline-none focus:ring-2 
-          focus:ring-developer-yellow focus:ring-offset-2">Nächste Playlist</button>
+          focus:outline-none focus:ring-2 
+           focus:ring-offset-2"
+          :class="$refs.mediaControls.useHotkeys ? 'bg-lime-500 hover:bg-lime-700 focus:ring-lime-400' : 'bg-developer-yellow hover:bg-yellow-700 focus:ring-developer-yellow'">Nächste
+          Playlist</button>
       </div>
     </div>
   </div>
@@ -232,7 +239,7 @@ export default {
   setup() {
     const audioPlayer = useAudioPlayerStore()
     const preset = usePresetStore()
-    
+
     return {
       audioPlayer,
       preset
@@ -314,6 +321,17 @@ export default {
           this.audioPlayer.current.player.loop(this.audioPlayer.current.isLooping)
         }
       }
+    },
+
+    async toggleHotkeys() {
+      await this.$refs.mediaControls.toggleHotkeys()
+      if (this.$refs.mediaControls.useHotkeys) {
+        await register('B', () => {
+          this.nextPlaylist()
+        });
+      } else {
+        await unregisterAll()
+      }
     }
   },
   components: {
@@ -354,13 +372,6 @@ export default {
   },
   async created() {
     this.presets = await loadAllPresets()
-    if (this.$refs.mediaControls.useHotkeys) {
-      await register('B', () => {
-        this.nextPlaylist()
-      });
-    } else {
-      await unregisterAll()
-    }
   }
 }
 </script>
