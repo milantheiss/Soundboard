@@ -61,9 +61,9 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
       let _path = this.playlist.path
       if (typeof _path !== 'undefined') {
         if (_path.startsWith('https://asset.localhost/')) {
-                _path = _path.slice(24)   
-                _path = decodeURI(_path).replaceAll('%3A', ':')
-            }
+          _path = _path.slice(24)
+          _path = decodeURI(_path).replaceAll('%3A', ':')
+        }
 
         return _path
       } else {
@@ -83,17 +83,17 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
 
       const getIndexForwardsBuffer = () => {
         if (this.currentIndex + 2 > this.playlist.tracks.length - 1) {
-          return 1;
+          return (this.currentIndex + 2) - this.playlist.tracks.length;
         } else {
           return this.currentIndex + 2;
         }
       }
 
+
       const getIndexOldBackwardsBuffer = () => {
         if (this.currentIndex - 3 < 0) {
-          return this.playlist.tracks.length - 1;
+          return this.playlist.tracks.length - 3 + this.currentIndex;
         } else {
-          console.log("Here");
           return this.currentIndex - 3
         }
       }
@@ -110,7 +110,7 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
         this.playlist.tracks[getIndexOldBackwardsBuffer()].player.unload()
       }
 
-      console.log(this.currentIndex );
+      console.log(this.currentIndex);
     },
 
     advanceToPreviousIndex() {
@@ -124,19 +124,20 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
 
       const getIndexOldForwardsBuffer = () => {
         if (this.currentIndex + 3 > this.playlist.tracks.length - 1) {
-          return 0;
+          return this.currentIndex + 3 - this.playlist.tracks.length;
         } else {
           return this.currentIndex + 3;
         }
       }
-
+      
       const getIndexBackwardsBuffer = () => {
         if (this.currentIndex - 2 < 0) {
-          return this.playlist.tracks.length - 2;
+          return this.playlist.tracks.length - 2 + this.currentIndex;
         } else {
           return this.currentIndex - 2
         }
       }
+
 
       if (this.playlist.tracks.length > 5) {
         if (typeof this.playlist.tracks[getIndexBackwardsBuffer()].player === 'undefined') {

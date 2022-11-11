@@ -226,12 +226,13 @@ import { loadNewPlaylist, loadAllPresets } from './util/fileManager';
 import TextInput from './components/TextInput.vue';
 import NumberInput from './components/NumberInput.vue';
 import CheckboxInput from './components/CheckboxInput.vue';
+import { register, unregisterAll } from '@tauri-apps/api/globalShortcut';
 
 export default {
   setup() {
     const audioPlayer = useAudioPlayerStore()
     const preset = usePresetStore()
-
+    
     return {
       audioPlayer,
       preset
@@ -353,6 +354,13 @@ export default {
   },
   async created() {
     this.presets = await loadAllPresets()
+    if (this.$refs.mediaControls.useHotkeys) {
+      await register('B', () => {
+        this.nextPlaylist()
+      });
+    } else {
+      await unregisterAll()
+    }
   }
 }
 </script>

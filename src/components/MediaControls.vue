@@ -368,10 +368,10 @@ export default {
                 await register('Space', () => {
                     this.togglePlay()
                 });
-                await register('F', () => {
+                await register('P', () => {
                     this.playPrev()
                 });
-                await register('J', () => {
+                await register('N', () => {
                     this.playNext()
                 });
             } else {
