@@ -93,7 +93,10 @@ export default {
                 stop: this._stopFade
             },
             seek: undefined,
-            useHotkeys: false
+            useHotkeys: false,
+            hotkeyCooldown: true,
+            lastHotkey: 0,
+            cooldown: 750
         }
     },
     expose: ['toggleHotkeys', 'useHotkeys'],
@@ -366,13 +369,22 @@ export default {
             this.useHotkeys = !this.useHotkeys
             if (this.useHotkeys) {
                 await register('Space', () => {
-                    this.togglePlay()
+                    if (Date.now() - this.lastHotkey > this.cooldown || !this.hotkeyCooldown) {
+                        this.togglePlay()
+                        this.lastHotkey = Date.now()
+                    }
                 });
                 await register('P', () => {
-                    this.playPrev()
+                    if (Date.now() - this.lastHotkey > this.cooldown || !this.hotkeyCooldown) {
+                        this.playPrev()
+                        this.lastHotkey = Date.now()
+                    }
                 });
                 await register('N', () => {
-                    this.playNext()
+                    if (Date.now() - this.lastHotkey > this.cooldown || !this.hotkeyCooldown) {
+                        this.playNext()
+                        this.lastHotkey = Date.now()
+                    }
                 });
             } else {
                 await unregisterAll()
