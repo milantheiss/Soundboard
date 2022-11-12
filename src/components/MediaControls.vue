@@ -93,13 +93,14 @@ export default {
                 stop: this._stopFade
             },
             seek: undefined,
+            //IMPORTANT Nicht final
             useHotkeys: false,
-            hotkeyCooldown: true,
+            hotkeyHasCooldown: true,
             lastHotkey: 0,
             cooldown: 750
         }
     },
-    expose: ['toggleHotkeys', 'useHotkeys'],
+    expose: ['toggleHotkeys', 'useHotkeys', 'cooldown', 'hotkeyHasCooldown', 'lastHotkey'],
     components: {
         SeekUpdater
     },
@@ -369,19 +370,19 @@ export default {
             this.useHotkeys = !this.useHotkeys
             if (this.useHotkeys) {
                 await register('Space', () => {
-                    if (Date.now() - this.lastHotkey > this.cooldown || !this.hotkeyCooldown) {
+                    if (Date.now() - this.lastHotkey > this.cooldown || !this.hotkeyHasCooldown) {
                         this.togglePlay()
                         this.lastHotkey = Date.now()
                     }
                 });
                 await register('P', () => {
-                    if (Date.now() - this.lastHotkey > this.cooldown || !this.hotkeyCooldown) {
+                    if (Date.now() - this.lastHotkey > this.cooldown || !this.hotkeyHasCooldown) {
                         this.playPrev()
                         this.lastHotkey = Date.now()
                     }
                 });
                 await register('N', () => {
-                    if (Date.now() - this.lastHotkey > this.cooldown || !this.hotkeyCooldown) {
+                    if (Date.now() - this.lastHotkey > this.cooldown || !this.hotkeyHasCooldown) {
                         this.playNext()
                         this.lastHotkey = Date.now()
                     }

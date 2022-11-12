@@ -84,6 +84,14 @@
         <p class="font-semibold text-xl ml-4 text-developer-yellow"
           :class="$refs.mediaControls.useHotkeys ? 'text-lime-500' : ''">Developer Tools</p>
       </span>
+      <div v-show="showDeveloperTools" class="flex justify-between items-center my-4 py-2 px-4 rounded-md text-developer-yellow text-opacity-50 bg-background-dark-gray w-fit"  :class="$refs.mediaControls.useHotkeys ? 'text-lime-500' : ''">
+        <p class="font-semibold text-xl" v-if="typeof audioPlayer.next !== 'undefined'">Nächster Track: <span
+            class="italic">{{
+                audioPlayer.next.name
+            }}</span> </p>
+        <p class="font-semibold text-xl" v-if="typeof audioPlayer.next === 'undefined'">Nächster Track: <span
+            class="italic">Kein Track geladen</span></p>
+      </div>
       <div v-show="showDeveloperTools" class="flex justify-between items-center mt-3">
         <button @click="resetSong" class="
           w-fit
@@ -326,8 +334,11 @@ export default {
     async toggleHotkeys() {
       await this.$refs.mediaControls.toggleHotkeys()
       if (this.$refs.mediaControls.useHotkeys) {
-        await register('B', () => {
-          this.nextPlaylist()
+        await register('V', () => {
+          if (Date.now() - this.$refs.mediaControls.lastHotkey > this.$refs.mediaControls.cooldown || !this.$refs.mediaControls.hotkeyHasCooldown) {
+            this.nextPlaylist()
+            this.$refs.mediaControls.lastHotkey = Date.now()
+          }
         });
       } else {
         await unregisterAll()

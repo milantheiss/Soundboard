@@ -72,9 +72,12 @@ async function loadPlaylist(path) {
             //Entfernt in Ordner fehlende Tracks aus playlistConfig        
             for (const track of playlistConfig.tracks) {
                 if (!await exists([path, track.filename].join('\\'))) {
+                    console.log(track.filename);
                     playlistConfig.tracks.splice(playlistConfig.tracks.indexOf(track), 1)
                 }
             }
+
+            console.log(playlistConfig);
 
             playlistConfig = _sortTracks(playlistConfig)
 
@@ -105,6 +108,9 @@ async function loadPlaylist(path) {
 function _sortTracks(playlist) {
     let temp = []
     let tail = []
+
+    console.log(playlist.tracks)
+
     playlist.tracks.forEach(element => {
         if (typeof temp[element.pos] === 'undefined') {
             temp[element.pos] = element
@@ -120,6 +126,10 @@ function _sortTracks(playlist) {
             temp[temp.indexOf(element)].pos = temp.indexOf(element)
         })
     }
+
+    temp = temp.filter(element => typeof element !== 'undefined' && element !== null)
+    
+    temp.forEach(element => element.pos = temp.indexOf(element))
 
     playlist.tracks = temp
 
