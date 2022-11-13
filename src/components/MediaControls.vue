@@ -261,7 +261,6 @@ export default {
                 if (this.fade._from.player.volume() <= 0.0) {
                     //Stoppt alten Track. --> Damit ist seek wieder 0.0 aber volume immer noch 0.0
                     this.fade._from.player.stop()
-                    console.log('stoppt');
                     this.fade._from.player.seek(0)
 
                     console.debug(`Finished fading ${this.fade._from.data.name}`)
@@ -280,10 +279,8 @@ export default {
             })
 
             if (!to.player.playing()) {
-                console.log("Loading");
                 to.player.load()
                 to.player.play()
-                console.log(to.name, to.player.playing())
             }
 
             //Beginnt den nächsten Track einzufaden
@@ -390,7 +387,6 @@ export default {
             } else {
                 await unregisterAll()
             }
-            console.log("Keypressed");
         }
     },
     watch: {

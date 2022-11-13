@@ -84,7 +84,9 @@
         <p class="font-semibold text-xl ml-4 text-developer-yellow"
           :class="$refs.mediaControls.useHotkeys ? 'text-lime-500' : ''">Developer Tools</p>
       </span>
-      <div v-show="showDeveloperTools" class="flex justify-between items-center my-4 py-2 px-4 rounded-md text-developer-yellow text-opacity-50 bg-background-dark-gray w-fit"  :class="$refs.mediaControls.useHotkeys ? 'text-lime-500' : ''">
+      <div v-show="showDeveloperTools"
+        class="flex justify-between items-center my-4 py-2 px-4 rounded-md text-developer-yellow text-opacity-50 bg-background-dark-gray w-fit"
+        :class="$refs.mediaControls.useHotkeys ? 'text-lime-500' : ''">
         <p class="font-semibold text-xl" v-if="typeof audioPlayer.next !== 'undefined'">Nächster Track: <span
             class="italic">{{
                 audioPlayer.next.name
@@ -139,6 +141,7 @@
     }}: <span class="italic"> {{ audioPlayer.current.name }} </span></p>
     <p class="text-2xl font-semibold" v-if="typeof audioPlayer.current === 'undefined'">Kein Song geladen.</p>
     <MediaControls ref="mediaControls"></MediaControls>
+    <ErrorPrompt ref="playerError"></ErrorPrompt>
   </div>
   <div>
     <button @click="$refs.addSongPrompt.open = true" class="w-fit inline-flex justify-center
@@ -242,6 +245,7 @@ import TextInput from './components/TextInput.vue';
 import NumberInput from './components/NumberInput.vue';
 import CheckboxInput from './components/CheckboxInput.vue';
 import { register, unregisterAll } from '@tauri-apps/api/globalShortcut';
+import ErrorPrompt from './components/ErrorPrompt.vue';
 
 export default {
   setup() {
@@ -354,7 +358,8 @@ export default {
     TextInput,
     NumberInput,
     CheckboxInput,
-    ConfirmationPrompt
+    ConfirmationPrompt,
+    ErrorPrompt
   },
   watch: {
     'audioPlayer.current'() {
@@ -365,6 +370,18 @@ export default {
         this.trackSettings.fadeOutDuration = this.audioPlayer.current.fadeOutDuration
         this.trackSettings.isLooping = this.audioPlayer.current.isLooping
         this.trackSettings.pos = this.audioPlayer.current.pos + 1
+      }
+    },
+    'audioPlayer.current.player'() {
+      if (typeof this.audioPlayer.current.player !== 'undefined') {
+        this.audioPlayer.current.player.on('loaderror', (id, e) => {
+          if (e === 'Failed loading audio file with status: 404.') {
+            this.$refs.playerError.text = '404: Audio Datei konnte nicht im Playlisten Ordner gefunden werden.'
+          } else {
+            this.$refs.playerError.text = 'Unbekannter Fehler beim Laden Audiodatei'
+          }
+          this.$refs.playerError.open = true
+        })
       }
     },
     'audioPlayer.current.isLooping'() {
