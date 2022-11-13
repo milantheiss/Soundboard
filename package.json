@@ -11,15 +11,18 @@
     "tauri:serve": "vue-cli-service tauri:serve"
   },
   "dependencies": {
+    "@headlessui/vue": "^1.7.3",
     "@tauri-apps/api": "^1.1.0",
     "howler": "^2.2.3",
     "pinia": "^2.0.23",
     "vue": "^3.2.37"
   },
   "devDependencies": {
+    "@tailwindcss/forms": "^0.5.3",
     "@tauri-apps/cli": "^1.1.0",
     "@vitejs/plugin-vue": "^3.0.1",
     "@vue/cli-service": "^5.0.8",
+    "@vue/devtools": "^6.4.5",
     "autoprefixer": "^10.4.12",
     "eslint": "^8.25.0",
     "eslint-plugin-vue": "^9.6.0",

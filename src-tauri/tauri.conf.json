@@ -4,7 +4,7 @@
     "beforeBuildCommand": "yarn build",
     "devPath": "http://localhost:1420",
     "distDir": "../dist",
-    "withGlobalTauri": false
+    "withGlobalTauri": true
   },
   "package": {
     "productName": "Soundboard",
@@ -12,7 +12,30 @@
   },
   "tauri": {
     "allowlist": {
-      "all": true
+      "dialog": {
+        "open": true
+      },
+      "fs": {
+        "readFile": true,
+        "exists": true,
+        "readDir": true,
+        "writeFile": true,
+        "createDir": true,
+        "removeFile": true,
+        "copyFile": true,
+        "scope": [ "https://asset.localhost", "$DATA/*", "*"]
+      },
+      "protocol": {
+        "all": false,
+        "asset": true,
+        "assetScope": ["https://asset.localhost", "*"]
+      },
+      "globalShortcut": {
+        "all": true
+      },
+      "window": {
+        "hide": true 
+      }
     },
     "bundle": {
       "active": true,
@@ -48,7 +71,7 @@
       }
     },
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; media-src 'self' asset: https://asset.localhost"
     },
     "updater": {
       "active": false
@@ -56,10 +79,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 600,
+        "height": 825,
         "resizable": true,
         "title": "Soundboard",
-        "width": 800
+        "width": 950
       }
     ]
   }
