@@ -53,9 +53,10 @@
           </svg>
 
         </span>
-        <p class="ml-3 font-semibold text-xl truncate" v-if="typeof audioPlayer.current !== 'undefined'">Track Settings • {{
-          audioPlayer.current.name
-        }}</p>
+        <p class="ml-3 font-semibold text-xl truncate" v-if="typeof audioPlayer.current !== 'undefined'">Track Settings
+          • {{
+            audioPlayer.current.name
+          }}</p>
         <p class="ml-3 font-semibold text-xl" v-if="typeof audioPlayer.current === 'undefined'">Track Settings</p>
       </span>
       <div v-show="showTrackSettings">
@@ -102,19 +103,19 @@
     <!--Playlist Card-->
     <div class="bg-background rounded-lg p-4 drop-shadow-md row-span-2 w-full h-full">
       <span class="flex justify-start items-center">
+        <p class="font-semibold text-xl" v-if="(typeof audioPlayer.playlist.name !== 'undefined')">
+          {{ audioPlayer.playlist.name }}</p>
+        <p class="font-semibold text-xl" v-if="(typeof audioPlayer.playlist.name === 'undefined')">Keine Playlist
+          ausgewählt</p>
         <!--Refresh Icon-->
         <span @click="reloadPlaylist" :class="reloadSpin ? 'animate-reloadSpin' : ''" @animationend="reloadSpin = false"
-          class="w-7 h-7 mr-3">
+          class="w-7 h-7 ml-3">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
             stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round"
               d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
           </svg>
         </span>
-        <p class="font-semibold text-xl" v-if="(typeof audioPlayer.playlist.name !== 'undefined')">
-          {{ audioPlayer.playlist.name }}</p>
-        <p class="font-semibold text-xl" v-if="(typeof audioPlayer.playlist.name === 'undefined')">Keine Playlist
-          ausgewählt</p>
       </span>
       <div>
       </div>
@@ -126,19 +127,10 @@
         focus:ring-electric-blue-hover focus:ring-offset-2">Song hinzufügen</button>
     </div>
 
-    <!--Media Controls Card-->
-    <div class="grid grid-cols-3 gap-x-2 items-center bg-background rounded-lg p-4 drop-shadow-md h-fit w-full">
-      <span class="w-full text-2xl font-semibold col-span-2">
-        <p   v-if="typeof audioPlayer.current !== 'undefined'" class="truncate">{{
-          audioPlayer.current.pos + 1
-        }}: <span class="italic"> {{ audioPlayer.current.name }} </span></p>
-        <p v-if="typeof audioPlayer.current === 'undefined'">Kein Song geladen.</p>
-      </span>
-      <MediaControls ref="mediaControls" class="w-full"></MediaControls>
-    </div>
+
 
     <!--Devtools Card-->
-    <div class="bg-developer-yellow-backgroud p-4 rounded-lg col-span-2 w-full flex justify-between items-center"
+    <div class="bg-developer-yellow-backgroud p-4 rounded-lg w-full flex justify-between items-center"
       :class="$refs.mediaControls?.useHotkeys ? 'bg-lime-500 bg-opacity-10' : ''">
       <button @click="resetSong" class="
           w-fit
@@ -177,7 +169,19 @@
         :class="$refs.mediaControls?.useHotkeys ? 'bg-lime-500 hover:bg-lime-700 focus:ring-lime-400' : 'bg-developer-yellow hover:bg-yellow-700 focus:ring-developer-yellow'">Nächste
         Playlist</button>
     </div>
+    <!--Media Controls Card-->
+    <div
+      class="grid grid-cols-3 gap-x-2 items-center bg-background rounded-lg p-4 drop-shadow-md h-fit w-full col-span-2">
+      <span class="w-full text-2xl font-semibold col-span-2">
+        <p v-if="typeof audioPlayer.current !== 'undefined'" class="truncate">{{
+          audioPlayer.current.pos + 1
+        }}: <span class="italic"> {{ audioPlayer.current.name }} </span></p>
+        <p v-if="typeof audioPlayer.current === 'undefined'">Kein Song geladen.</p>
+      </span>
+      <MediaControls ref="mediaControls" class="w-full"></MediaControls>
+    </div>
   </div>
+
 
   <!--Collapse Icon
       <span class="flex justify-start items-center" @click="showDeveloperTools = !showDeveloperTools">
