@@ -133,31 +133,13 @@
           audioPlayer.current.pos + 1
         }}: <span class="italic"> {{ audioPlayer.current.name }} </span></p>
         <p v-if="typeof audioPlayer.current === 'undefined'">Kein Song geladen.</p>
+        <!--TODO Seek Bar hinzufügen-->
       </span>
       <MediaControls ref="mediaControls" class="w-full"></MediaControls>
     </div>
 
     <!--Devtools Card-->
-    <div class="bg-developer-yellow-backgroud p-4 rounded-lg col-span-2 w-full flex justify-between items-center"
-      :class="$refs.mediaControls?.useHotkeys ? 'bg-lime-500 bg-opacity-10' : ''">
-      <button @click="resetSong" class="
-          w-fit
-          mr-4 px-3 py-2 
-          border border-transparent  rounded-md shadow-sm
-          text-base font-medium text-black 
-          focus:outline-none focus:ring-2 
-           focus:ring-offset-2"
-        :class="$refs.mediaControls?.useHotkeys ? 'bg-lime-500 hover:bg-lime-700 focus:ring-lime-400' : 'bg-developer-yellow hover:bg-yellow-700 focus:ring-developer-yellow'">Reset
-        Song</button>
-      <button @click="reloadPlaylist" class="
-          w-fit
-          mr-4 px-3 py-2 
-          border border-transparent  rounded-md shadow-sm
-          text-base font-medium text-black 
-          focus:outline-none focus:ring-2 
-           focus:ring-offset-2"
-        :class="$refs.mediaControls?.useHotkeys ? 'bg-lime-500 hover:bg-lime-700 focus:ring-lime-400' : 'bg-developer-yellow hover:bg-yellow-700 focus:ring-developer-yellow'">Playlist
-        aktualisieren</button>
+    <div class="bg-background p-4 rounded-lg col-span-2 w-full flex justify-end items-center">
       <button @click="toggleHotkeys" class="
           w-fit
           mr-4 px-3 py-2 
@@ -165,7 +147,7 @@
           text-base font-medium text-black 
           focus:outline-none focus:ring-2 
            focus:ring-offset-2"
-        :class="$refs.mediaControls?.useHotkeys ? 'bg-lime-500 hover:bg-lime-700 focus:ring-lime-400' : 'bg-developer-yellow hover:bg-yellow-700 focus:ring-developer-yellow'">Hotkeys
+        :class="$refs.mediaControls?.useHotkeys ? 'bg-lime-500 hover:bg-lime-700 focus:ring-lime-400' : 'bg-electric-blue hover:bg-electric-blue-hover focus:ring-electric-blue'">Hotkeys
         toggeln</button>
       <button @click="nextPlaylist" class="
           w-fit
@@ -173,9 +155,9 @@
           border border-transparent  rounded-md shadow-sm
           text-base font-medium text-black 
           focus:outline-none focus:ring-2 
-           focus:ring-offset-2"
-        :class="$refs.mediaControls?.useHotkeys ? 'bg-lime-500 hover:bg-lime-700 focus:ring-lime-400' : 'bg-developer-yellow hover:bg-yellow-700 focus:ring-developer-yellow'">Nächste
-        Playlist</button>
+          focus:ring-offset-2
+          bg-electric-blue hover:bg-electric-blue-hover focus:ring-electric-blue">
+          Nächste Playlist</button>
     </div>
   </div>
 
