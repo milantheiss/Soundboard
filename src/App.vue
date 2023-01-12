@@ -127,10 +127,20 @@
         focus:ring-electric-blue-hover focus:ring-offset-2">Song hinzufügen</button>
     </div>
 
-
+    <!--Media Controls Card-->
+    <div class="grid grid-cols-3 gap-x-2 items-center bg-background rounded-lg p-4 drop-shadow-md h-fit w-full">
+      <span class="w-full text-2xl font-semibold col-span-2">
+        <p   v-if="typeof audioPlayer.current !== 'undefined'" class="truncate">{{
+          audioPlayer.current.pos + 1
+        }}: <span class="italic"> {{ audioPlayer.current.name }} </span></p>
+        <p v-if="typeof audioPlayer.current === 'undefined'">Kein Song geladen.</p>
+        <!--TODO Seek Bar hinzufügen-->
+      </span>
+      <MediaControls ref="mediaControls" class="w-full"></MediaControls>
+    </div>
 
     <!--Devtools Card-->
-    <div class="bg-developer-yellow-backgroud p-4 rounded-lg w-full flex justify-between items-center"
+    <div class="bg-developer-yellow-backgroud p-4 rounded-lg col-span-2 w-full flex justify-between items-center"
       :class="$refs.mediaControls?.useHotkeys ? 'bg-lime-500 bg-opacity-10' : ''">
       <button @click="resetSong" class="
           w-fit
@@ -157,7 +167,7 @@
           text-base font-medium text-black 
           focus:outline-none focus:ring-2 
            focus:ring-offset-2"
-        :class="$refs.mediaControls?.useHotkeys ? 'bg-lime-500 hover:bg-lime-700 focus:ring-lime-400' : 'bg-developer-yellow hover:bg-yellow-700 focus:ring-developer-yellow'">Hotkeys
+        :class="$refs.mediaControls?.useHotkeys ? 'bg-lime-500 hover:bg-lime-700 focus:ring-lime-400' : 'bg-electric-blue hover:bg-electric-blue-hover focus:ring-electric-blue'">Hotkeys
         toggeln</button>
       <button @click="nextPlaylist" class="
           w-fit
@@ -168,17 +178,6 @@
            focus:ring-offset-2"
         :class="$refs.mediaControls?.useHotkeys ? 'bg-lime-500 hover:bg-lime-700 focus:ring-lime-400' : 'bg-developer-yellow hover:bg-yellow-700 focus:ring-developer-yellow'">Nächste
         Playlist</button>
-    </div>
-    <!--Media Controls Card-->
-    <div
-      class="grid grid-cols-3 gap-x-2 items-center bg-background rounded-lg p-4 drop-shadow-md h-fit w-full col-span-2">
-      <span class="w-full text-2xl font-semibold col-span-2">
-        <p v-if="typeof audioPlayer.current !== 'undefined'" class="truncate">{{
-          audioPlayer.current.pos + 1
-        }}: <span class="italic"> {{ audioPlayer.current.name }} </span></p>
-        <p v-if="typeof audioPlayer.current === 'undefined'">Kein Song geladen.</p>
-      </span>
-      <MediaControls ref="mediaControls" class="w-full"></MediaControls>
     </div>
   </div>
 
