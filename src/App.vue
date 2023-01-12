@@ -127,14 +127,14 @@
     </div>
 
     <!--Media Controls Card-->
-    <div class="grid grid-cols-2 gap-x-2 items-center bg-background rounded-lg p-4 drop-shadow-md h-fit w-full">
-      <span class="w-full text-2xl font-semibold">
+    <div class="grid grid-cols-3 gap-x-2 items-center bg-background rounded-lg p-4 drop-shadow-md h-fit w-full">
+      <span class="w-full text-2xl font-semibold col-span-2">
         <p   v-if="typeof audioPlayer.current !== 'undefined'" class="truncate">{{
           audioPlayer.current.pos + 1
         }}: <span class="italic"> {{ audioPlayer.current.name }} </span></p>
         <p v-if="typeof audioPlayer.current === 'undefined'">Kein Song geladen.</p>
       </span>
-      <MediaControls ref="mediaControls" class="w-fit"></MediaControls>
+      <MediaControls ref="mediaControls" class="w-full"></MediaControls>
     </div>
 
     <!--Devtools Card-->
