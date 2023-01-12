@@ -18,6 +18,9 @@ module.exports = {
         'special-red-hover': '#e60008',
         'developer-yellow': "#d39f0f",
         "developer-yellow-backgroud": '#332b00'
+      },
+      animation: {
+        reloadSpin: "spin 1s linear"
       }
     },
   },
