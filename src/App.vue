@@ -4,7 +4,7 @@
 
   <!--Preset & Playlist Selector-->
   <div class="grid grid-cols-2 gap-4 items-center mx-6 mt-6">
-    <div class="flex justify-between items-center">
+    <div class="flex justify-start items-center">
       <span class="bg-background-dark-gray">
         <SelectList v-model="_selectedPreset" defaultValue="Wähle ein Preset" :options="presets" class="w-64">
         </SelectList>
@@ -17,13 +17,13 @@
         focus:ring-electric-blue-hover focus:ring-offset-2">Create Preset</button>
     </div>
 
-    <div class="flex justify-between items-center">
+    <div class="flex justify-start items-center">
       <span class="bg-background-dark-gray">
         <SelectList ref="selectPlaylist" v-model="_selectedPlaylist" defaultValue="Wähle ein Playlist"
           :options="preset.playlists" class="w-64"></SelectList>
       </span>
-      <button @click="addPlaylistToPreset" class="w-40 h-fit inline-flex justify-center
-        ml-6 py-2 
+      <button @click="addPlaylistToPreset" class="w-fit h-fit inline-flex justify-center
+        ml-6 px-3 py-2 
         border border-transparent bg-electric-blue rounded-md shadow-sm
         text-base font-medium text-black 
         hover:bg-electric-blue-hover focus:outline-none focus:ring-2 
@@ -84,7 +84,7 @@
           <CheckboxInput v-model="trackSettings.isLooping"></CheckboxInput>
         </div>
         <div class="flex justify-between items-center mt-4">
-          <p class="text-xl font-semibold text-gray-200">Playlist Position:</p>
+          <p class="text-xl font-semibold text-gray-200">Position in Playlist :</p>
           <NumberInput v-model="trackSettings.pos" class="w-32 text-white" :step="1" min="1"
             :max="(audioPlayer.playlist.tracks.length).toString()">
           </NumberInput>
@@ -105,8 +105,7 @@
       <span class="flex justify-start items-center">
         <p class="font-semibold text-xl" v-if="(typeof audioPlayer.playlist.name !== 'undefined')">
           {{ audioPlayer.playlist.name }}</p>
-        <p class="font-semibold text-xl" v-if="(typeof audioPlayer.playlist.name === 'undefined')">Keine Playlist
-          ausgewählt</p>
+        <p class="font-semibold text-xl" v-if="(typeof audioPlayer.playlist.name === 'undefined')">No Playlist selected</p>
         <!--Refresh Icon-->
         <span @click="reloadPlaylist" :class="reloadSpin ? 'animate-reloadSpin' : ''" @animationend="reloadSpin = false"
           class="w-7 h-7 ml-3">
@@ -120,49 +119,17 @@
       <div>
       </div>
       <button @click="$refs.addSongPrompt.open = true" class="w-fit inline-flex justify-center
-        px-3 py-2 
+        px-3 py-2 mx-auto
         border border-transparent bg-electric-blue rounded-md shadow-sm
         text-base font-medium text-black 
         hover:bg-electric-blue-hover focus:outline-none focus:ring-2 
-        focus:ring-electric-blue-hover focus:ring-offset-2">Song hinzufügen</button>
-    </div>
-
-    <!--Media Controls Card-->
-    <div class="grid grid-cols-3 gap-x-2 items-center bg-background rounded-lg p-4 drop-shadow-md h-fit w-full">
-      <span class="w-full text-2xl font-semibold col-span-2">
-        <p   v-if="typeof audioPlayer.current !== 'undefined'" class="truncate">{{
-          audioPlayer.current.pos + 1
-        }}: <span class="italic"> {{ audioPlayer.current.name }} </span></p>
-        <p v-if="typeof audioPlayer.current === 'undefined'">Kein Song geladen.</p>
-        <!--TODO Seek Bar hinzufügen-->
-      </span>
-      <MediaControls ref="mediaControls" class="w-full"></MediaControls>
+        focus:ring-electric-blue-hover focus:ring-offset-2">Add Song</button>
     </div>
 
     <!--Devtools Card-->
-    <div class="bg-developer-yellow-backgroud p-4 rounded-lg col-span-2 w-full flex justify-between items-center"
-      :class="$refs.mediaControls?.useHotkeys ? 'bg-lime-500 bg-opacity-10' : ''">
-      <button @click="resetSong" class="
-          w-fit
-          mr-4 px-3 py-2 
-          border border-transparent  rounded-md shadow-sm
-          text-base font-medium text-black 
-          focus:outline-none focus:ring-2 
-           focus:ring-offset-2"
-        :class="$refs.mediaControls?.useHotkeys ? 'bg-lime-500 hover:bg-lime-700 focus:ring-lime-400' : 'bg-developer-yellow hover:bg-yellow-700 focus:ring-developer-yellow'">Reset
-        Song</button>
-      <button @click="reloadPlaylist" class="
-          w-fit
-          mr-4 px-3 py-2 
-          border border-transparent  rounded-md shadow-sm
-          text-base font-medium text-black 
-          focus:outline-none focus:ring-2 
-           focus:ring-offset-2"
-        :class="$refs.mediaControls?.useHotkeys ? 'bg-lime-500 hover:bg-lime-700 focus:ring-lime-400' : 'bg-developer-yellow hover:bg-yellow-700 focus:ring-developer-yellow'">Playlist
-        aktualisieren</button>
+    <div class="bg-background p-4 rounded-lg w-full flex justify-between items-center">
       <button @click="toggleHotkeys" class="
-          w-fit
-          mr-4 px-3 py-2 
+          w-fit px-3 py-2 
           border border-transparent  rounded-md shadow-sm
           text-base font-medium text-black 
           focus:outline-none focus:ring-2 
@@ -170,14 +137,26 @@
         :class="$refs.mediaControls?.useHotkeys ? 'bg-lime-500 hover:bg-lime-700 focus:ring-lime-400' : 'bg-electric-blue hover:bg-electric-blue-hover focus:ring-electric-blue'">Hotkeys
         toggeln</button>
       <button @click="nextPlaylist" class="
-          w-fit
-          mr-4 px-3 py-2 
+          w-fit px-3 py-2 
           border border-transparent  rounded-md shadow-sm
           text-base font-medium text-black 
           focus:outline-none focus:ring-2 
-           focus:ring-offset-2"
-        :class="$refs.mediaControls?.useHotkeys ? 'bg-lime-500 hover:bg-lime-700 focus:ring-lime-400' : 'bg-developer-yellow hover:bg-yellow-700 focus:ring-developer-yellow'">Nächste
+          focus:ring-offset-2
+        bg-electric-blue hover:bg-electric-blue-hover focus:ring-electric-blue">Nächste
         Playlist</button>
+    </div>
+
+    <!--Media Controls Card-->
+    <div
+      class="grid grid-cols-3 gap-x-2 items-center col-span-2 bg-background rounded-lg p-4 drop-shadow-md h-fit w-full">
+      <span class="w-full text-2xl font-semibold col-span-2">
+        <p v-if="typeof audioPlayer.current !== 'undefined'" class="truncate">{{
+          audioPlayer.current.pos + 1
+        }}: <span class="italic"> {{ audioPlayer.current.name }} </span></p>
+        <p v-if="typeof audioPlayer.current === 'undefined'">Kein Song geladen.</p>
+        <!--TODO Seek Bar hinzufügen-->
+      </span>
+      <MediaControls ref="mediaControls" class="w-full"></MediaControls>
     </div>
   </div>
 
