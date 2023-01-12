@@ -17,9 +17,10 @@
             border border-transparent bg-electric-blue rounded-md shadow-lg
             text-base font-medium text-black 
             hover:bg-electric-blue-hover focus:outline-none focus:ring-2 
-            focus:ring-electric-blue-hover focus:ring-offset-2
-            flex justify-center items-center">
-            <button @click="togglePlay" class="" v-if="!audioPlayer.isPlaying">
+            focus:ring-electric-blue-hover focus:ring-offset-2 
+            hover:cursor-pointer
+            flex justify-center items-center" @click="togglePlay">
+            <button  class="" v-if="!audioPlayer.isPlaying">
                 <!--Play Icon-->
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8">
                     <path fill-rule="evenodd"
@@ -27,7 +28,7 @@
                         clip-rule="evenodd" />
                 </svg>
             </button>
-            <button @click="togglePlay" class="" v-if="audioPlayer.isPlaying">
+            <button class="" v-if="audioPlayer.isPlaying">
                 <!--Pause Icon-->
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8">
                     <path fill-rule="evenodd"
@@ -49,7 +50,7 @@
             </svg>
         </button>
     </div>
-    <SeekUpdater v-model="seek"></SeekUpdater>
+    <SeekUpdater v-model="seek" v-bind="$attrs"></SeekUpdater>
     <div @keyup.space="keyTest"></div>
 </template>
 
@@ -87,7 +88,7 @@ export default {
                 pause: this._pauseFade,
                 stop: this._stopFade
             },
-            seek: undefined,
+            seek: 0,
             //IMPORTANT Nicht final
             useHotkeys: false,
             hotkeyHasCooldown: true,
@@ -95,7 +96,8 @@ export default {
             cooldown: 750
         }
     },
-    expose: ['toggleHotkeys', 'useHotkeys', 'cooldown', 'hotkeyHasCooldown', 'lastHotkey'],
+    expose: ['toggleHotkeys', 'useHotkeys', 'cooldown', 'hotkeyHasCooldown', 'lastHotkey', 'seek'],
+    emits: ["seekValue"],
     components: {
         SeekUpdater
     },
@@ -398,8 +400,8 @@ export default {
                 console.debug('Could not fade into new playlist')
             }
         },
-        seek() {
-            //Use seek hier
+        seek(){
+            this.$emit('seekValue', this.seek)
         }
     }
 }
