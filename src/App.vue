@@ -297,7 +297,6 @@ export default {
      * Devtool: Go to next Playlist
      */
     nextPlaylist() {
-      console.log('Go to next Playlist')
       const temp = this.preset.nextPlaylist()
       console.log(temp);
       if (typeof temp !== 'undefined') {
@@ -336,34 +335,42 @@ export default {
     getClickPosition(e) {
       e = e || window.e
 
-      // get target element
+      // Breite des DOM Emlements bestimmen
       let target = e.target || e.srcElement
-      if (target.nodeType == 3) target = target.parentNode // fix for a safari bug
-      const wrapperWidth = this.$refs.seekbar.clientWidth // set initial wrapper width
+      if (target.nodeType == 3) target = target.parentNode // Fix für Safari Bug
+      const wrapperWidth = this.$refs.seekbar.clientWidth // Breite setzen
 
-      // get the seek width
-      //41
+      // Mausposition bestimmen
+      // 46 = Anpassung, damit Handel auf Mausspitze liegt
       let seekWidth = e.clientX - 46
 
-      // change seek position
+      // Neuen Seek Progress berechnen --> von 0.000 bis 100.000
       this.seekbar.progress = ((seekWidth / wrapperWidth) * 100).toFixed(3)
+
+      // Progress auf 0 oder 100 setzen, wenn Seekbar zu weit nach links oder rechts gezogen wird
       if(this.seekbar.progress > 100) this.seekbar.progress = 100
       if(this.seekbar.progress < 0) this.seekbar.progress = 0
+
+      // Seek des Audio Players anpassen
       this.audioPlayer.current.player.seek((this.audioPlayer.current.player.duration() / 100) * this.seekbar.progress)
     },
 
     detectMouseDown(e) {
-      e.preventDefault() // prevent browser from moving objects, following links etc
+      e.preventDefault() // Browser daran hindern, Objekte zu verschieben, Links zu folgen usw
 
-      // start listening to mouse movements
+      // Mousemovement wird getrackt
       this.$refs.window.addEventListener("mousemove", this.getClickPosition, false)
     },
 
     detectMouseUp() {
-      // stop listening to mouse movements
+      // Mousemovement wird nicht mehr getrackt
       this.$refs.window.removeEventListener("mousemove", this.getClickPosition, false)
     },
 
+    /**
+     * Bewegt die Seekbar anhand des Seek Wertes
+     * @param {Number} seek Seek zu dem sich die Bar bewegen soll
+     */
     updateSeekbarHandle(seek) {
       if(seek > 0){
         this.seekbar.progress = ((seek / this.audioPlayer.current.player.duration()) * 100).toFixed(3)
@@ -373,7 +380,6 @@ export default {
     }
   },
   components: {
-    //SoundeffectButton,
     MediaControls,
     PromptDialog,
     SelectList,
@@ -425,7 +431,8 @@ export default {
       this.audioPlayer.setPlaylist(newVal.path)
     },
     'seekbar.seek'(newVal) {
-      console.log(newVal);
+      // Seek des Audio Players wird abgegriffen und die Seekbar wird aktualisiert
+      // damit die Handel dem Seek des Audio Players folgt
       this.updateSeekbarHandle(newVal)
     }
   },
