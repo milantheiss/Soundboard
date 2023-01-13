@@ -103,13 +103,11 @@
       </div>
 
       <!--Playlist Card-->
-      <div class="bg-background rounded-lg p-4 drop-shadow-md row-span-2 w-full h-full">
+      <div class="bg-background rounded-lg p-4 drop-shadow-md row-span-2 w-full h-full flex flex-col">
         <span class="flex justify-start items-center">
           <p class="font-semibold text-xl" v-if="(typeof audioPlayer.playlist.name !== 'undefined')">
             {{ audioPlayer.playlist.name }}</p>
-          <p class="font-semibold text-xl" v-if="(typeof audioPlayer.playlist.name === 'undefined')">No Playlist
-            selected
-          </p>
+          <p class="font-semibold text-xl" v-if="(typeof audioPlayer.playlist.name === 'undefined')">No Playlist selected</p>
           <!--Refresh Icon-->
           <span @click="reloadPlaylist" :class="reloadSpin ? 'animate-reloadSpin' : ''"
             @animationend="reloadSpin = false" class="w-7 h-7 ml-3">
@@ -120,10 +118,13 @@
             </svg>
           </span>
         </span>
-        <div>
+        <div class="flex flex-col overflow-y-auto h-[25rem] pb-4">
+          <div class="flex justify-between items-center rounded-lg bg-gray-700 px-2 py-1 mt-2" v-for="(track) in audioPlayer.playlist?.tracks" :key="track.pos">
+            <p>{{track.name}}</p>
+          </div>
         </div>
-        <button @click="$refs.addSongPrompt.open = true" class="w-fit inline-flex justify-center
-        px-3 py-2 mx-auto
+        <button @click="$refs.addSongPrompt.open = true" class="w-fit inline-flex justify-center 
+        px-3 py-2 mx-auto h-fit
         border border-transparent bg-electric-blue rounded-md shadow-sm
         text-base font-medium text-black 
         hover:bg-electric-blue-hover focus:outline-none focus:ring-2 
@@ -162,14 +163,15 @@
         </span>
         <MediaControls @seekValue="(val) => seekbar.seek = val" ref="mediaControls" class="w-full"></MediaControls>
         <!--Seek Bar-->
-        <div class="h-12 flex items-center col-span-3 hover:cursor-pointer" ref="seekbarCard" @click="(event) => getClickPosition(event)" @mousedown="(event) => detectMouseDown(event)">
+        <div class="h-12 flex items-center col-span-3 hover:cursor-pointer" ref="seekbarCard"
+          @click="(event) => getClickPosition(event)" @mousedown="(event) => detectMouseDown(event)">
           <span class="text-lg mr-5" ref="currentSeek">{{ convertTime(seekbar.seek) }}</span>
           <div ref="seekbar" class="block h-1 relative bg-gray-500 w-full ">
             <div :style="'width: ' + seekbar.progress + '%'" class="absolute inset-0 bg-electric-blue"></div>
             <span :style="'left: ' + (seekbar.progress - 0.65) + '%'"
               class="absolute bg-white rounded-full -top-1.5 w-4 h-4" @mouseup="(event) => detectMouseUp(event)"></span>
           </div>
-          <span class="text-lg ml-5">{{ convertNegativeTime(seekbar.seek - audioPlayer.current?.player.duration()) }}</span>
+          <span class="text-lg ml-5">{{ convertTime(seekbar.seek - audioPlayer.current?.player.duration()) }}</span>
         </div>
       </div>
     </div>
@@ -195,7 +197,8 @@
           </svg>
         </span>
       </span>
-  -->
+    -->
+
     <ErrorPrompt ref="playerError"></ErrorPrompt>
     <ConfirmationPrompt ref="confirmTrackRemoval" buttonText="Löschen" header="Möchtest du den Track wirklich löschen?"
       :text="'Die Datei wird nicht aus dem Playlist Ordner gelöscht. \nJedoch gehen die Track Einstellungen verloren.'"
@@ -347,7 +350,7 @@ export default {
       // 46 = Anpassung, damit Handel auf Mausspitze liegt
       let seekWidth = e.clientX - this.$refs.currentSeek.clientWidth - 62
 
-      
+
       // Neuen Seek Progress berechnen --> von 0.000 bis 100.000
       this.seekbar.progress = ((seekWidth / wrapperWidth) * 100).toFixed(3)
 
@@ -385,19 +388,12 @@ export default {
     },
 
     convertTime(time) {
-      let minutes = Math.floor(time / 60)
-      let seconds = Math.floor(time - minutes * 60)
-      if (seconds < 10) seconds = '0' + seconds
-      return minutes + ':' + seconds
-    },
-
-    convertNegativeTime(time) {
       const prefix = time < 0 ? '-' : ''
       time = Math.abs(time)
       let minutes = Math.floor(time / 60)
       let seconds = Math.floor(time - minutes * 60)
       if (seconds < 10) seconds = '0' + seconds
-     
+
       return prefix + minutes + ':' + seconds
     },
   },
