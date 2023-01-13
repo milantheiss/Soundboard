@@ -152,7 +152,7 @@
 
       <!--Media Controls Card-->
       <div
-        class="grid grid-cols-3 gap-x-2 items-center col-span-2 bg-background rounded-lg p-4 drop-shadow-md h-fit w-full">
+        class="grid grid-cols-3 gap-x-2 items-center col-span-2 bg-background rounded-lg px-4 pt-4  drop-shadow-md h-fit w-full">
         <span class="w-full text-2xl font-semibold col-span-2">
           <p v-if="typeof audioPlayer.current !== 'undefined'" class="truncate">{{
             audioPlayer.current.pos + 1
@@ -162,12 +162,14 @@
         </span>
         <MediaControls @seekValue="(val) => seekbar.seek = val" ref="mediaControls" class="w-full"></MediaControls>
         <!--Seek Bar-->
-        <div class="h-12 flex items-center col-span-3 hover:cursor-pointer mx-2" ref="seekbarCard">
-          <div ref="seekbar" @click="(event) => getClickPosition(event)" @mousedown="(event) => detectMouseDown(event)"  
-            class="block h-1 relative bg-gray-500 w-full mt-4">
+        <div class="h-12 flex items-center col-span-3 hover:cursor-pointer" ref="seekbarCard" @click="(event) => getClickPosition(event)" @mousedown="(event) => detectMouseDown(event)">
+          <span class="text-lg mr-5" ref="currentSeek">{{ convertTime(seekbar.seek) }}</span>
+          <div ref="seekbar" class="block h-1 relative bg-gray-500 w-full ">
             <div :style="'width: ' + seekbar.progress + '%'" class="absolute inset-0 bg-electric-blue"></div>
-            <span :style="'left: ' + (seekbar.progress - 0.65) + '%'" class="absolute bg-white rounded-full -top-1.5 w-4 h-4" @mouseup="(event) => detectMouseUp(event)"></span>
+            <span :style="'left: ' + (seekbar.progress - 0.65) + '%'"
+              class="absolute bg-white rounded-full -top-1.5 w-4 h-4" @mouseup="(event) => detectMouseUp(event)"></span>
           </div>
+          <span class="text-lg ml-5">{{ convertNegativeTime(seekbar.seek - audioPlayer.current?.player.duration()) }}</span>
         </div>
       </div>
     </div>
@@ -341,18 +343,21 @@ export default {
       const wrapperWidth = this.$refs.seekbar.clientWidth // Breite setzen
 
       // Mausposition bestimmen
+      // this.$refs.seekInText.clientWidth korrigiert die Width, um die Breite des Elements
       // 46 = Anpassung, damit Handel auf Mausspitze liegt
-      let seekWidth = e.clientX - 46
+      let seekWidth = e.clientX - this.$refs.currentSeek.clientWidth - 62
 
+      
       // Neuen Seek Progress berechnen --> von 0.000 bis 100.000
       this.seekbar.progress = ((seekWidth / wrapperWidth) * 100).toFixed(3)
 
       // Progress auf 0 oder 100 setzen, wenn Seekbar zu weit nach links oder rechts gezogen wird
-      if(this.seekbar.progress > 100) this.seekbar.progress = 100
-      if(this.seekbar.progress < 0) this.seekbar.progress = 0
+      if (this.seekbar.progress > 100) this.seekbar.progress = 100
+      if (this.seekbar.progress < 0) this.seekbar.progress = 0
 
       // Seek des Audio Players anpassen
       this.audioPlayer.current.player.seek((this.audioPlayer.current.player.duration() / 100) * this.seekbar.progress)
+      this.seekbar.seek = this.audioPlayer.current.player.seek()
     },
 
     detectMouseDown(e) {
@@ -372,12 +377,29 @@ export default {
      * @param {Number} seek Seek zu dem sich die Bar bewegen soll
      */
     updateSeekbarHandle(seek) {
-      if(seek > 0){
+      if (seek > 0) {
         this.seekbar.progress = ((seek / this.audioPlayer.current.player.duration()) * 100).toFixed(3)
       } else {
         this.seekbar.progress = 0
       }
-    }
+    },
+
+    convertTime(time) {
+      let minutes = Math.floor(time / 60)
+      let seconds = Math.floor(time - minutes * 60)
+      if (seconds < 10) seconds = '0' + seconds
+      return minutes + ':' + seconds
+    },
+
+    convertNegativeTime(time) {
+      const prefix = time < 0 ? '-' : ''
+      time = Math.abs(time)
+      let minutes = Math.floor(time / 60)
+      let seconds = Math.floor(time - minutes * 60)
+      if (seconds < 10) seconds = '0' + seconds
+     
+      return prefix + minutes + ':' + seconds
+    },
   },
   components: {
     MediaControls,
