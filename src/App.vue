@@ -86,18 +86,18 @@
             <CheckboxInput v-model="trackSettings.isLooping"></CheckboxInput>
           </div>
           <div class="flex justify-between items-center mt-4">
-            <p class="text-xl font-semibold text-gray-200">Position in Playlist :</p>
+            <p class="text-xl font-semibold text-gray-200">Position in Playlist:</p>
             <NumberInput v-model="trackSettings.pos" class="w-32 text-white" :step="1" min="1"
               :max="(audioPlayer.playlist.tracks.length).toString()">
             </NumberInput>
           </div>
           <div class="flex justify-end items-center mt-4">
             <button type="button"
-              class="inline-flex w-full justify-center rounded-md border border-transparent bg-special-red px-4 py-2 text-base font-medium text-black shadow-sm hover:bg-special-red-hover focus:outline-none focus:ring-2 focus:ring-special-red-hover focus:ring-offset-2 ml-5 sm:w-auto sm:text-sm"
-              @click="$refs.confirmTrackRemoval.open = true">Entfernen</button>
+              class="inline-flex w-auto justify-center rounded-md border border-transparent bg-special-red px-4 py-2 text-base font-medium text-black shadow-sm hover:bg-special-red-hover focus:outline-none focus:ring-2 focus:ring-special-red-hover focus:ring-offset-2"
+              @click="$refs.confirmTrackRemoval.open = true">Remove</button>
             <button type="button"
-              class="inline-flex w-full justify-center rounded-md border border-transparent bg-electric-blue px-4 py-2 text-base font-medium text-black shadow-sm hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue focus:ring-offset-2 ml-5 sm:w-auto sm:text-sm"
-              @click="changeTrackSettings">Speichern</button>
+              class="inline-flex w-auto justify-center rounded-md border border-transparent bg-electric-blue px-4 py-2 text-base font-medium text-black shadow-sm hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue focus:ring-offset-2 ml-5"
+              @click="changeTrackSettings">Save</button>
           </div>
         </div>
       </div>
@@ -107,7 +107,8 @@
         <span class="flex justify-start items-center">
           <p class="font-semibold text-xl" v-if="(typeof audioPlayer.playlist.name !== 'undefined')">
             {{ audioPlayer.playlist.name }}</p>
-          <p class="font-semibold text-xl" v-if="(typeof audioPlayer.playlist.name === 'undefined')">No Playlist selected</p>
+          <p class="font-semibold text-xl" v-if="(typeof audioPlayer.playlist.name === 'undefined')">No Playlist
+            selected</p>
           <!--Refresh Icon-->
           <span @click="reloadPlaylist" :class="reloadSpin ? 'animate-reloadSpin' : ''"
             @animationend="reloadSpin = false" class="w-7 h-7 ml-3">
@@ -118,9 +119,10 @@
             </svg>
           </span>
         </span>
-        <div class="flex flex-col overflow-y-auto h-[25rem] pb-4">
-          <div class="flex justify-between items-center rounded-lg bg-gray-700 px-2 py-1 mt-2" v-for="(track) in audioPlayer.playlist?.tracks" :key="track.pos">
-            <p>{{track.name}}</p>
+        <div class="flex flex-col overflow-y-auto h-[23.3rem] pb-4 my-4 scroll-ml-1">
+          <div v-for="(track, index) in audioPlayer.playlist?.tracks" :key="track.pos" 
+          class="flex justify-between items-center rounded-lg bg-gray-700 px-2 py-1 mt-2 " :class="{'mr-2': (audioPlayer.playlist?.tracks.length > 9), 'bg-red-400': index === audioPlayer?.currentIndex}">
+            <p>{{index + 1}}: <span class="italic"> {{ track.name }} </span></p>
           </div>
         </div>
         <button @click="$refs.addSongPrompt.open = true" class="w-fit inline-flex justify-center 
@@ -139,16 +141,15 @@
           text-base font-medium text-black 
           focus:outline-none focus:ring-2 
            focus:ring-offset-2"
-          :class="$refs.mediaControls?.useHotkeys ? 'bg-lime-500 hover:bg-lime-700 focus:ring-lime-400' : 'bg-electric-blue hover:bg-electric-blue-hover focus:ring-electric-blue'">Hotkeys
-          toggeln</button>
+          :class="$refs.mediaControls?.useHotkeys ? 'bg-lime-500 hover:bg-lime-700 focus:ring-lime-400' : 'bg-electric-blue hover:bg-electric-blue-hover focus:ring-electric-blue'">Toggle
+          Hotkeys</button>
         <button @click="nextPlaylist" class="
           w-fit px-3 py-2 
           border border-transparent  rounded-md shadow-sm
           text-base font-medium text-black 
           focus:outline-none focus:ring-2 
           focus:ring-offset-2
-        bg-electric-blue hover:bg-electric-blue-hover focus:ring-electric-blue">Nächste
-          Playlist</button>
+        bg-electric-blue hover:bg-electric-blue-hover focus:ring-electric-blue">Next Playlist</button>
       </div>
 
       <!--Media Controls Card-->
@@ -158,7 +159,7 @@
           <p v-if="typeof audioPlayer.current !== 'undefined'" class="truncate">{{
             audioPlayer.current.pos + 1
           }}: <span class="italic"> {{ audioPlayer.current.name }} </span></p>
-          <p v-if="typeof audioPlayer.current === 'undefined'">Kein Song geladen.</p>
+          <p v-if="typeof audioPlayer.current === 'undefined'">No track loaded.</p>
           <!--TODO Seek Bar hinzufügen-->
         </span>
         <MediaControls @seekValue="(val) => seekbar.seek = val" ref="mediaControls" class="w-full"></MediaControls>
@@ -166,7 +167,7 @@
         <div class="h-12 flex items-center col-span-3 hover:cursor-pointer" ref="seekbarCard"
           @click="(event) => getClickPosition(event)" @mousedown="(event) => detectMouseDown(event)">
           <span class="text-lg mr-5" ref="currentSeek">{{ convertTime(seekbar.seek) }}</span>
-          <div ref="seekbar" class="block h-1 relative bg-gray-500 w-full ">
+          <div ref="seekbar" class="block h-1 relative bg-gray-500 w-full">
             <div :style="'width: ' + seekbar.progress + '%'" class="absolute inset-0 bg-electric-blue"></div>
             <span :style="'left: ' + (seekbar.progress - 0.65) + '%'"
               class="absolute bg-white rounded-full -top-1.5 w-4 h-4" @mouseup="(event) => detectMouseUp(event)"></span>
@@ -261,7 +262,8 @@ export default {
         progress: 0,
         seek: 0,
         sliderCanMove: false
-      }
+      },
+      margin: "mr-2",
     }
   },
   methods: {
@@ -459,3 +461,28 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+/* Works on Firefox */
+* {
+  scrollbar-width: 12px;
+  scrollbar-color: #333333 #00D7FF;
+}
+
+/* Works on Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 12px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #333333;
+  border-radius: 20px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #00D7FF;
+  border-radius: 20px;
+  outline-offset: -2px;
+  outline: 3px solid #00D7FF;
+}
+</style>
