@@ -1,16 +1,16 @@
 <template class="font-poppins font-normal text-white p-6" >
-  <div ref="window" @mouseup="(event) => detectMouseUp(event)">
+  <div ref="window">
     <!--Anwendungstitel-->
     <!--<p class="text-3xl font-semibold col-span-2 italic ml-6 mt-6">Stagebard</p>-->
 
     <!--Preset & Playlist Selector-->
     <div class="grid grid-cols-2 gap-4 items-center mx-6 mt-6">
-      <div class="flex justify-start items-center">
+      <div class="flex justify-start items-center mx-4">
         <span class="bg-background-dark-gray">
           <SelectList v-model="_selectedPreset" defaultValue="Wähle ein Preset" :options="presets" class="w-64">
           </SelectList>
         </span>
-        <button @click="this.$refs.createPresetPrompt.open = true" class="w-fit h-fit inline-flex justify-center
+        <button @click="this.$refs.createPresetPrompt.open = true" class="min-w-fit h-fit inline-flex justify-center
         ml-6 px-3 py-2 
         border border-transparent bg-electric-blue rounded-md shadow-sm
         text-base font-medium text-black 
@@ -18,13 +18,13 @@
         focus:ring-electric-blue-hover focus:ring-offset-2">Create Preset</button>
       </div>
 
-      <div class="flex justify-start items-center">
+      <div class="flex justify-start items-center mx-4">
         <span class="bg-background-dark-gray">
           <SelectList ref="selectPlaylist" v-model="_selectedPlaylist" defaultValue="Wähle ein Playlist"
             :options="preset.playlists" class="w-64"></SelectList>
         </span>
-        <button @click="addPlaylistToPreset" class="w-fit h-fit inline-flex justify-center
-        ml-6 px-3 py-2 
+        <button @click="addPlaylistToPreset" class="min-w-fit h-fit inline-flex justify-center
+        ml-6 px-2 py-2 
         border border-transparent bg-electric-blue rounded-md shadow-sm
         text-base font-medium text-black 
         hover:bg-electric-blue-hover focus:outline-none focus:ring-2 
@@ -37,68 +37,48 @@
     <div class="grid grid-cols-2 gap-4 m-6">
       <!--Tracksettings Card-->
       <div class="bg-background rounded-lg p-4 drop-shadow-md w-full">
-        <span class="flex justify-start items-center" @click="showTrackSettings = !showTrackSettings">
-          <span v-show="!showTrackSettings" class="text-white flex items-center">
-            <!--Show More Icon-->
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-              stroke="currentColor" class="w-7 h-7">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-            </svg>
-
-          </span>
-          <span v-show="showTrackSettings" class="text-white flex items-center">
-            <!--Show Less Icon-->
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-              stroke="currentColor" class="w-7 h-7">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
-            </svg>
-
-          </span>
-          <p class="ml-3 font-semibold text-xl truncate" v-if="typeof audioPlayer.current !== 'undefined'">Track
-            Settings
-            • {{
-              audioPlayer.current.name
-            }}</p>
-          <p class="ml-3 font-semibold text-xl" v-if="typeof audioPlayer.current === 'undefined'">Track Settings</p>
-        </span>
-        <div v-show="showTrackSettings">
-          <div class="flex justify-between items-center mt-4">
-            <TextInput v-model="trackSettings.name" class="w-full text-white" placeholder="Songname">
-            </TextInput>
-          </div>
-          <div class="flex justify-between items-center mt-4">
-            <p class="text-xl font-semibold text-gray-200">Volume:</p>
-            <NumberInput v-model="trackSettings.trackvolume" class="w-32 text-white" :step="0.1" min="0.0" max="1.0">
-            </NumberInput>
-          </div>
-          <div class="flex justify-between items-center mt-4">
-            <p class="text-xl font-semibold text-gray-200">Fade In:</p>
-            <NumberInput v-model="trackSettings.fadeInDuration" class="w-32 text-white" :step="1" min="0">
-            </NumberInput>
-          </div>
-          <div class="flex justify-between items-center mt-4">
-            <p class="text-xl font-semibold text-gray-200">Fade Out:</p>
-            <NumberInput v-model="trackSettings.fadeOutDuration" class="w-32 text-white" :step="1" min="0">
-            </NumberInput>
-          </div>
-          <div class="flex justify-between items-center mt-4">
-            <p class="text-xl font-semibold text-gray-200">Looping:</p>
-            <CheckboxInput v-model="trackSettings.isLooping"></CheckboxInput>
-          </div>
-          <div class="flex justify-between items-center mt-4">
-            <p class="text-xl font-semibold text-gray-200">Position in Playlist:</p>
-            <NumberInput v-model="trackSettings.pos" class="w-32 text-white" :step="1" min="1"
-              :max="(audioPlayer.playlist.tracks.length).toString()">
-            </NumberInput>
-          </div>
-          <div class="flex justify-end items-center mt-4">
-            <button type="button"
-              class="inline-flex w-auto justify-center rounded-md border border-transparent bg-special-red px-4 py-2 text-base font-medium text-black shadow-sm hover:bg-special-red-hover focus:outline-none focus:ring-2 focus:ring-special-red-hover focus:ring-offset-2"
-              @click="$refs.confirmTrackRemoval.open = true">Remove</button>
-            <button type="button"
-              class="inline-flex w-auto justify-center rounded-md border border-transparent bg-electric-blue px-4 py-2 text-base font-medium text-black shadow-sm hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue focus:ring-offset-2 ml-5"
-              @click="changeTrackSettings">Save</button>
-          </div>
+        <p class="font-semibold text-xl truncate" v-if="typeof audioPlayer.current !== 'undefined'">Track
+          Settings
+          • {{
+            audioPlayer.current.name
+          }}</p>
+        <p class="ml-3 font-semibold text-xl" v-if="typeof audioPlayer.current === 'undefined'">Track Settings</p>
+        <div class="flex justify-between items-center mt-4">
+          <TextInput v-model="trackSettings.name" class="w-full text-white" placeholder="Songname">
+          </TextInput>
+        </div>
+        <div class="flex justify-between items-center mt-4">
+          <p class="text-xl font-semibold text-gray-200">Volume:</p>
+          <NumberInput v-model="trackSettings.trackvolume" class="w-32 text-white" :step="0.1" min="0.0" max="1.0">
+          </NumberInput>
+        </div>
+        <div class="flex justify-between items-center mt-4">
+          <p class="text-xl font-semibold text-gray-200">Fade In:</p>
+          <NumberInput v-model="trackSettings.fadeInDuration" class="w-32 text-white" :step="1" min="0">
+          </NumberInput>
+        </div>
+        <div class="flex justify-between items-center mt-4">
+          <p class="text-xl font-semibold text-gray-200">Fade Out:</p>
+          <NumberInput v-model="trackSettings.fadeOutDuration" class="w-32 text-white" :step="1" min="0">
+          </NumberInput>
+        </div>
+        <div class="flex justify-between items-center mt-4">
+          <p class="text-xl font-semibold text-gray-200">Looping:</p>
+          <CheckboxInput v-model="trackSettings.isLooping"></CheckboxInput>
+        </div>
+        <div class="flex justify-between items-center mt-4">
+          <p class="text-xl font-semibold text-gray-200">Position in Playlist:</p>
+          <NumberInput v-model="trackSettings.pos" class="w-32 text-white" :step="1" min="1"
+            :max="(audioPlayer.playlist.tracks.length).toString()">
+          </NumberInput>
+        </div>
+        <div class="flex justify-end items-center mt-4">
+          <button type="button"
+            class="inline-flex w-auto justify-center rounded-md border border-transparent bg-special-red px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-special-red-hover focus:outline-none focus:ring-2 focus:ring-special-red-hover focus:ring-offset-2"
+            @click="$refs.confirmTrackRemoval.open = true">Remove</button>
+          <button type="button"
+            class="inline-flex w-auto justify-center rounded-md border border-transparent bg-electric-blue px-4 py-2 text-base font-medium text-black shadow-sm hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue focus:ring-offset-2 ml-5"
+            @click="changeTrackSettings">Save</button>
         </div>
       </div>
 
@@ -118,19 +98,20 @@
                 d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
             </svg>
           </span>
-        </span>
-        <div class="flex flex-col overflow-y-auto h-[23.3rem] pb-4 my-4 scroll-ml-1">
-          <div v-for="(track, index) in audioPlayer.playlist?.tracks" :key="track.pos" 
-          class="flex justify-between items-center rounded-lg bg-gray-700 px-2 py-1 mt-2 " :class="{'mr-2': (audioPlayer.playlist?.tracks.length > 9), 'bg-red-400': index === audioPlayer?.currentIndex}">
-            <p>{{index + 1}}: <span class="italic"> {{ track.name }} </span></p>
-          </div>
-        </div>
-        <button @click="$refs.addSongPrompt.open = true" class="w-fit inline-flex justify-center 
-        px-3 py-2 mx-auto h-fit
+          <button @click="$refs.addSongPrompt.open = true" class="w-fit inline-flex justify-center 
+        px-3 py-2 ml-auto h-fit
         border border-transparent bg-electric-blue rounded-md shadow-sm
         text-base font-medium text-black 
         hover:bg-electric-blue-hover focus:outline-none focus:ring-2 
         focus:ring-electric-blue-hover focus:ring-offset-2">Add Song</button>
+        </span>
+        <div class="flex flex-col overflow-y-auto h-[26rem] pb-4 mt-4">
+          <div v-for="(track, index) in audioPlayer.playlist?.tracks" :key="track.pos"
+            class="flex justify-between items-center rounded-lg bg-[#404040] px-2 py-1 font-normal"
+            :class="{ 'mr-2': (audioPlayer.playlist?.tracks.length > 8), 'bg-[#00D7FF] text-black font-bold': index === audioPlayer?.currentIndex, 'mb-2': (index + 1) !== audioPlayer.playlist.tracks.length }">
+            <p class="text-lg">{{ index + 1}}: <span class="italic"> {{ track.name }} </span></p>
+          </div>
+        </div>
       </div>
 
       <!--Devtools Card-->
@@ -154,7 +135,8 @@
 
       <!--Media Controls Card-->
       <div
-        class="grid grid-cols-3 gap-x-2 items-center col-span-2 bg-background rounded-lg px-4 pt-4  drop-shadow-md h-fit w-full">
+        class="grid grid-cols-3 gap-x-2 items-center col-span-2 bg-background rounded-lg px-4 pt-4  drop-shadow-md h-fit w-full"
+        ref="mediaControlsCard" @mouseup="(event) => detectMouseUp(event)">
         <span class="w-full text-2xl font-semibold col-span-2">
           <p v-if="typeof audioPlayer.current !== 'undefined'" class="truncate">{{
             audioPlayer.current.pos + 1
@@ -162,16 +144,20 @@
           <p v-if="typeof audioPlayer.current === 'undefined'">No track loaded.</p>
           <!--TODO Seek Bar hinzufügen-->
         </span>
-        <MediaControls @seekValue="(val) => seekbar.seek = val" ref="mediaControls" class="w-full"></MediaControls>
+        <MediaControls @seekValue="(val) => this.updateSeekbarHandle(val)" ref="mediaControls" class="w-full">
+        </MediaControls>
         <!--Seek Bar-->
         <div class="h-12 flex items-center col-span-3 hover:cursor-pointer" ref="seekbarCard"
           @click="(event) => getClickPosition(event)" @mousedown="(event) => detectMouseDown(event)">
           <span class="text-lg mr-5" ref="currentSeek">{{ convertTime(seekbar.seek) }}</span>
-          <div ref="seekbar" class="block h-1 relative bg-gray-500 w-full">
-            <div :style="'width: ' + seekbar.progress + '%'" class="absolute inset-0 bg-electric-blue"></div>
-            <span :style="'left: ' + (seekbar.progress - 0.65) + '%'"
-              class="absolute bg-white rounded-full -top-1.5 w-4 h-4" @mouseup="(event) => detectMouseUp(event)"></span>
+
+          <div ref="seekbar" class="block h-1 relative rounded-full bg-gray-500 w-full">
+            <div :style="'width: ' + seekbar.progress + '%'" class="absolute inset-0 rounded-full bg-electric-blue">
+            </div>
+            <div :style="'left: ' + (seekbar.progress - 0.9) + '%'"
+              class="absolute bg-white rounded-full -top-1.5 w-4 h-4"></div>
           </div>
+
           <span class="text-lg ml-5">{{ convertTime(seekbar.seek - audioPlayer.current?.player.duration()) }}</span>
         </div>
       </div>
@@ -253,8 +239,6 @@ export default {
         isLooping: undefined,
         pos: undefined
       },
-      showDeveloperTools: false,
-      showTrackSettings: true,
       reloadSpin: false,
       seekbar: {
         min: 0,
@@ -271,6 +255,7 @@ export default {
       await this.preset.createNewPreset(presetName)
       this.presets = await loadAllPresets()
     },
+
     async addPlaylistToPreset() {
       if (this.preset.name.length > 0) {
         this.preset.addPlaylist(await loadNewPlaylist())
@@ -349,8 +334,8 @@ export default {
 
       // Mausposition bestimmen
       // this.$refs.seekInText.clientWidth korrigiert die Width, um die Breite des Elements
-      // 46 = Anpassung, damit Handel auf Mausspitze liegt
-      let seekWidth = e.clientX - this.$refs.currentSeek.clientWidth - 62
+      // 58.5 = Anpassung, damit Handel auf Mausspitze liegt
+      let seekWidth = e.clientX - this.$refs.currentSeek.clientWidth - 58.5
 
 
       // Neuen Seek Progress berechnen --> von 0.000 bis 100.000
@@ -369,12 +354,12 @@ export default {
       e.preventDefault() // Browser daran hindern, Objekte zu verschieben, Links zu folgen usw
 
       // Mousemovement wird getrackt
-      this.$refs.window.addEventListener("mousemove", this.getClickPosition, false)
+      this.$refs.mediaControlsCard.addEventListener("mousemove", this.getClickPosition, false)
     },
 
     detectMouseUp() {
       // Mousemovement wird nicht mehr getrackt
-      this.$refs.window.removeEventListener("mousemove", this.getClickPosition, false)
+      this.$refs.mediaControlsCard.removeEventListener("mousemove", this.getClickPosition, false)
     },
 
     /**
@@ -382,6 +367,8 @@ export default {
      * @param {Number} seek Seek zu dem sich die Bar bewegen soll
      */
     updateSeekbarHandle(seek) {
+      this.seekbar.seek = seek
+
       if (seek > 0) {
         this.seekbar.progress = ((seek / this.audioPlayer.current.player.duration()) * 100).toFixed(3)
       } else {
@@ -434,9 +421,6 @@ export default {
         })
       }
     },
-    'audioPlayer.isPlaying'() {
-      console.log(this.$refs.mediaControls.seek);
-    },
     'audioPlayer.current.isLooping'() {
       if (typeof this.audioPlayer.current !== 'undefined') {
         this.trackSettings.isLooping = this.audioPlayer.current.isLooping
@@ -449,11 +433,6 @@ export default {
     },
     async _selectedPlaylist(newVal) {
       this.audioPlayer.setPlaylist(newVal.path)
-    },
-    'seekbar.seek'(newVal) {
-      // Seek des Audio Players wird abgegriffen und die Seekbar wird aktualisiert
-      // damit die Handel dem Seek des Audio Players folgt
-      this.updateSeekbarHandle(newVal)
     }
   },
   async created() {

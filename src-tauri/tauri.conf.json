@@ -79,7 +79,7 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 758,
+        "height": 750,
         "resizable": true,
         "title": "Soundboard",
         "width": 1100
