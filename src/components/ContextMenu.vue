@@ -1,5 +1,5 @@
 <template>
-    <div class="fixed bg-[#333333] py-2 px-3 rounded-lg z-50 outline-none shadow-lg cursor-pointer" v-show="show" :style="style" ref="context"
+    <div class="fixed bg-[#333333] py-2 px-3 rounded-lg z-50 outline-none shadow-lg cursor-pointer text-lg" v-show="show" :style="style" ref="context"
         tabindex="0" @blur="close">
         <slot></slot>
     </div>
