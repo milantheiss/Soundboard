@@ -106,7 +106,7 @@
         focus:ring-electric-blue-hover focus:ring-offset-2">Add Song</button>
         </span>
         <div class="flex flex-col overflow-y-auto h-[26rem] pb-4 mt-4">
-          <div v-for="(track, index) in audioPlayer.playlist?.tracks" :key="track.pos"
+          <div v-for="(track, index) in audioPlayer.playlist?.tracks" :key="track.pos" @dblclick="playTrack(index)"
             class="flex justify-between items-center rounded-lg bg-[#404040] px-2 py-1 font-normal"
             :class="{ 'mr-2': (audioPlayer.playlist?.tracks.length > 8), 'bg-[#00D7FF] text-black font-bold': index === audioPlayer?.currentIndex, 'mb-2': (index + 1) !== audioPlayer.playlist.tracks.length }">
             <p class="text-lg">{{ index + 1}}: <span class="italic"> {{ track.name }} </span></p>
@@ -384,6 +384,10 @@ export default {
       if (seconds < 10) seconds = '0' + seconds
 
       return prefix + minutes + ':' + seconds
+    },
+
+    playTrack(index) {
+      this.$refs.mediaControls.playTrack(index)
     },
   },
   components: {

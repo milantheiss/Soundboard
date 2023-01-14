@@ -183,6 +183,76 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
       }
     },
 
+    /**
+     * Lässt den Player zu einem beliebigen Index springen und lädt den Buffer neu
+     * @param {Number} index
+     */
+    jumpToIndex(index) {
+      //Speichert alten Index
+      this.oldIndex = this.currentIndex
+      
+      const getIndexNext = (i) => {
+        if (i + 1 > this.playlist.tracks.length - 1) {
+          return 0;
+        } else {
+          return i + 1;
+        }
+      }
+
+      const getIndexPrevious = (i) => {
+        if (i - 1 < 0) {
+          return this.playlist.tracks.length - 1;
+        } else {
+          return i - 1
+        }
+      }
+
+      const getIndexForwardsBuffer = (i) => {
+        if (i + 2 > this.playlist.tracks.length - 1) {
+          return (i + 2) - this.playlist.tracks.length;
+        } else {
+          return i + 2;
+        }
+      }
+
+      const getIndexBackwardsBuffer = (i) => {
+        if (i - 2 < 0) {
+          return this.playlist.tracks.length - 2 + i;
+        } else {
+          return i - 2
+        }
+      }
+
+      //Lädt Buffer neu
+      if (this.playlist.tracks.length > 5) {
+        //Wenn die Playlist mehr als 5 Songs hat, müssen neue Player geladen und alte Player gelöscht werden.
+
+        //Alle Player die gelöscht werden müssen
+        const indexOfPlayersToRemove = [getIndexBackwardsBuffer(this.oldIndex), getIndexPrevious(this.oldIndex), this.oldIndex, getIndexNext(this.oldIndex), getIndexForwardsBuffer(this.oldIndex)]
+        //Alle Player die geladen werden müssen
+        const indexOfPlayersToCreate = [getIndexBackwardsBuffer(index), getIndexPrevious(index), index, getIndexNext(index), getIndexForwardsBuffer(index)]
+
+        //Checkt, ob der Index eins Players sowohl gelöscht als auch geladen werden soll.
+        indexOfPlayersToRemove.forEach(i => {
+          if (indexOfPlayersToCreate.indexOf(i) === -1) {
+            //Wenn der Player nicht neu geladen werden soll, wird er gelöscht.
+            this.playlist.tracks[i].player.unload()
+          } else {
+            //Wenn der Player neu geladen werden soll, wird er aus der Liste der zu ladenden Player entfernt, da er schon existiert.
+            indexOfPlayersToCreate.splice(indexOfPlayersToCreate.indexOf(i), 1)
+          }
+        })
+
+        //Lädt alle übrigen Player, die neu geladen werden müssen.
+        indexOfPlayersToCreate.forEach(i => {
+          this.loadPlayer(i)
+        })
+      }
+
+      //Erhöht Index
+      this.currentIndex = index;
+    },
+
     _triggerPosUpdate() {
       this.playlist.tracks.forEach(element => element.pos = this.playlist.tracks.indexOf(element))
     },
@@ -317,48 +387,58 @@ export const useAudioPlayerStore = defineStore('audioPlayerStore', {
       }
     },
 
-    loadPlayerBuffer() {
-      const getIndexForwardsBuffer = () => {
-        if (this.currentIndex + 2 > this.playlist.tracks.length - 1) {
-          return (this.currentIndex + 2) - this.playlist.tracks.length;
+    loadPlayerBuffer(index = this.currentIndex) {
+      const getIndexNext = (i) => {
+        if (i + 1 > this.playlist.tracks.length - 1) {
+          return 0;
         } else {
-          return this.currentIndex + 2;
+          return i + 1;
         }
       }
 
-      const getIndexBackwardsBuffer = () => {
-        if (this.currentIndex - 2 < 0) {
-          return this.playlist.tracks.length - 2 + this.currentIndex;
+      const getIndexPrevious = (i) => {
+        if (i - 1 < 0) {
+          return this.playlist.tracks.length - 1;
         } else {
-          return this.currentIndex - 2
+          return i - 1
         }
       }
 
-      //Lädt wenn es genügend Elemente gibt den Player für Current und die zwei davor und danach liegenden Tracks
-      if (this.playlist.tracks.length > 0) {
-        this.current.player = new Howl({ src: [[this.playlist.path, this.current.filename].join('%5C')], volume: this.current.trackvolume, loop: this.current.isLooping })
-        if (this.playlist.tracks.length > 1) {
-          this.next.player = new Howl({ src: [[this.playlist.path, this.next.filename].join('%5C')], volume: this.next.trackvolume, loop: this.next.isLooping })
-          if (this.playlist.tracks.length > 2) {
-            this.previous.player = new Howl({ src: [[this.playlist.path, this.previous.filename].join('%5C')], volume: this.previous.trackvolume, loop: this.previous.isLooping })
-            if (this.playlist.tracks.length > 3) {
-              this.playlist.tracks[getIndexForwardsBuffer()].player = new Howl({
-                src: [[this.playlist.path, this.playlist.tracks[getIndexForwardsBuffer()].filename].join('%5C')],
-                volume: this.playlist.tracks[getIndexForwardsBuffer()].trackvolume, loop: this.playlist.tracks[getIndexForwardsBuffer()].isLooping
-              })
-              if (this.playlist.tracks.length > 4) {
-                this.playlist.tracks[getIndexBackwardsBuffer()].player = new Howl({
-                  src: [[this.playlist.path, this.playlist.tracks[getIndexBackwardsBuffer()].filename].join('%5C')],
-                  volume: this.playlist.tracks[getIndexBackwardsBuffer()].trackvolume, loop: this.playlist.tracks[getIndexBackwardsBuffer()].isLooping
-                })
-              }
-            }
-          }
+      const getIndexForwardsBuffer = (i) => {
+        if (i + 2 > this.playlist.tracks.length - 1) {
+          return (i + 2) - this.playlist.tracks.length;
+        } else {
+          return i + 2;
         }
-      } else {
-        console.error('No Player loaded')
       }
 
+      const getIndexBackwardsBuffer = (i) => {
+        if (i - 2 < 0) {
+          return this.playlist.tracks.length - 2 + i;
+        } else {
+          return i - 2
+        }
+      }
+
+      //Index aller Player die geladen werden sollen
+      const indexOfAllPlayersToLoad = [index, getIndexNext(index), getIndexPrevious(index), getIndexForwardsBuffer(index), getIndexBackwardsBuffer(index)]
+
+      //Entfernt doppelte Einträge --> Wenn die Playlist weniger als 5 Tracks hat.
+      const uniqueIndex = [...new Set(indexOfAllPlayersToLoad)];
+
+      //Lädt alle Player die noch nicht geladen sind
+      uniqueIndex.forEach(i => {
+        if (this.playlist.tracks[i].player === null || typeof this.playlist.tracks[i].player === 'undefined') {
+          this.playlist.tracks[i].player = new Howl({ src: [[this.playlist.path, this.playlist.tracks[i].filename].join('%5C')], volume: this.playlist.tracks[i].trackvolume, loop: this.playlist.tracks[i].isLooping })
+        }
+      })
+    },
+    
+    loadPlayer(index = this.currentIndex) {
+      if (this.playlist.tracks[index].player === null || typeof this.playlist.tracks[index].player === 'undefined') {
+        this.playlist.tracks[index].player = new Howl({ src: [[this.playlist.path, this.playlist.tracks[index].filename].join('%5C')], volume: this.playlist.tracks[index].trackvolume, loop: this.playlist.tracks[index].isLooping })
+      }
     }
-  }
+  },
+
 })

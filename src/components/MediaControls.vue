@@ -20,7 +20,7 @@
             focus:ring-electric-blue-hover focus:ring-offset-2 
             hover:cursor-pointer
             flex justify-center items-center" @click="togglePlay">
-            <button  class="" v-if="!audioPlayer.isPlaying">
+            <button class="" v-if="!audioPlayer.isPlaying">
                 <!--Play Icon-->
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8">
                     <path fill-rule="evenodd"
@@ -96,7 +96,7 @@ export default {
             cooldown: 750
         }
     },
-    expose: ['toggleHotkeys', 'useHotkeys', 'cooldown', 'hotkeyHasCooldown', 'lastHotkey', 'seek'],
+    expose: ['toggleHotkeys', 'useHotkeys', 'cooldown', 'hotkeyHasCooldown', 'lastHotkey', 'seek', 'playTrack'],
     emits: ["seekValue"],
     components: {
         SeekUpdater
@@ -384,7 +384,16 @@ export default {
             } else {
                 await unregisterAll()
             }
-        }
+        },
+        playTrack(index) {
+            if (this.audioPlayer.current.player.playing()) {
+                this.audioPlayer.loadPlayer(index)
+                this.fade.crossfade(this.audioPlayer.current, this.audioPlayer.playlist.tracks[index])
+            } else { 
+                this.fade.stop()
+            }
+            this.audioPlayer.jumpToIndex(index)
+        },
     },
     watch: {
         'audioPlayer.playlist'(newVal, oldVal) {
@@ -400,7 +409,7 @@ export default {
                 console.debug('Could not fade into new playlist')
             }
         },
-        seek(){
+        seek() {
             this.$emit('seekValue', this.seek)
         }
     }
