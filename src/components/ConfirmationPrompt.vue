@@ -45,8 +45,6 @@
 <script>
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
 
-
-
 export default {
     name: "ConfirmationPrompt",
     expose: ['open'],
@@ -72,7 +70,7 @@ export default {
         ok() {
             this.open = false
             this.$emit('onConfirm')
-        }
+        },
     },
 }
 </script>

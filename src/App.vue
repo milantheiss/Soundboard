@@ -1,5 +1,5 @@
-<template class="font-poppins font-normal text-white p-6" >
-  <div ref="window">
+<template class="font-poppins font-normal text-white p-6">
+  <div ref="window" @click="$refs.ctxMenu.close()">
     <!--Anwendungstitel-->
     <!--<p class="text-3xl font-semibold col-span-2 italic ml-6 mt-6">Stagebard</p>-->
 
@@ -36,50 +36,8 @@
 
     <div class="grid grid-cols-2 gap-4 m-6">
       <!--Tracksettings Card-->
-      <div class="bg-background rounded-lg p-4 drop-shadow-md w-full">
-        <p class="font-semibold text-xl truncate" v-if="typeof audioPlayer.current !== 'undefined'">Track
-          Settings
-          • {{
-            audioPlayer.current.name
-          }}</p>
-        <p class="ml-3 font-semibold text-xl" v-if="typeof audioPlayer.current === 'undefined'">Track Settings</p>
-        <div class="flex justify-between items-center mt-4">
-          <TextInput v-model="trackSettings.name" class="w-full text-white" placeholder="Songname">
-          </TextInput>
-        </div>
-        <div class="flex justify-between items-center mt-4">
-          <p class="text-xl font-semibold text-gray-200">Volume:</p>
-          <NumberInput v-model="trackSettings.trackvolume" class="w-32 text-white" :step="0.1" min="0.0" max="1.0">
-          </NumberInput>
-        </div>
-        <div class="flex justify-between items-center mt-4">
-          <p class="text-xl font-semibold text-gray-200">Fade In:</p>
-          <NumberInput v-model="trackSettings.fadeInDuration" class="w-32 text-white" :step="1" min="0">
-          </NumberInput>
-        </div>
-        <div class="flex justify-between items-center mt-4">
-          <p class="text-xl font-semibold text-gray-200">Fade Out:</p>
-          <NumberInput v-model="trackSettings.fadeOutDuration" class="w-32 text-white" :step="1" min="0">
-          </NumberInput>
-        </div>
-        <div class="flex justify-between items-center mt-4">
-          <p class="text-xl font-semibold text-gray-200">Looping:</p>
-          <CheckboxInput v-model="trackSettings.isLooping"></CheckboxInput>
-        </div>
-        <div class="flex justify-between items-center mt-4">
-          <p class="text-xl font-semibold text-gray-200">Position in Playlist:</p>
-          <NumberInput v-model="trackSettings.pos" class="w-32 text-white" :step="1" min="1"
-            :max="(audioPlayer.playlist.tracks.length).toString()">
-          </NumberInput>
-        </div>
-        <div class="flex justify-end items-center mt-4">
-          <button type="button"
-            class="inline-flex w-auto justify-center rounded-md border border-transparent bg-special-red px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-special-red-hover focus:outline-none focus:ring-2 focus:ring-special-red-hover focus:ring-offset-2"
-            @click="$refs.confirmTrackRemoval.open = true">Remove</button>
-          <button type="button"
-            class="inline-flex w-auto justify-center rounded-md border border-transparent bg-electric-blue px-4 py-2 text-base font-medium text-black shadow-sm hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue focus:ring-offset-2 ml-5"
-            @click="changeTrackSettings">Save</button>
-        </div>
+      <div>
+        <TrackSettings :track="audioPlayer.playlist.tracks[trackSettingsIndex]" @removeTrack="removeTrack(trackSettingsIndex)"></TrackSettings>
       </div>
 
       <!--Playlist Card-->
@@ -107,6 +65,7 @@
         </span>
         <div class="flex flex-col overflow-y-auto h-[26rem] pb-4 mt-4">
           <div v-for="(track, index) in audioPlayer.playlist?.tracks" :key="track.pos" @dblclick="playTrack(index)"
+            @click.right="(event) => { $refs.ctxMenu.open(event); ctxMenuOnIndex = index; }" @click="trackSettingsIndex = index"
             class="flex justify-between items-center rounded-lg bg-[#404040] px-2 py-1 font-normal"
             :class="{ 'mr-2': (audioPlayer.playlist?.tracks.length > 8), 'bg-[#00D7FF] text-black font-bold': index === audioPlayer?.currentIndex, 'mb-2': (index + 1) !== audioPlayer.playlist.tracks.length }">
             <p class="text-lg">{{ index + 1}}: <span class="italic"> {{ track.name }} </span></p>
@@ -186,10 +145,16 @@
       </span>
     -->
 
+    <ContextMenu ref="ctxMenu">
+      <ul>
+        <li @click="trackSettingsIndex = ctxMenuOnIndex">Edit</li>
+        <li @click="$refs.confirmTrackRemoval.open = true">Remove</li>
+      </ul>
+    </ContextMenu>
     <ErrorPrompt ref="playerError"></ErrorPrompt>
     <ConfirmationPrompt ref="confirmTrackRemoval" buttonText="Löschen" header="Möchtest du den Track wirklich löschen?"
       :text="'Die Datei wird nicht aus dem Playlist Ordner gelöscht. \nJedoch gehen die Track Einstellungen verloren.'"
-      @onConfirm="audioPlayer.removeTrack(audioPlayer.current)">
+      @onConfirm="removeTrack(ctxMenuOnIndex)">
     </ConfirmationPrompt>
     <PromptDialog ref="createPresetPrompt" @onCommit="(name) => createPreset(name)"
       header="Wie soll das neue Preset heißen?" text="* Der Name muss einzigartig sein."></PromptDialog>
@@ -199,7 +164,6 @@
   </div>
 </template>
 <script>
-//import SoundeffectButton from '@/components/SoundeffectButton.vue';
 import MediaControls from '@/components/MediaControls.vue';
 import SelectList from '@/components/SelectList.vue';
 import { useAudioPlayerStore } from '@/stores/audioPlayerStore.js'
@@ -208,11 +172,10 @@ import ConfirmationPrompt from './components/ConfirmationPrompt.vue';
 import NewTrackPrompt from './components/NewTrackPrompt.vue'
 import { usePresetStore } from './stores/presetStore';
 import { loadNewPlaylist, loadAllPresets } from './util/fileManager';
-import TextInput from './components/TextInput.vue';
-import NumberInput from './components/NumberInput.vue';
-import CheckboxInput from './components/CheckboxInput.vue';
 import { register, unregisterAll } from '@tauri-apps/api/globalShortcut';
 import ErrorPrompt from './components/ErrorPrompt.vue';
+import ContextMenu from './components/ContextMenu.vue';
+import TrackSettings from './components/TrackSettings.vue';
 
 export default {
   setup() {
@@ -231,14 +194,6 @@ export default {
       // eslint-disable-next-line vue/no-reserved-keys
       _selectedPlaylist: undefined,
       presets: [],
-      trackSettings: {
-        name: undefined,
-        trackvolume: undefined,
-        fadeInDuration: undefined,
-        fadeOutDuration: undefined,
-        isLooping: undefined,
-        pos: undefined
-      },
       reloadSpin: false,
       seekbar: {
         min: 0,
@@ -247,7 +202,8 @@ export default {
         seek: 0,
         sliderCanMove: false
       },
-      margin: "mr-2",
+      ctxMenuOnIndex: 0,
+      trackSettingsIndex: 0,
     }
   },
   methods: {
@@ -277,12 +233,6 @@ export default {
           console.error('Playlist kann nur aktualisiert werden, wenn Player pausiert ist.')
         }
       }
-    },
-
-    changeTrackSettings() {
-      this.trackSettings.pos--
-      this.audioPlayer.changeTrackSettings(this.audioPlayer.current, this.trackSettings)
-      this.trackSettings.pos++
     },
 
     /**
@@ -389,30 +339,36 @@ export default {
     playTrack(index) {
       this.$refs.mediaControls.playTrack(index)
     },
+
+    triggerContextMenu(i, e) {
+      e.preventDefault()
+      console.log('Right Click');
+      // this.$refs.contextMenu.show(e)
+    },
+
+    removeTrack(index) {
+      this.audioPlayer.removeTrack(index)
+      if (this.trackSettingsIndex === index) {
+        if (index - 1 < 0) {
+					this.trackSettingsIndex = this.playlist.tracks.length - 1;
+				} else {
+					this.trackSettingsIndex = index - 1;
+				}
+      }
+    },
+    
   },
   components: {
     MediaControls,
     PromptDialog,
     SelectList,
     NewTrackPrompt,
-    TextInput,
-    NumberInput,
-    CheckboxInput,
     ConfirmationPrompt,
-    ErrorPrompt
+    ErrorPrompt,
+    ContextMenu,
+    TrackSettings
   },
   watch: {
-    'audioPlayer.current'() {
-      if (typeof this.audioPlayer.current !== 'undefined') {
-        this.trackSettings.name = this.audioPlayer.current.name
-        this.trackSettings.trackvolume = this.audioPlayer.current.trackvolume
-        this.trackSettings.fadeInDuration = this.audioPlayer.current.fadeInDuration
-        this.trackSettings.fadeOutDuration = this.audioPlayer.current.fadeOutDuration
-        this.trackSettings.isLooping = this.audioPlayer.current.isLooping
-        this.trackSettings.pos = this.audioPlayer.current.pos + 1
-        this.updateSeekbarHandle(0)
-      }
-    },
     'audioPlayer.current.player'() {
       if (typeof this.audioPlayer.current.player !== 'undefined') {
         this.audioPlayer.current.player.on('loaderror', (id, e) => {
@@ -423,11 +379,6 @@ export default {
           }
           this.$refs.playerError.open = true
         })
-      }
-    },
-    'audioPlayer.current.isLooping'() {
-      if (typeof this.audioPlayer.current !== 'undefined') {
-        this.trackSettings.isLooping = this.audioPlayer.current.isLooping
       }
     },
     async _selectedPreset(newVal) {
