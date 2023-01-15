@@ -74,7 +74,7 @@
 							}
 						"
 						@click="trackSettingsIndex = index"
-						class="flex justify-between items-center rounded-lg bg-[#404040] px-2 py-1 font-normal hover:bg-[#383838]"
+						class="flex justify-between items-center rounded-lg cursor-pointer bg-[#404040] px-2 py-1 font-normal hover:bg-[#383838]"
 						:class="{
 							'mr-2': audioPlayer.playlist?.tracks.length > 8,
 							'bg-[#00D7FF] hover:bg-[#00c3e6] text-black font-bold': index === audioPlayer?.currentIndex,
