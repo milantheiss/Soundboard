@@ -1,131 +1,143 @@
 <template class="font-poppins font-normal text-white p-6">
-  <div ref="window" @click="$refs.ctxMenu.close()">
-    <!--Anwendungstitel-->
-    <!--<p class="text-3xl font-semibold col-span-2 italic ml-6 mt-6">Stagebard</p>-->
+	<div ref="window" @click="$refs.ctxMenu.close()">
+		<!--Anwendungstitel-->
+		<!--<p class="text-3xl font-semibold col-span-2 italic ml-6 mt-6">Stagebard</p>-->
 
-    <!--Preset & Playlist Selector-->
-    <div class="grid grid-cols-2 gap-4 items-center mx-6 mt-6">
-      <div class="flex justify-start items-center mx-4">
-        <span class="bg-background-dark-gray">
-          <SelectList v-model="_selectedPreset" defaultValue="Wähle ein Preset" :options="presets" class="w-64">
-          </SelectList>
-        </span>
-        <button @click="this.$refs.createPresetPrompt.open = true" class="min-w-fit h-fit inline-flex justify-center
-        ml-6 px-3 py-2 
-        border border-transparent bg-electric-blue rounded-md shadow-sm
-        text-base font-medium text-black 
-        hover:bg-electric-blue-hover focus:outline-none focus:ring-2 
-        focus:ring-electric-blue-hover focus:ring-offset-2">Create Preset</button>
-      </div>
+		<!--Preset & Playlist Selector-->
+		<div class="grid grid-cols-2 gap-4 items-center mx-6 mt-6">
+			<div class="flex justify-start items-center mx-4">
+				<span class="bg-background-dark-gray">
+					<SelectList v-model="_selectedPreset" defaultValue="Wähle ein Preset" :options="presets" class="w-64"> </SelectList>
+				</span>
+				<button
+					@click="this.$refs.createPresetPrompt.open = true"
+					class="min-w-fit h-fit inline-flex justify-center ml-6 px-3 py-2 border border-transparent bg-electric-blue rounded-md shadow-sm text-base font-medium text-black hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue-hover focus:ring-offset-2">
+					Create Preset
+				</button>
+			</div>
 
-      <div class="flex justify-start items-center mx-4">
-        <span class="bg-background-dark-gray">
-          <SelectList ref="selectPlaylist" v-model="_selectedPlaylist" defaultValue="Wähle ein Playlist"
-            :options="preset.playlists" class="w-64"></SelectList>
-        </span>
-        <button @click="addPlaylistToPreset" class="min-w-fit h-fit inline-flex justify-center
-        ml-6 px-2 py-2 
-        border border-transparent bg-electric-blue rounded-md shadow-sm
-        text-base font-medium text-black 
-        hover:bg-electric-blue-hover focus:outline-none focus:ring-2 
-        focus:ring-electric-blue-hover focus:ring-offset-2">Add Playlist</button>
-        <!--TODO Button ausgrauen, wenn Player spielt.-->
-      </div>
-    </div>
+			<div class="flex justify-start items-center mx-4">
+				<span class="bg-background-dark-gray">
+					<SelectList
+						ref="selectPlaylist"
+						v-model="_selectedPlaylist"
+						defaultValue="Wähle ein Playlist"
+						:options="preset.playlists"
+						class="w-64"></SelectList>
+				</span>
+				<button
+					@click="addPlaylistToPreset"
+					class="min-w-fit h-fit inline-flex justify-center ml-6 px-2 py-2 border border-transparent bg-electric-blue rounded-md shadow-sm text-base font-medium text-black hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue-hover focus:ring-offset-2">
+					Add Playlist
+				</button>
+				<!--TODO Button ausgrauen, wenn Player spielt.-->
+			</div>
+		</div>
 
+		<div class="grid grid-cols-2 gap-4 m-6">
+			<!--Tracksettings Card-->
+			<div>
+				<TrackSettings :track="audioPlayer.playlist.tracks[trackSettingsIndex]" @removeTrack="removeTrack(trackSettingsIndex)"></TrackSettings>
+			</div>
 
-    <div class="grid grid-cols-2 gap-4 m-6">
-      <!--Tracksettings Card-->
-      <div>
-        <TrackSettings :track="audioPlayer.playlist.tracks[trackSettingsIndex]"
-          @removeTrack="removeTrack(trackSettingsIndex)"></TrackSettings>
-      </div>
+			<!--Playlist Card-->
+			<div class="bg-background rounded-lg p-4 drop-shadow-md row-span-2 w-full h-full flex flex-col">
+				<span class="flex justify-start items-center">
+					<p class="font-semibold text-xl" v-if="typeof audioPlayer.playlist.name !== 'undefined'">
+						{{ audioPlayer.playlist.name }}
+					</p>
+					<p class="font-semibold text-xl" v-if="typeof audioPlayer.playlist.name === 'undefined'">No Playlist selected</p>
+					<!--Refresh Icon-->
+					<span @click="reloadPlaylist" :class="reloadSpin ? 'animate-reloadSpin' : ''" @animationend="reloadSpin = false" class="w-7 h-7 ml-3">
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+						</svg>
+					</span>
+					<button
+						@click="$refs.addSongPrompt.open = true"
+						class="w-fit inline-flex justify-center px-3 py-2 ml-auto h-fit border border-transparent bg-electric-blue rounded-md shadow-sm text-base font-medium text-black hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue-hover focus:ring-offset-2">
+						Add Song
+					</button>
+				</span>
+				<div class="flex flex-col overflow-y-auto h-[26rem] pb-4 mt-4">
+					<div
+						v-for="(track, index) in audioPlayer.playlist?.tracks"
+						:key="track.pos"
+						@dblclick="playTrack(index)"
+						@click.right="
+							(event) => {
+								$refs.ctxMenu.open(event);
+								ctxMenuOnIndex = index;
+							}
+						"
+						@click="trackSettingsIndex = index"
+						class="flex justify-between items-center rounded-lg bg-[#404040] px-2 py-1 font-normal hover:bg-[#383838]"
+						:class="{
+							'mr-2': audioPlayer.playlist?.tracks.length > 8,
+							'bg-[#00D7FF] hover:bg-[#00c3e6] text-black font-bold': index === audioPlayer?.currentIndex,
+							'mb-2': index + 1 !== audioPlayer.playlist.tracks.length,
+						}">
+						<p class="text-lg">
+							{{ index + 1 }}: <span class="italic"> {{ track.name }} </span>
+						</p>
+					</div>
+				</div>
+			</div>
 
-      <!--Playlist Card-->
-      <div class="bg-background rounded-lg p-4 drop-shadow-md row-span-2 w-full h-full flex flex-col">
-        <span class="flex justify-start items-center">
-          <p class="font-semibold text-xl" v-if="(typeof audioPlayer.playlist.name !== 'undefined')">
-            {{ audioPlayer.playlist.name }}</p>
-          <p class="font-semibold text-xl" v-if="(typeof audioPlayer.playlist.name === 'undefined')">No Playlist
-            selected</p>
-          <!--Refresh Icon-->
-          <span @click="reloadPlaylist" :class="reloadSpin ? 'animate-reloadSpin' : ''"
-            @animationend="reloadSpin = false" class="w-7 h-7 ml-3">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-            </svg>
-          </span>
-          <button @click="$refs.addSongPrompt.open = true" class="w-fit inline-flex justify-center 
-        px-3 py-2 ml-auto h-fit
-        border border-transparent bg-electric-blue rounded-md shadow-sm
-        text-base font-medium text-black 
-        hover:bg-electric-blue-hover focus:outline-none focus:ring-2 
-        focus:ring-electric-blue-hover focus:ring-offset-2">Add Song</button>
-        </span>
-        <div class="flex flex-col overflow-y-auto h-[26rem] pb-4 mt-4">
-          <div v-for="(track, index) in audioPlayer.playlist?.tracks" :key="track.pos" @dblclick="playTrack(index)"
-            @click.right="(event) => { $refs.ctxMenu.open(event); ctxMenuOnIndex = index; }"
-            @click="trackSettingsIndex = index"
-            class="flex justify-between items-center rounded-lg bg-[#404040] px-2 py-1 font-normal hover:bg-[#383838]"
-            :class="{ 'mr-2': (audioPlayer.playlist?.tracks.length > 8), 'bg-[#00D7FF] hover:bg-[#00c3e6] text-black font-bold': index === audioPlayer?.currentIndex, 'mb-2': (index + 1) !== audioPlayer.playlist.tracks.length }">
-            <p class="text-lg">{{ index + 1}}: <span class="italic"> {{ track.name }} </span></p>
-          </div>
-        </div>
-      </div>
+			<!--Devtools Card-->
+			<div class="bg-background p-4 rounded-lg w-full flex justify-between items-center">
+				<button
+					@click="toggleHotkeys"
+					class="w-fit px-3 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-black focus:outline-none focus:ring-2 focus:ring-offset-2"
+					:class="
+						$refs.mediaControls?.useHotkeys
+							? 'bg-lime-500 hover:bg-lime-700 focus:ring-lime-400'
+							: 'bg-electric-blue hover:bg-electric-blue-hover focus:ring-electric-blue'
+					">
+					Toggle Hotkeys
+				</button>
+				<button
+					@click="nextPlaylist"
+					class="w-fit px-3 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-black focus:outline-none focus:ring-2 focus:ring-offset-2 bg-electric-blue hover:bg-electric-blue-hover focus:ring-electric-blue">
+					Next Playlist
+				</button>
+			</div>
 
-      <!--Devtools Card-->
-      <div class="bg-background p-4 rounded-lg w-full flex justify-between items-center">
-        <button @click="toggleHotkeys" class="
-          w-fit px-3 py-2 
-          border border-transparent  rounded-md shadow-sm
-          text-base font-medium text-black 
-          focus:outline-none focus:ring-2 
-           focus:ring-offset-2"
-          :class="$refs.mediaControls?.useHotkeys ? 'bg-lime-500 hover:bg-lime-700 focus:ring-lime-400' : 'bg-electric-blue hover:bg-electric-blue-hover focus:ring-electric-blue'">Toggle
-          Hotkeys</button>
-        <button @click="nextPlaylist" class="
-          w-fit px-3 py-2 
-          border border-transparent  rounded-md shadow-sm
-          text-base font-medium text-black 
-          focus:outline-none focus:ring-2 
-          focus:ring-offset-2
-        bg-electric-blue hover:bg-electric-blue-hover focus:ring-electric-blue">Next Playlist</button>
-      </div>
+			<!--Media Controls Card-->
+			<div
+				class="grid grid-cols-3 gap-x-2 items-center col-span-2 bg-background rounded-lg px-4 pt-4 drop-shadow-md h-fit w-full"
+				ref="mediaControlsCard"
+				@mouseup="(event) => detectMouseUp(event)">
+				<span class="w-full text-2xl font-semibold col-span-2">
+					<p v-if="typeof audioPlayer.current !== 'undefined'" class="truncate">
+						{{ audioPlayer.current.pos + 1 }}: <span class="italic"> {{ audioPlayer.current.name }} </span>
+					</p>
+					<p v-if="typeof audioPlayer.current === 'undefined'">No track loaded.</p>
+					<!--TODO Seek Bar hinzufügen-->
+				</span>
+				<MediaControls @seekValue="(val) => this.updateSeekbarHandle(val)" ref="mediaControls" class="w-full"> </MediaControls>
+				<!--Seek Bar-->
+				<div
+					class="h-12 flex items-center col-span-3 hover:cursor-pointer"
+					ref="seekbarCard"
+					@click="(event) => getClickPosition(event)"
+					@mousedown="(event) => detectMouseDown(event)">
+					<span class="text-lg mr-5" ref="currentSeek">{{ convertTime(seekbar.seek) }}</span>
 
-      <!--Media Controls Card-->
-      <div
-        class="grid grid-cols-3 gap-x-2 items-center col-span-2 bg-background rounded-lg px-4 pt-4  drop-shadow-md h-fit w-full"
-        ref="mediaControlsCard" @mouseup="(event) => detectMouseUp(event)">
-        <span class="w-full text-2xl font-semibold col-span-2">
-          <p v-if="typeof audioPlayer.current !== 'undefined'" class="truncate">{{
-            audioPlayer.current.pos + 1
-          }}: <span class="italic"> {{ audioPlayer.current.name }} </span></p>
-          <p v-if="typeof audioPlayer.current === 'undefined'">No track loaded.</p>
-          <!--TODO Seek Bar hinzufügen-->
-        </span>
-        <MediaControls @seekValue="(val) => this.updateSeekbarHandle(val)" ref="mediaControls" class="w-full">
-        </MediaControls>
-        <!--Seek Bar-->
-        <div class="h-12 flex items-center col-span-3 hover:cursor-pointer" ref="seekbarCard"
-          @click="(event) => getClickPosition(event)" @mousedown="(event) => detectMouseDown(event)">
-          <span class="text-lg mr-5" ref="currentSeek">{{ convertTime(seekbar.seek) }}</span>
+					<div ref="seekbar" class="block h-1 relative rounded-full bg-gray-500 w-full">
+						<div :style="'width: ' + seekbar.progress + '%'" class="absolute inset-0 rounded-full bg-electric-blue"></div>
+						<div :style="'left: ' + (seekbar.progress - 0.9) + '%'" class="absolute bg-white rounded-full -top-1.5 w-4 h-4"></div>
+					</div>
 
-          <div ref="seekbar" class="block h-1 relative rounded-full bg-gray-500 w-full">
-            <div :style="'width: ' + seekbar.progress + '%'" class="absolute inset-0 rounded-full bg-electric-blue">
-            </div>
-            <div :style="'left: ' + (seekbar.progress - 0.9) + '%'"
-              class="absolute bg-white rounded-full -top-1.5 w-4 h-4"></div>
-          </div>
+					<span class="text-lg ml-5">{{ convertTime(seekbar.seek - audioPlayer.current?.player.duration()) }}</span>
+				</div>
+			</div>
+		</div>
 
-          <span class="text-lg ml-5">{{ convertTime(seekbar.seek - audioPlayer.current?.player.duration()) }}</span>
-        </div>
-      </div>
-    </div>
-
-
-    <!--Collapse Icon
+		<!--Collapse Icon
       <span class="flex justify-start items-center" @click="showDeveloperTools = !showDeveloperTools">
         <span v-show="!showDeveloperTools" class="text-developer-yellow flex items-center"
           :class="$refs.mediaControls.useHotkeys ? 'text-lime-500' : ''">
@@ -147,290 +159,301 @@
       </span>
     -->
 
-    <ContextMenu ref="ctxMenu">
-      <ul>
-        <li @click="trackSettingsIndex = ctxMenuOnIndex" class="mb-2"><span class="flex items-"><svg
-              xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-              stroke="currentColor" class="w-6 h-6 mr-2">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-            </svg>
-            Edit</span></li>
-        <li @click="$refs.confirmTrackRemoval.open = true"><span class="flex items-center"><svg
-            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-            class="w-6 h-6 mr-2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-          </svg>
-          Remove</span></li>
-      </ul>
-    </ContextMenu>
-    <ErrorPrompt ref="playerError"></ErrorPrompt>
-    <ConfirmationPrompt ref="confirmTrackRemoval" buttonText="Löschen" header="Möchtest du den Track wirklich löschen?"
-      :text="'Die Datei wird nicht aus dem Playlist Ordner gelöscht. \nJedoch gehen die Track Einstellungen verloren.'"
-      @onConfirm="removeTrack(ctxMenuOnIndex)">
-    </ConfirmationPrompt>
-    <PromptDialog ref="createPresetPrompt" @onCommit="(name) => createPreset(name)"
-      header="Wie soll das neue Preset heißen?" text="* Der Name muss einzigartig sein."></PromptDialog>
-    <NewTrackPrompt ref="addSongPrompt" @onCommit="(song) => audioPlayer.addSong(song)"></NewTrackPrompt>
-    <!--<PromptDialog ref="createPlaylist" @onCommit="(name) => createPlaylist(name)" header="Wie soll die neue Playlist heißen?" text="*Der Name muss einzigartig sein."></PromptDialog>-->
-
-  </div>
+		<ContextMenu ref="ctxMenu">
+			<ul>
+				<li @click="trackSettingsIndex = ctxMenuOnIndex" class="mb-2">
+					<span class="flex items-"
+						><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+						</svg>
+						Edit</span
+					>
+				</li>
+				<li @click="$refs.confirmTrackRemoval.open = true">
+					<span class="flex items-center"
+						><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+						</svg>
+						Remove</span
+					>
+				</li>
+			</ul>
+		</ContextMenu>
+		<ErrorPrompt ref="playerError"></ErrorPrompt>
+		<ConfirmationPrompt
+			ref="confirmTrackRemoval"
+			buttonText="Löschen"
+			header="Möchtest du den Track wirklich löschen?"
+			:text="'Die Datei wird nicht aus dem Playlist Ordner gelöscht. \nJedoch gehen die Track Einstellungen verloren.'"
+			@onConfirm="removeTrack(ctxMenuOnIndex)">
+		</ConfirmationPrompt>
+		<PromptDialog
+			ref="createPresetPrompt"
+			@onCommit="(name) => createPreset(name)"
+			header="Wie soll das neue Preset heißen?"
+			text="* Der Name muss einzigartig sein."></PromptDialog>
+		<NewTrackPrompt ref="addSongPrompt" @onCommit="(song) => audioPlayer.addSong(song)"></NewTrackPrompt>
+		<!--<PromptDialog ref="createPlaylist" @onCommit="(name) => createPlaylist(name)" header="Wie soll die neue Playlist heißen?" text="*Der Name muss einzigartig sein."></PromptDialog>-->
+	</div>
 </template>
 <script>
-import MediaControls from '@/components/MediaControls.vue';
-import SelectList from '@/components/SelectList.vue';
-import { useAudioPlayerStore } from '@/stores/audioPlayerStore.js'
-import PromptDialog from './components/PromptDialog.vue';
-import ConfirmationPrompt from './components/ConfirmationPrompt.vue';
-import NewTrackPrompt from './components/NewTrackPrompt.vue'
-import { usePresetStore } from './stores/presetStore';
-import { loadNewPlaylist, loadAllPresets } from './util/fileManager';
-import { register, unregisterAll } from '@tauri-apps/api/globalShortcut';
-import ErrorPrompt from './components/ErrorPrompt.vue';
-import ContextMenu from './components/ContextMenu.vue';
-import TrackSettings from './components/TrackSettings.vue';
+import MediaControls from "@/components/MediaControls.vue";
+import SelectList from "@/components/SelectList.vue";
+import { useAudioPlayerStore } from "@/stores/audioPlayerStore.js";
+import PromptDialog from "./components/PromptDialog.vue";
+import ConfirmationPrompt from "./components/ConfirmationPrompt.vue";
+import NewTrackPrompt from "./components/NewTrackPrompt.vue";
+import { usePresetStore } from "./stores/presetStore";
+import { loadNewPlaylist, loadAllPresets } from "./util/fileManager";
+import { register, unregisterAll } from "@tauri-apps/api/globalShortcut";
+import ErrorPrompt from "./components/ErrorPrompt.vue";
+import ContextMenu from "./components/ContextMenu.vue";
+import TrackSettings from "./components/TrackSettings.vue";
 
 export default {
-  setup() {
-    const audioPlayer = useAudioPlayerStore()
-    const preset = usePresetStore()
+	setup() {
+		const audioPlayer = useAudioPlayerStore();
+		const preset = usePresetStore();
 
-    return {
-      audioPlayer,
-      preset
-    }
-  },
-  data() {
-    return {
-      // eslint-disable-next-line vue/no-reserved-keys
-      _selectedPreset: undefined,
-      // eslint-disable-next-line vue/no-reserved-keys
-      _selectedPlaylist: undefined,
-      presets: [],
-      reloadSpin: false,
-      seekbar: {
-        min: 0,
-        max: 100,
-        progress: 0,
-        seek: 0,
-        sliderCanMove: false
-      },
-      ctxMenuOnIndex: 0,
-      trackSettingsIndex: 0,
-    }
-  },
-  methods: {
-    async createPreset(presetName) {
-      await this.preset.createNewPreset(presetName)
-      this.presets = await loadAllPresets()
-    },
+		return {
+			audioPlayer,
+			preset,
+		};
+	},
+	data() {
+		return {
+			// eslint-disable-next-line vue/no-reserved-keys
+			_selectedPreset: undefined,
+			// eslint-disable-next-line vue/no-reserved-keys
+			_selectedPlaylist: undefined,
+			presets: [],
+			reloadSpin: false,
+			seekbar: {
+				min: 0,
+				max: 100,
+				progress: 0,
+				seek: 0,
+				sliderCanMove: false,
+			},
+			ctxMenuOnIndex: 0,
+			trackSettingsIndex: 0,
+		};
+	},
+	methods: {
+		async createPreset(presetName) {
+			await this.preset.createNewPreset(presetName);
+			this.presets = await loadAllPresets();
+		},
 
-    async addPlaylistToPreset() {
-      if (this.preset.name.length > 0) {
-        this.preset.addPlaylist(await loadNewPlaylist())
-      } else {
-        console.error('Kein Preset gesetzt')
-      }
-    },
+		async addPlaylistToPreset() {
+			if (this.preset.name.length > 0) {
+				this.preset.addPlaylist(await loadNewPlaylist());
+			} else {
+				console.error("Kein Preset gesetzt");
+			}
+		},
 
-    /**
-     * Lädt ausgewählte Playlist neu
-     */
-    async reloadPlaylist() {
-      if (typeof this.audioPlayer.playlist.name !== 'undefined') {
-        if (!this.audioPlayer.isPlaying) {
-          this.reloadSpin = true
-          this.audioPlayer.setPlaylist(this._selectedPlaylist.path)
-        } else {
-          //TODO UI Error zeigen
-          console.error('Playlist kann nur aktualisiert werden, wenn Player pausiert ist.')
-        }
-      }
-    },
+		/**
+		 * Lädt ausgewählte Playlist neu
+		 */
+		async reloadPlaylist() {
+			if (typeof this.audioPlayer.playlist.name !== "undefined") {
+				if (!this.audioPlayer.isPlaying) {
+					this.reloadSpin = true;
+					this.audioPlayer.setPlaylist(this._selectedPlaylist.path);
+				} else {
+					//TODO UI Error zeigen
+					console.error("Playlist kann nur aktualisiert werden, wenn Player pausiert ist.");
+				}
+			}
+		},
 
-    /**
-     * Devtool: Go to next Playlist
-     */
-    nextPlaylist() {
-      const temp = this.preset.nextPlaylist()
-      console.log(temp);
-      if (typeof temp !== 'undefined') {
-        this.$refs.selectPlaylist.selected = temp
-        this._selectedPlaylist = temp
-      } else {
-        console.error('App: Could not go to next Playlist (Return was undefined)')
-      }
-    },
+		/**
+		 * Devtool: Go to next Playlist
+		 */
+		nextPlaylist() {
+			const temp = this.preset.nextPlaylist();
+			console.log(temp);
+			if (typeof temp !== "undefined") {
+				this.$refs.selectPlaylist.selected = temp;
+				this._selectedPlaylist = temp;
+			} else {
+				console.error("App: Could not go to next Playlist (Return was undefined)");
+			}
+		},
 
-    resetSong() {
-      if (typeof this.audioPlayer.current !== 'undefined') {
-        if (typeof this.audioPlayer.current.player !== 'undefined') {
-          this.audioPlayer.current.player.load()
-          this.audioPlayer.current.player.seek(0.0)
-          this.audioPlayer.current.player.volume(this.audioPlayer.current.trackvolume)
-          this.audioPlayer.current.player.loop(this.audioPlayer.current.isLooping)
-        }
-      }
-    },
+		resetSong() {
+			if (typeof this.audioPlayer.current !== "undefined") {
+				if (typeof this.audioPlayer.current.player !== "undefined") {
+					this.audioPlayer.current.player.load();
+					this.audioPlayer.current.player.seek(0.0);
+					this.audioPlayer.current.player.volume(this.audioPlayer.current.trackvolume);
+					this.audioPlayer.current.player.loop(this.audioPlayer.current.isLooping);
+				}
+			}
+		},
 
-    async toggleHotkeys() {
-      await this.$refs.mediaControls.toggleHotkeys()
-      if (this.$refs.mediaControls.useHotkeys) {
-        await register('V', () => {
-          if (Date.now() - this.$refs.mediaControls.lastHotkey > this.$refs.mediaControls.cooldown || !this.$refs.mediaControls.hotkeyHasCooldown) {
-            this.nextPlaylist()
-            this.$refs.mediaControls.lastHotkey = Date.now()
-          }
-        });
-      } else {
-        await unregisterAll()
-      }
-    },
+		async toggleHotkeys() {
+			await this.$refs.mediaControls.toggleHotkeys();
+			if (this.$refs.mediaControls.useHotkeys) {
+				await register("V", () => {
+					if (Date.now() - this.$refs.mediaControls.lastHotkey > this.$refs.mediaControls.cooldown || !this.$refs.mediaControls.hotkeyHasCooldown) {
+						this.nextPlaylist();
+						this.$refs.mediaControls.lastHotkey = Date.now();
+					}
+				});
+			} else {
+				await unregisterAll();
+			}
+		},
 
-    getClickPosition(e) {
-      e = e || window.e
+		getClickPosition(e) {
+			e = e || window.e;
 
-      // Breite des DOM Emlements bestimmen
-      let target = e.target || e.srcElement
-      if (target.nodeType == 3) target = target.parentNode // Fix für Safari Bug
-      const wrapperWidth = this.$refs.seekbar.clientWidth // Breite setzen
+			// Breite des DOM Emlements bestimmen
+			let target = e.target || e.srcElement;
+			if (target.nodeType == 3) target = target.parentNode; // Fix für Safari Bug
+			const wrapperWidth = this.$refs.seekbar.clientWidth; // Breite setzen
 
-      // Mausposition bestimmen
-      // this.$refs.seekInText.clientWidth korrigiert die Width, um die Breite des Elements
-      // 58.5 = Anpassung, damit Handel auf Mausspitze liegt
-      let seekWidth = e.clientX - this.$refs.currentSeek.clientWidth - 58.5
+			// Mausposition bestimmen
+			// this.$refs.seekInText.clientWidth korrigiert die Width, um die Breite des Elements
+			// 58.5 = Anpassung, damit Handel auf Mausspitze liegt
+			let seekWidth = e.clientX - this.$refs.currentSeek.clientWidth - 58.5;
 
+			// Neuen Seek Progress berechnen --> von 0.000 bis 100.000
+			this.seekbar.progress = ((seekWidth / wrapperWidth) * 100).toFixed(3);
 
-      // Neuen Seek Progress berechnen --> von 0.000 bis 100.000
-      this.seekbar.progress = ((seekWidth / wrapperWidth) * 100).toFixed(3)
+			// Progress auf 0 oder 100 setzen, wenn Seekbar zu weit nach links oder rechts gezogen wird
+			if (this.seekbar.progress > 100) this.seekbar.progress = 100;
+			if (this.seekbar.progress < 0) this.seekbar.progress = 0;
 
-      // Progress auf 0 oder 100 setzen, wenn Seekbar zu weit nach links oder rechts gezogen wird
-      if (this.seekbar.progress > 100) this.seekbar.progress = 100
-      if (this.seekbar.progress < 0) this.seekbar.progress = 0
+			// Seek des Audio Players anpassen
+			this.audioPlayer.current.player.seek((this.audioPlayer.current.player.duration() / 100) * this.seekbar.progress);
+			this.seekbar.seek = this.audioPlayer.current.player.seek();
+		},
 
-      // Seek des Audio Players anpassen
-      this.audioPlayer.current.player.seek((this.audioPlayer.current.player.duration() / 100) * this.seekbar.progress)
-      this.seekbar.seek = this.audioPlayer.current.player.seek()
-    },
+		detectMouseDown(e) {
+			e.preventDefault(); // Browser daran hindern, Objekte zu verschieben, Links zu folgen usw
 
-    detectMouseDown(e) {
-      e.preventDefault() // Browser daran hindern, Objekte zu verschieben, Links zu folgen usw
+			// Mousemovement wird getrackt
+			this.$refs.mediaControlsCard.addEventListener("mousemove", this.getClickPosition, false);
+		},
 
-      // Mousemovement wird getrackt
-      this.$refs.mediaControlsCard.addEventListener("mousemove", this.getClickPosition, false)
-    },
+		detectMouseUp() {
+			// Mousemovement wird nicht mehr getrackt
+			this.$refs.mediaControlsCard.removeEventListener("mousemove", this.getClickPosition, false);
+		},
 
-    detectMouseUp() {
-      // Mousemovement wird nicht mehr getrackt
-      this.$refs.mediaControlsCard.removeEventListener("mousemove", this.getClickPosition, false)
-    },
+		/**
+		 * Bewegt die Seekbar anhand des Seek Wertes
+		 * @param {Number} seek Seek zu dem sich die Bar bewegen soll
+		 */
+		updateSeekbarHandle(seek) {
+			this.seekbar.seek = seek;
 
-    /**
-     * Bewegt die Seekbar anhand des Seek Wertes
-     * @param {Number} seek Seek zu dem sich die Bar bewegen soll
-     */
-    updateSeekbarHandle(seek) {
-      this.seekbar.seek = seek
+			if (seek > 0) {
+				this.seekbar.progress = ((seek / this.audioPlayer.current.player.duration()) * 100).toFixed(3);
+			} else {
+				this.seekbar.progress = 0;
+			}
+		},
 
-      if (seek > 0) {
-        this.seekbar.progress = ((seek / this.audioPlayer.current.player.duration()) * 100).toFixed(3)
-      } else {
-        this.seekbar.progress = 0
-      }
-    },
+		convertTime(time) {
+			const prefix = time < 0 ? "-" : "";
+			time = Math.abs(time);
+			let minutes = Math.floor(time / 60);
+			let seconds = Math.floor(time - minutes * 60);
+			if (seconds < 10) seconds = "0" + seconds;
 
-    convertTime(time) {
-      const prefix = time < 0 ? '-' : ''
-      time = Math.abs(time)
-      let minutes = Math.floor(time / 60)
-      let seconds = Math.floor(time - minutes * 60)
-      if (seconds < 10) seconds = '0' + seconds
+			return prefix + minutes + ":" + seconds;
+		},
 
-      return prefix + minutes + ':' + seconds
-    },
+		playTrack(index) {
+			this.$refs.mediaControls.playTrack(index);
+		},
 
-    playTrack(index) {
-      this.$refs.mediaControls.playTrack(index)
-    },
+		triggerContextMenu(i, e) {
+			e.preventDefault();
+			console.log("Right Click");
+			// this.$refs.contextMenu.show(e)
+		},
 
-    triggerContextMenu(i, e) {
-      e.preventDefault()
-      console.log('Right Click');
-      // this.$refs.contextMenu.show(e)
-    },
-
-    removeTrack(index) {
-      this.audioPlayer.removeTrack(index)
-      if (this.trackSettingsIndex === index) {
-        if (index - 1 < 0) {
-          this.trackSettingsIndex = this.playlist.tracks.length - 1;
-        } else {
-          this.trackSettingsIndex = index - 1;
-        }
-      }
-    },
-
-  },
-  components: {
-    MediaControls,
-    PromptDialog,
-    SelectList,
-    NewTrackPrompt,
-    ConfirmationPrompt,
-    ErrorPrompt,
-    ContextMenu,
-    TrackSettings
-  },
-  watch: {
-    'audioPlayer.current.player'() {
-      if (typeof this.audioPlayer.current.player !== 'undefined') {
-        this.audioPlayer.current.player.on('loaderror', (id, e) => {
-          if (e === 'Failed loading audio file with status: 404.') {
-            this.$refs.playerError.text = '404: Audio Datei konnte nicht im Playlisten Ordner gefunden werden.'
-          } else {
-            this.$refs.playerError.text = 'Unbekannter Fehler beim Laden Audiodatei'
-          }
-          this.$refs.playerError.open = true
-        })
-      }
-    },
-    async _selectedPreset(newVal) {
-      if (!await this.preset.setPreset(newVal.filename)) {
-        this.presets = await loadAllPresets()
-      }
-    },
-    async _selectedPlaylist(newVal) {
-      this.audioPlayer.setPlaylist(newVal.path)
-    }
-  },
-  async created() {
-    this.presets = await loadAllPresets()
-  }
-}
+		removeTrack(index) {
+			this.audioPlayer.removeTrack(index);
+			if (this.trackSettingsIndex === index) {
+				if (index - 1 < 0) {
+					this.trackSettingsIndex = this.playlist.tracks.length - 1;
+				} else {
+					this.trackSettingsIndex = index - 1;
+				}
+			}
+		},
+	},
+	components: {
+		MediaControls,
+		PromptDialog,
+		SelectList,
+		NewTrackPrompt,
+		ConfirmationPrompt,
+		ErrorPrompt,
+		ContextMenu,
+		TrackSettings,
+	},
+	watch: {
+		"audioPlayer.current.player"() {
+			if (typeof this.audioPlayer.current.player !== "undefined") {
+				this.audioPlayer.current.player.on("loaderror", (id, e) => {
+					if (e === "Failed loading audio file with status: 404.") {
+						this.$refs.playerError.text = "404: Audio Datei konnte nicht im Playlisten Ordner gefunden werden.";
+					} else {
+						this.$refs.playerError.text = "Unbekannter Fehler beim Laden Audiodatei";
+					}
+					this.$refs.playerError.open = true;
+				});
+			}
+		},
+		async "_selectedPreset"(newVal) {
+			if (!(await this.preset.setPreset(newVal.filename))) {
+				this.presets = await loadAllPresets();
+			}
+		},
+		async "_selectedPlaylist"(newVal) {
+			this.audioPlayer.setPlaylist(newVal.path);
+		},
+	},
+	async created() {
+		this.presets = await loadAllPresets();
+	},
+};
 </script>
 
-<style scoped>
+<style>
 /* Works on Firefox */
 * {
-  scrollbar-width: 12px;
-  scrollbar-color: #333333 #00D7FF;
+	scrollbar-width: 12px;
+	scrollbar-color: #333333 #00d7ff;
 }
 
 /* Works on Chrome, Edge, and Safari */
 *::-webkit-scrollbar {
-  width: 12px;
+	width: 12px;
 }
 
 *::-webkit-scrollbar-track {
-  background: #333333;
-  border-radius: 20px;
+	background: #333333;
+	border-radius: 20px;
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: #00D7FF;
-  border-radius: 20px;
-  outline-offset: -2px;
-  outline: 3px solid #00D7FF;
+	background-color: #00d7ff;
+	border-radius: 20px;
+	outline-offset: -2px;
+	outline: 3px solid #00d7ff;
 }
 </style>
