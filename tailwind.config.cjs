@@ -14,8 +14,8 @@ module.exports = {
         'electric-blue-hover': '#00c3e6',
         'background': '#252525',
         'background-dark-gray': '#0f0f0f',
-        'special-red': '#FF1F28',
-        'special-red-hover': '#e60008',
+        'special-red': '#ff333a',
+        'special-red-hover': '#ff1f28',
         'developer-yellow': "#d39f0f",
         "developer-yellow-backgroud": '#332b00'
       },
