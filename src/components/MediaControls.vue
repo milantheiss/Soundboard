@@ -101,6 +101,7 @@ export default {
 
 					//Nur bei Crossfade wichtig: Pausieren auch Next & Previous, wenn in Fading Process wurde
 					if (this.fade.isFading()) {
+						console.debug("Pause fade from togglePlay()");
 						this.fade.pause();
 					} else {
 						this.audioPlayer.current.player.pause();
@@ -181,6 +182,7 @@ export default {
 					if (typeof this.audioPlayer.current.player !== "undefined") {
 						this.audioPlayer.current.player.stop();
 					}
+					this.seek = 0;
 				}
 				//Der Index wird verschoben
 				this.audioPlayer.advanceToNextIndex();
@@ -216,6 +218,7 @@ export default {
 					if (typeof this.audioPlayer.current.player !== "undefined") {
 						this.audioPlayer.current.player.stop();
 					}
+					this.seek = 0;
 				}
 				//Der Index wird verschoben
 				this.audioPlayer.advanceToPreviousIndex();
@@ -254,6 +257,7 @@ export default {
 					//Stoppt alten Track. --> Damit ist seek wieder 0.0 aber volume immer noch 0.0
 					this.fade._from.player.stop();
 					this.fade._from.player.seek(0);
+					this.fade._from.player.volume(this.fade._from.data.trackvolume);
 
 					console.debug(`Finished fading ${this.fade._from.data.name}`);
 
@@ -263,6 +267,7 @@ export default {
 					}
 
 					this.fade._from.isFading = false;
+
 					//EventListener wird entfernt
 					this.fade._from.player.off("fade");
 				} else {
@@ -275,6 +280,8 @@ export default {
 				to.player.load();
 				to.player.play();
 			}
+
+			to.player.volume(0.0);
 
 			//Beginnt den nächsten Track einzufaden
 			to.player.fade(0.0, to.trackvolume, to.fadeInDuration);
@@ -290,6 +297,7 @@ export default {
 					}
 
 					this.fade._to.isFading = false;
+					this.fade._to.player.volume(this.fade._to.data.trackvolume);
 					//EventListener wird entfernt
 					this.fade._to.player.off("fade");
 				} else {
@@ -388,9 +396,11 @@ export default {
 			} else {
 				this.fade.stop();
 				this.audioPlayer.current.player.stop();
+				this.audioPlayer.current.player.volume(this.audioPlayer.current.trackvolume);
 				this.seek = 0;
 			}
 			this.audioPlayer.jumpToIndex(index);
+			this.audioPlayer.current.player.volume();
 		},
 	},
 	watch: {
