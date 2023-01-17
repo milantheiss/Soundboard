@@ -7,7 +7,7 @@
 		<div class="grid grid-cols-2 gap-4 items-center mx-6 mt-6">
 			<div class="flex justify-start items-center mx-4">
 				<span class="bg-background-dark-gray">
-					<SelectList v-model="_selectedPreset" defaultValue="Wähle ein Preset" :options="presets" class="w-64"> </SelectList>
+					<SelectList v-model="_selectedPreset" defaultValue="Select a preset" :options="presets" class="w-64"> </SelectList>
 				</span>
 				<button
 					@click="this.$refs.createPresetPrompt.open = true"
@@ -21,7 +21,7 @@
 					<SelectList
 						ref="selectPlaylist"
 						v-model="_selectedPlaylist"
-						defaultValue="Wähle ein Playlist"
+						defaultValue="Select a playlist"
 						:options="preset.playlists"
 						class="w-64"></SelectList>
 				</span>
