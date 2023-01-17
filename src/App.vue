@@ -394,7 +394,7 @@ export default {
 			this.audioPlayer.removeTrack(index);
 			if (this.trackSettingsIndex === index) {
 				if (index - 1 < 0) {
-					this.trackSettingsIndex = this.playlist.tracks.length - 1;
+					this.trackSettingsIndex = this.audioPlayer.playlist.tracks.length - 1;
 				} else {
 					this.trackSettingsIndex = index - 1;
 				}
@@ -413,7 +413,7 @@ export default {
 	},
 	watch: {
 		"audioPlayer.current.player"() {
-			if (typeof this.audioPlayer.current.player !== "undefined") {
+			if (typeof this.audioPlayer.current?.player !== "undefined") {
 				this.audioPlayer.current.player.on("loaderror", (id, e) => {
 					if (e === "Failed loading audio file with status: 404.") {
 						this.$refs.playerError.text = "404: Audio Datei konnte nicht im Playlisten Ordner gefunden werden.";
@@ -431,6 +431,11 @@ export default {
 		},
 		async "_selectedPlaylist"(newVal) {
 			this.audioPlayer.setPlaylist(newVal.path);
+		},
+		"audioPlayer.playlist.tracks.length"(newVal) {
+			if (newVal - 1 <= this.trackSettingsIndex) {
+				this.trackSettingsIndex = newVal - 1;
+			}
 		},
 	},
 	async created() {

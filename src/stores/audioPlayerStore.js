@@ -349,6 +349,11 @@ export const useAudioPlayerStore = defineStore("audioPlayerStore", {
 				if (this.playlist.tracks.length > 5) {
 					this.loadPlayerBuffer();
 				}
+
+				if (this.currentIndex > this.playlist.tracks.length - 1) {
+					this.currentIndex = this.playlist.tracks.length - 1;
+				}
+				this.currentIndex = this.currentIndex > 0 ? this.currentIndex : 0;
 			} else {
 				console.error("Track kann nicht removed werden, wenn Player spielt.");
 			}
@@ -418,60 +423,69 @@ export const useAudioPlayerStore = defineStore("audioPlayerStore", {
 		},
 
 		loadPlayerBuffer(index = this.currentIndex) {
-			const getIndexNext = (i) => {
-				if (i + 1 > this.playlist.tracks.length - 1) {
-					return 0;
-				} else {
-					return i + 1;
-				}
-			};
+			index = index > 0 ? index : 0;
 
-			const getIndexPrevious = (i) => {
-				if (i - 1 < 0) {
-					return this.playlist.tracks.length - 1;
-				} else {
-					return i - 1;
-				}
-			};
+			// Fix für Bug, ansonsten würde die Methode versuchen nicht existierende Player zu laden
+			if (this.playlist.tracks.length > 0) {
+				const getIndexNext = (i) => {
+					if (i + 1 > this.playlist.tracks.length - 1) {
+						return 0;
+					} else {
+						return i + 1;
+					}
+				};
 
-			const getIndexForwardsBuffer = (i) => {
-				if (i + 2 > this.playlist.tracks.length - 1) {
-					return i + 2 - this.playlist.tracks.length;
-				} else {
-					return i + 2;
-				}
-			};
+				const getIndexPrevious = (i) => {
+					if (i - 1 < 0) {
+						return this.playlist.tracks.length - 1;
+					} else {
+						return i - 1;
+					}
+				};
 
-			const getIndexBackwardsBuffer = (i) => {
-				if (i - 2 < 0) {
-					return this.playlist.tracks.length - 2 + i;
-				} else {
-					return i - 2;
-				}
-			};
+				const getIndexForwardsBuffer = (i) => {
+					// Fix für Bug, ansonsten würde bei einer Playlist mit nur einem Track, der Index 1 zurückgegeben werden.
+					if (this.playlist.tracks.length === 1) return 0;
+					if (i + 2 > this.playlist.tracks.length - 1) {
+						return i + 2 - this.playlist.tracks.length;
+					} else {
+						return i + 2;
+					}
+				};
 
-			//Index aller Player die geladen werden sollen
-			const indexOfAllPlayersToLoad = [
-				index,
-				getIndexNext(index),
-				getIndexPrevious(index),
-				getIndexForwardsBuffer(index),
-				getIndexBackwardsBuffer(index),
-			];
+				const getIndexBackwardsBuffer = (i) => {
+					// Fix für Bug, ansonsten würde bei einer Playlist mit nur einem Track, der Index -1 zurückgegeben werden.
+					if (this.playlist.tracks.length === 1) return 0;
+					if (i - 2 < 0) {
+						return this.playlist.tracks.length - 2 + i;
+					} else {
+						return i - 2;
+					}
+				};
 
-			//Entfernt doppelte Einträge --> Wenn die Playlist weniger als 5 Tracks hat.
-			const uniqueIndex = [...new Set(indexOfAllPlayersToLoad)];
+				//Index aller Player die geladen werden sollen
+				const indexOfAllPlayersToLoad = [
+					index,
+					getIndexNext(index),
+					getIndexPrevious(index),
+					getIndexForwardsBuffer(index),
+					getIndexBackwardsBuffer(index),
+				];
 
-			//Lädt alle Player die noch nicht geladen sind
-			uniqueIndex.forEach((i) => {
-				if (this.playlist.tracks[i].player === null || typeof this.playlist.tracks[i].player === "undefined") {
-					this.playlist.tracks[i].player = new Howl({
-						src: [[this.playlist.path, this.playlist.tracks[i].filename].join("%5C")],
-						volume: this.playlist.tracks[i].trackvolume,
-						loop: this.playlist.tracks[i].isLooping,
-					});
-				}
-			});
+				//Entfernt doppelte Einträge --> Wenn die Playlist weniger als 5 Tracks hat.
+				const uniqueIndex = [...new Set(indexOfAllPlayersToLoad)];
+
+				//Lädt alle Player die noch nicht geladen sind
+				uniqueIndex.forEach((i) => {
+					if (this.playlist.tracks[i].player === null || typeof this.playlist.tracks[i].player === "undefined") {
+						this.playlist.tracks[i].player = new Howl({
+							src: [[this.playlist.path, this.playlist.tracks[i].filename].join("%5C")],
+							volume: this.playlist.tracks[i].trackvolume,
+							loop: this.playlist.tracks[i].isLooping,
+						});
+					}
+				});
+			}
 		},
 
 		loadPlayer(index = this.currentIndex) {

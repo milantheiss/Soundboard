@@ -24,7 +24,7 @@
 						leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
 						<DialogPanel
 							class="relative transform overflow-hidden rounded-lg bg-background text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-							<div class="bg-inherit px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+							<div class="bg-inherit px-4 pt-5 sm:p-6">
 								<div class="sm:flex sm:items-start">
 									<div class="mt-3 text-center sm:mt-0 sm:text-left">
 										<DialogTitle as="h3" class="text-lg font-medium leading-6 text-white">Add new Song</DialogTitle>
@@ -32,16 +32,16 @@
 								</div>
 							</div>
 							<div class="bg-inherit px-4 py-3 sm:px-6 text-white">
-								<div class="flex justify-between items-center mt-2">
+								<div class="flex justify-between items-center">
 									<p class="">{{ filename }}</p>
 								</div>
 								<div class="flex justify-between items-center mt-4">
 									<TextInput v-model="name" class="w-full text-white" placeholder="Songname"> </TextInput>
 									<button
 										type="button"
-										class="inline-flex w-full justify-center rounded-md border border-transparent bg-electric-blue px-4 py-2 text-base font-medium text-black shadow-sm hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue focus:ring-offset-2 ml-5 sm:w-auto sm:text-sm"
+										class="inline-flex w-full justify-center rounded-md border border-transparent bg-electric-blue px-4 py-2 text-lg font-medium text-black shadow-sm hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue focus:ring-offset-2 ml-5 sm:w-auto sm:text-base"
 										@click="openSong">
-										<Select></Select>
+										Select
 									</button>
 								</div>
 								<div class="flex justify-between items-center mt-4">
@@ -131,7 +131,7 @@ export default {
 			fadeIn: 2000,
 			fadeOut: 2000,
 			looping: false,
-			pos: this.audioPlayer.currentIndex + 2,
+			pos: this.audioPlayer.playlist.tracks.length > 0 ? this.audioPlayer.currentIndex + 2 : 1,
 		};
 	},
 	methods: {
@@ -161,7 +161,8 @@ export default {
 			this.fadeIn = 2000;
 			this.fadeOut = 2000;
 			this.looping = false;
-			(this.name = undefined), (this.pos = this.audioPlayer.currentIndex + 2);
+			this.name = undefined;
+			this.pos = this.audioPlayer.playlist.tracks.length > 0 ? this.audioPlayer.currentIndex + 2 : 1;
 		},
 	},
 	computed: {
@@ -175,7 +176,13 @@ export default {
 	},
 	watch: {
 		"audioPlayer.currentIndex"(newVal) {
-			this.pos = newVal + 2;
+			this.pos = this.audioPlayer.tracks?.length > 0 ? newVal + 2 : 1;
+		},
+		"audioPlayer.playlist.tracks.length"(newVal, oldVal) {
+			//Wird gewatcht, damit Position richtig ist, leere Playlist mit Songs gefüllt wird
+			if (oldVal === 0 && newVal > 0) {
+				this.pos = 2;
+			}
 		},
 	},
 };

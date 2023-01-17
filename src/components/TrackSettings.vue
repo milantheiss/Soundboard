@@ -1,13 +1,13 @@
 <template>
 	<div class="bg-background rounded-lg p-4 drop-shadow-md w-full">
 		<p class="font-semibold text-xl truncate" v-if="typeof track !== 'undefined'">Track Settings • {{ track.name }}</p>
-		<p class="ml-3 font-semibold text-xl" v-if="typeof audioPlayer.current === 'undefined'">Track Settings</p>
+		<p class="ml-3 font-semibold text-xl" v-if="typeof track === 'undefined'">Track Settings</p>
 		<div class="flex justify-between items-center mt-4">
 			<TextInput v-model="trackSettings.name" class="w-full text-white" placeholder="Songname"> </TextInput>
 		</div>
 		<div class="flex justify-between items-center mt-4">
 			<p class="text-xl font-semibold text-gray-200">Volume:</p>
-			<NumberInput v-model="trackSettings.trackvolume" class="w-32 text-white" :step="0.1" min="0.0" max="1.0"> </NumberInput>
+			<NumberInput v-model="trackSettings.trackvolume" class="w-32 text-white" :step="0.1" min="0.0" max="1.0"></NumberInput>
 		</div>
 		<div class="flex justify-between items-center mt-4">
 			<p class="text-xl font-semibold text-gray-200">Fade In:</p>
@@ -92,15 +92,19 @@ export default {
 	},
 	watch: {
 		track(newVal) {
-			this.trackSettings = {
-				name: newVal.name,
-				trackvolume: newVal.trackvolume,
-				fadeInDuration: newVal.fadeInDuration,
-				fadeOutDuration: newVal.fadeOutDuration,
-				isLooping: newVal.isLooping,
-				// +1 weil die Positionen in der Playlist bei 1 anfangen
-				pos: newVal.pos + 1,
-			};
+			if (typeof newVal !== "undefined") {
+				this.trackSettings = {
+					name: newVal.name,
+					trackvolume: newVal.trackvolume,
+					fadeInDuration: newVal.fadeInDuration,
+					fadeOutDuration: newVal.fadeOutDuration,
+					isLooping: newVal.isLooping,
+					// +1 weil die Positionen in der Playlist bei 1 anfangen
+					pos: newVal.pos + 1,
+				};
+			} else {
+				this.trackSettings = {};
+			}
 		},
 	},
 	emits: ["removeTrack"],
