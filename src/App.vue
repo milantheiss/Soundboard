@@ -174,7 +174,13 @@
 				</li>
 				<li @click="$refs.confirmTrackRemoval.open = true">
 					<span class="flex items-center"
-						><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
+						><svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="1.5"
+							stroke="currentColor"
+							class="w-6 h-6 mr-2 text-special-red hover:text-special-red-hover">
 							<path
 								stroke-linecap="round"
 								stroke-linejoin="round"
@@ -188,16 +194,16 @@
 		<ErrorPrompt ref="playerError"></ErrorPrompt>
 		<ConfirmationPrompt
 			ref="confirmTrackRemoval"
-			buttonText="Löschen"
-			header="Möchtest du den Track wirklich löschen?"
-			:text="'Die Datei wird nicht aus dem Playlist Ordner gelöscht. \nJedoch gehen die Track Einstellungen verloren.'"
+			buttonText="Delete"
+			header="Do you really what to delete the track?"
+			:text="'The file won`t be deleted form the playlist folder. \n But all track settings will be lost.'"
 			@onConfirm="removeTrack(ctxMenuOnIndex)">
 		</ConfirmationPrompt>
 		<PromptDialog
 			ref="createPresetPrompt"
 			@onCommit="(name) => createPreset(name)"
-			header="Wie soll das neue Preset heißen?"
-			text="* Der Name muss einzigartig sein."></PromptDialog>
+			header="Name the new preset..."
+			text="* The name has to be unique."></PromptDialog>
 		<NewTrackPrompt ref="addSongPrompt" @onCommit="(song) => audioPlayer.addSong(song)"></NewTrackPrompt>
 		<!--<PromptDialog ref="createPlaylist" @onCommit="(name) => createPlaylist(name)" header="Wie soll die neue Playlist heißen?" text="*Der Name muss einzigartig sein."></PromptDialog>-->
 	</div>

@@ -29,7 +29,7 @@
 		<div class="flex justify-end items-center mt-4">
 			<button
 				type="button"
-				class="inline-flex w-auto justify-center rounded-md border border-transparent bg-special-red px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-special-red-hover focus:outline-none focus:ring-2 focus:ring-special-red-hover focus:ring-offset-2"
+				class="inline-flex w-auto justify-center rounded-md border border-transparent bg-[#404040] text-[#ff2222] px-4 py-2 text-base font-medium shadow-sm hover:bg-[#ff2222] hover:text-black focus:outline-none focus:ring-2 focus:ring-special-red-hover focus:ring-offset-2"
 				@click="$refs.removePrompt.open = true">
 				Remove
 			</button>
@@ -43,9 +43,9 @@
 	</div>
 	<ConfirmationPrompt
 		ref="removePrompt"
-		buttonText="Löschen"
-		header="Möchtest du den Track wirklich löschen?"
-		:text="'Die Datei wird nicht aus dem Playlist Ordner gelöscht. \nJedoch gehen die Track Einstellungen verloren.'"
+		buttonText="Delete"
+		header="Do you really what to delete the track?"
+		:text="'The file won`t be deleted form the playlist folder. \n But all track settings will be lost.'"
 		@onConfirm="$emit('removeTrack', track.pos)">
 	</ConfirmationPrompt>
 </template>
