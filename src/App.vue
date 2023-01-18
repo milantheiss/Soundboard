@@ -88,13 +88,15 @@
 			</div>
 
 			<!--Devtools Card-->
-			<div class="bg-background p-4 rounded-lg w-full flex justify-between items-center">
+			<div
+				class="bg-background p-4 rounded-lg w-full flex justify-between items-center"
+				:class="{ 'bg-developer-yellow bg-opacity-10': $refs.mediaControls?.useHotkeys }">
 				<button
 					@click="toggleHotkeys"
 					class="w-fit px-3 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-black focus:outline-none focus:ring-2 focus:ring-offset-2"
 					:class="
 						$refs.mediaControls?.useHotkeys
-							? 'bg-lime-500 hover:bg-lime-700 focus:ring-lime-400'
+							? 'bg-developer-yellow hover:hover:bg-yellow-700 focus:ring-developer-yellow'
 							: 'bg-electric-blue hover:bg-electric-blue-hover focus:ring-electric-blue'
 					">
 					Toggle Hotkeys

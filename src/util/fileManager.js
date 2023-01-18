@@ -163,7 +163,7 @@ async function loadPreset(filename) {
 async function loadAllPresets() {
 	let content = [];
 
-	//Erstellt neuen '.soundboard' Ordner, wenn noch keiner existiert
+	//Erstellt neuen '.soundboard' Ordner in Appdata, wenn noch keiner existiert
 	if (!(await exists(".soundboard", { dir: BaseDirectory.Data }))) {
 		await createDir(".soundboard", { dir: BaseDirectory.Data, recursive: true });
 	}
