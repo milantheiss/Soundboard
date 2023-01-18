@@ -337,6 +337,54 @@ export const useAudioPlayerStore = defineStore("audioPlayerStore", {
 			this.writeToConfig(this.playlist);
 		},
 
+		async changeTrackPosition(track, pos) {
+			if (typeof track !== "undefined") {
+				if (this.currentIndex <= pos) {
+					//FIXME
+					if (this.currentIndex > track.pos) {
+						this.advanceToPreviousIndex();
+					} else if (this.currentIndex === pos) {
+						this.advanceToNextIndex();
+					} else if (this.currentIndex === track.pos) {
+						this.currentIndex = pos;
+					}
+				} else {
+					if (this.currentIndex > track.pos) {
+						this.advanceNextIndex();
+					} else if (this.currentIndex === track.pos) {
+						this.currentIndex = pos;
+					}
+				}
+				this.playlist.tracks.splice(track.pos, 1);
+				this.playlist.tracks.splice(pos, 0, track);
+				track.pos = pos;
+				this._triggerPosUpdate();
+				this.playlist = this._sortTracks(this.playlist);
+			}
+		},
+
+		async increaseTrackPosition(track) {
+			if (typeof track !== "undefined") {
+				console.log(track.pos);
+				if (track.pos < this.playlist.tracks.length - 1) {
+					this.changeTrackPosition(track, track.pos + 1);
+				} else {
+					this.changeTrackPosition(track, 0);
+				}
+			}
+		},
+
+		async decreaseTrackPosition(track) {
+			if (typeof track !== "undefined") {
+				console.log(track.pos);
+				if (track.pos > 0) {
+					this.changeTrackPosition(track, track.pos - 1);
+				} else {
+					this.changeTrackPosition(track, this.playlist.tracks.length - 1);
+				}
+			}
+		},
+
 		/**
 		 * Entfernt ein Track aus der Playlist
 		 */
