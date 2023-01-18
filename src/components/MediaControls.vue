@@ -367,18 +367,21 @@ export default {
 		async toggleHotkeys() {
 			this.useHotkeys = !this.useHotkeys;
 			if (this.useHotkeys) {
+				//Hotkey Space for Start/Pause
 				await register("Space", () => {
 					if (Date.now() - this.lastHotkey > this.cooldown || !this.hotkeyHasCooldown) {
 						this.togglePlay();
 						this.lastHotkey = Date.now();
 					}
 				});
-				await register("P", () => {
+				//Hotkey V for Previous
+				await register("V", () => {
 					if (Date.now() - this.lastHotkey > this.cooldown || !this.hotkeyHasCooldown) {
 						this.playPrev();
 						this.lastHotkey = Date.now();
 					}
 				});
+				//Hotkey N for Next
 				await register("N", () => {
 					if (Date.now() - this.lastHotkey > this.cooldown || !this.hotkeyHasCooldown) {
 						this.playNext();

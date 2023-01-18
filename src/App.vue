@@ -310,7 +310,8 @@ export default {
 		async toggleHotkeys() {
 			await this.$refs.mediaControls.toggleHotkeys();
 			if (this.$refs.mediaControls.useHotkeys) {
-				await register("V", () => {
+				// Hotkey P for Next Playlist
+				await register("P", () => {
 					if (Date.now() - this.$refs.mediaControls.lastHotkey > this.$refs.mediaControls.cooldown || !this.$refs.mediaControls.hotkeyHasCooldown) {
 						this.nextPlaylist();
 						this.$refs.mediaControls.lastHotkey = Date.now();
