@@ -23,18 +23,25 @@
         "createDir": true,
         "removeFile": true,
         "copyFile": true,
-        "scope": [ "https://asset.localhost", "$DATA/*", "*"]
+        "scope": [
+          "https://asset.localhost",
+          "$DATA/*",
+          "*"
+        ]
       },
       "protocol": {
         "all": false,
         "asset": true,
-        "assetScope": ["https://asset.localhost", "*"]
+        "assetScope": [
+          "https://asset.localhost",
+          "*"
+        ]
       },
       "globalShortcut": {
         "all": true
       },
       "window": {
-        "hide": true 
+        "hide": true
       }
     },
     "bundle": {
