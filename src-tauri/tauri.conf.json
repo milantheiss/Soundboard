@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "Soundboard",
-    "version": "0.1.1"
+    "version": "0.1.0"
   },
   "tauri": {
     "allowlist": {
@@ -24,17 +24,14 @@
         "removeFile": true,
         "copyFile": true,
         "scope": [
-          "https://asset.localhost",
-          "$DATA/*",
-          "*"
+          "**"
         ]
       },
       "protocol": {
         "all": false,
         "asset": true,
         "assetScope": [
-          "https://asset.localhost",
-          "*"
+          "**"
         ]
       },
       "globalShortcut": {
