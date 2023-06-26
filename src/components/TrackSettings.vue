@@ -29,7 +29,7 @@
 		<div class="flex justify-end items-center mt-4">
 			<button
 				type="button"
-				class="inline-flex w-auto justify-center rounded-md border border-transparent bg-[#404040] text-[#ff2222] px-4 py-2 text-base font-medium shadow-sm hover:bg-[#ff2222] hover:text-black focus:outline-none focus:ring-2 focus:ring-special-red-hover focus:ring-offset-2"
+				class="inline-flex w-auto justify-center rounded-md border border-transparent bg-[#404040] text-[#ff2222] px-4 py-2 text-base font-medium shadow-sm hover:bg-[#ff2222] hover:text-white focus:outline-none focus:ring-2 focus:ring-special-red-hover focus:ring-offset-2"
 				@click="$refs.removePrompt.open = true">
 				Remove
 			</button>

@@ -1,10 +1,10 @@
-<template class="font-poppins font-normal text-white p-6">
-	<div ref="window" @click="$refs.ctxMenu.close()">
+<template>
+	<div ref="window" @click="$refs.ctxMenu.close()" class="font-poppins font-normal text-white p-6 bg-background-dark-gray flex flex-col gap-6">
 		<!--Anwendungstitel-->
-		<!--<p class="text-3xl font-semibold col-span-2 italic ml-6 mt-6">Stagebard</p>-->
+		<p class="text-3xl font-semibold col-span-2 italic ml-6 mt-6">Version 0.1.1</p>
 
 		<!--Preset & Playlist Selector-->
-		<div class="grid grid-cols-2 gap-4 items-center mx-6 mt-6">
+		<div class="grid grid-cols-2 gap-4 items-center">
 			<div class="flex justify-start items-center mx-4">
 				<span class="bg-background-dark-gray">
 					<SelectList v-model="_selectedPreset" defaultValue="Select a preset" :options="presets" class="w-64"> </SelectList>
@@ -34,7 +34,7 @@
 			</div>
 		</div>
 
-		<div class="grid grid-cols-2 gap-4 m-6">
+		<div class="grid grid-cols-2 gap-4">
 			<!--Tracksettings Card-->
 			<div>
 				<TrackSettings :track="audioPlayer.playlist.tracks[trackSettingsIndex]" @removeTrack="removeTrack(trackSettingsIndex)"></TrackSettings>
@@ -138,32 +138,30 @@
 				</div>
 			</div>
 		</div>
-
 		<!--Collapse Icon
-      <span class="flex justify-start items-center" @click="showDeveloperTools = !showDeveloperTools">
-        <span v-show="!showDeveloperTools" class="text-developer-yellow flex items-center"
-          :class="$refs.mediaControls.useHotkeys ? 'text-lime-500' : ''">
-          <!-Show More Icon->
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-            class="w-7 h-7">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-          </svg>
-
-        </span>
-        <span v-show="showDeveloperTools" class="text-developer-yellow flex items-center"
-          :class="$refs.mediaControls.useHotkeys ? 'text-lime-500' : ''">
-          <!-Show Less Icon->
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-            class="w-7 h-7">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
-          </svg>
-        </span>
-      </span>
-    -->
-
+			<span class="flex justify-start items-center" @click="showDeveloperTools = !showDeveloperTools">
+				<span v-show="!showDeveloperTools" class="text-developer-yellow flex items-center"
+				:class="$refs.mediaControls.useHotkeys ? 'text-lime-500' : ''">
+				<!-Show More Icon->
+				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+					class="w-7 h-7">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+				</svg>
+		
+				</span>
+				<span v-show="showDeveloperTools" class="text-developer-yellow flex items-center"
+				:class="$refs.mediaControls.useHotkeys ? 'text-lime-500' : ''">
+				<!-Show Less Icon->
+				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+					class="w-7 h-7">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+				</svg>
+				</span>
+			</span>
+			-->
 		<ContextMenu ref="ctxMenu">
 			<ul>
-				<li @click="trackSettingsIndex = ctxMenuOnIndex" class="mb-2">
+				<li @click="trackSettingsIndex = ctxMenuOnIndex" class="mb-2 hover:bg-gray-300 hover:ring-8 ring-gray-300 rounded-sm">
 					<span class="flex items-center"
 						><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
 							<path
@@ -174,7 +172,9 @@
 						Edit</span
 					>
 				</li>
-				<li @click="audioPlayer.decreaseTrackPosition(audioPlayer.playlist.tracks[ctxMenuOnIndex])" class="mb-2">
+				<li
+					@click="audioPlayer.decreaseTrackPosition(audioPlayer.playlist.tracks[ctxMenuOnIndex])"
+					class="mb-2 hover:bg-gray-300 hover:ring-8 ring-gray-300 rounded-sm">
 					<span class="flex items-center">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
 							<path stroke-linecap="round" stroke-linejoin="round" d="M12 19.5v-15m0 0l-6.75 6.75M12 4.5l6.75 6.75" />
@@ -182,14 +182,17 @@
 						Move up</span
 					>
 				</li>
-				<li @click="audioPlayer.increaseTrackPosition(audioPlayer.playlist.tracks[ctxMenuOnIndex])" class="mb-2">
+				<li
+					@click="audioPlayer.increaseTrackPosition(audioPlayer.playlist.tracks[ctxMenuOnIndex])"
+					class="mb-2 hover:bg-gray-300 hover:ring-8 ring-gray-300 rounded-sm">
 					<span class="flex items-center">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
-							<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m0 0l6.75-6.75M12 19.5l-6.75-6.75" /></svg
-						>Move down</span
+							<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m0 0l6.75-6.75M12 19.5l-6.75-6.75" />
+						</svg>
+						Move down</span
 					>
 				</li>
-				<li @click="$refs.confirmTrackRemoval.open = true">
+				<li @click="$refs.confirmTrackRemoval.open = true" class="hover:bg-gray-300 hover:ring-8 ring-gray-300 rounded-sm">
 					<span class="flex items-center"
 						><svg
 							xmlns="http://www.w3.org/2000/svg"
