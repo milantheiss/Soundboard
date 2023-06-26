@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "Soundboard",
-    "version": "1.0.0"
+    "version": "0.1.0"
   },
   "tauri": {
     "allowlist": {
@@ -24,17 +24,14 @@
         "removeFile": true,
         "copyFile": true,
         "scope": [
-          "https://asset.localhost",
-          "$DATA/*",
-          "*"
+          "**"
         ]
       },
       "protocol": {
         "all": false,
         "asset": true,
         "assetScope": [
-          "https://asset.localhost",
-          "*"
+          "**"
         ]
       },
       "globalShortcut": {
@@ -46,9 +43,11 @@
     },
     "bundle": {
       "active": true,
-      "category": "DeveloperTool",
-      "copyright": "",
       "deb": {
+        "files": {
+          "/usr/share/README.md": "../README.md",
+          "usr/share/assets": "../assets/"
+        },
         "depends": []
       },
       "externalBin": [],
@@ -81,7 +80,15 @@
       "csp": "default-src 'self'; media-src 'self' asset: https://asset.localhost"
     },
     "updater": {
-      "active": false
+      "active": true,
+      "endpoints": [
+        "https://gist.githubusercontent.com/milantheiss/e088e98608bb1c90e3995fea27f76969/raw/CurrentVersion.json"
+      ],
+      "dialog": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDkzMUIyNDkxRDAxODcwNTEKUldSUmNCalFrU1FiazR3eTNveWQ1K0lha0xkWGFRYUQ4QjF6aHVZYVRnWVRLWDg5Wk9VTU1leHoK",
+      "windows": {
+        "installMode": "passive"
+      }
     },
     "windows": [
       {
