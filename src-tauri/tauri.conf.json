@@ -85,7 +85,7 @@
         "https://gist.githubusercontent.com/milantheiss/e088e98608bb1c90e3995fea27f76969/raw/CurrentVersion.json"
       ],
       "dialog": true,
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDkzMUIyNDkxRDAxODcwNTEKUldSUmNCalFrU1FiazR3eTNveWQ1K0lha0xkWGFRYUQ4QjF6aHVZYVRnWVRLWDg5Wk9VTU1leHoK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDFBREYxMTU5NTE3MzIxRDYKUldUV0lYTlJXUkhmR3FKWHZHbllGSlpxY29jSk90VDJkWlgvc2FkTVZwUzBkdk1MelNpTjRGRFoK",
       "windows": {
         "installMode": "passive"
       }
