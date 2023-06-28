@@ -49,6 +49,7 @@
 import { useAudioPlayerStore } from "@/stores/audioPlayerStore.js";
 import SeekUpdater from "./SeekUpdater.vue";
 import { register, unregisterAll } from "@tauri-apps/api/globalShortcut";
+import { writeToLogfile } from "../util/fileManager.js";
 
 export default {
 	name: "MediaControls",
@@ -104,6 +105,7 @@ export default {
 						console.debug("Pause fade from togglePlay()");
 						this.fade.pause();
 					} else {
+						this.stopLoggingTrack(this.audioPlayer.current);
 						this.audioPlayer.current.player.pause();
 					}
 				} else {
@@ -119,6 +121,8 @@ export default {
 						this.audioPlayer.current.player.on("end", () => {
 							this.skipToNext();
 						});
+
+						this.startLoggingTrack(this.audioPlayer.current);
 						this.audioPlayer.current.player.play();
 					}
 				}
@@ -167,9 +171,11 @@ export default {
 					} else {
 						//Notlösung für wenn nur ein Track in Playlist ist
 						this.fade.stop();
+						this.stopLoggingTrack(this.audioPlayer.current);
 						this.audioPlayer.current.player.stop();
 						if (typeof this.audioPlayer.next.player !== "undefined") {
 							this.audioPlayer.next.player.volume(this.audioPlayer.next.trackvolume);
+							this.startLoggingTrack(this.audioPlayer.next);
 							this.audioPlayer.next.player.play();
 						}
 					}
@@ -180,6 +186,7 @@ export default {
 						this.audioPlayer.next.player.volume(this.audioPlayer.next.trackvolume);
 					}
 					if (typeof this.audioPlayer.current.player !== "undefined") {
+						this.stopLoggingTrack(this.audioPlayer.current);
 						this.audioPlayer.current.player.stop();
 					}
 					this.seek = 0;
@@ -206,6 +213,7 @@ export default {
 						this.audioPlayer.current.player.stop();
 						if (typeof this.audioPlayer.previous.player !== "undefined") {
 							this.audioPlayer.previous.player.volume(this.audioPlayer.previous.trackvolume);
+							this.startLoggingTrack(this.audioPlayer.previous);
 							this.audioPlayer.previous.player.play();
 						}
 					}
@@ -216,6 +224,7 @@ export default {
 						this.audioPlayer.previous.player.volume(this.audioPlayer.previous.trackvolume);
 					}
 					if (typeof this.audioPlayer.current.player !== "undefined") {
+						this.stopLoggingTrack(this.audioPlayer.current);
 						this.audioPlayer.current.player.stop();
 					}
 					this.seek = 0;
@@ -255,6 +264,7 @@ export default {
 				//Wenn Track fertig ausgefadet wurde. Wird bei Abbruch des Fades nicht ausgeführt.
 				if (this.fade._from.player.volume() <= 0.0) {
 					//Stoppt alten Track. --> Damit ist seek wieder 0.0 aber volume immer noch 0.0
+					this.stopLoggingTrack(this.fade._from.data);
 					this.fade._from.player.stop();
 					this.fade._from.player.seek(0);
 					this.fade._from.player.volume(this.fade._from.data.trackvolume);
@@ -278,6 +288,7 @@ export default {
 
 			if (!to.player.playing()) {
 				to.player.load();
+				this.startLoggingTrack(to);
 				to.player.play();
 			}
 
@@ -308,13 +319,16 @@ export default {
 		},
 		_pauseFade() {
 			this.fade._from.player.pause();
+			this.stopLoggingTrack(this.fade._from.data);
 			this.fade._to.player.pause();
+			this.stopLoggingTrack(this.fade._to.data);
 		},
 		_resumeFade() {
 			//TODO Resume für weitere Fadearten erweitern
 			if (this.fade.isCrossfading) {
 				if (this.fade._from.isFading) {
 					if (!this.fade._from.player.playing()) {
+						this.startLoggingTrack(this.fade._from.data);
 						this.fade._from.player.play();
 					}
 					this.fade._from.player.fade(this.fade._from.player.volume(), 0.0, this.fade._from.data.fadeOutDuration);
@@ -322,6 +336,7 @@ export default {
 
 				if (this.fade._to.isFading) {
 					if (!this.fade._to.player.playing()) {
+						this.startLoggingTrack(this.fade._to.data);
 						this.fade._to.player.play();
 					}
 					this.fade._to.player.fade(this.fade._to.player.volume(), this.fade._to.data.trackvolume, this.fade._to.data.fadeInDuration);
@@ -337,6 +352,7 @@ export default {
 					this.fade._from.player.fade(this.fade._from.player.volume(), 0.0, 250);
 				}
 
+				this.stopLoggingTrack(this.fade._from.data);
 				this.fade._from.player.stop();
 			}
 
@@ -398,12 +414,41 @@ export default {
 				this.fade.crossfade(this.audioPlayer.current, this.audioPlayer.playlist.tracks[index]);
 			} else {
 				this.fade.stop();
+				this.stopLoggingTrack(this.audioPlayer.current);
 				this.audioPlayer.current.player.stop();
 				this.audioPlayer.current.player.volume(this.audioPlayer.current.trackvolume);
 				this.seek = 0;
 			}
 			this.audioPlayer.jumpToIndex(index);
 			this.audioPlayer.current.player.volume();
+		},
+		startLoggingTrack(track) {
+			/*
+			trackLog: {
+				title: String, //Song Title
+				started: Number, //In Unix Timestamp
+				ended: Number, //In Unix Timestamp
+				startingSeek: Number, //In Sekunden
+				playbackDuration: Number, //In Millisekunden
+			}
+			*/
+
+			track.trackLog = {
+				started: Date.now(),
+				title: track.name,
+				startingSeek: Math.round(track.player.seek() * 100) / 100, //Rundet auf 2 Nachkommastellen
+			};
+		},
+		stopLoggingTrack(track) {
+			track.trackLog.ended = Date.now();
+			track.trackLog.playbackDuration = Date.now() - track.trackLog.started;
+
+			track.trackLog.started = new Date(track.trackLog.started);
+			track.trackLog.ended = new Date(track.trackLog.ended);
+
+			console.log(track.trackLog);
+
+			writeToLogfile(track.trackLog);
 		},
 	},
 	watch: {

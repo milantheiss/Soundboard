@@ -223,4 +223,39 @@ async function openSong() {
 	}
 }
 
-export { loadNewPlaylist, loadPlaylist, loadPreset, loadAllPresets, openSong };
+let filenameOfLogfile = null;
+
+/**
+ * Schreibt Log in Logfile
+ * @param {Object} log Object containing log data
+ * @returns
+ */
+async function writeToLogfile(log) {
+	try {
+		//Wenn Logs Ordner noch nicht existiert, wird er erstellt
+		if (!(await exists([".soundboard", "logs"].join("\\"), { dir: BaseDirectory.Data }))) {
+			await createDir([".soundboard", "logs"].join("\\"), { dir: BaseDirectory.Data, recursive: true });
+		}
+
+		filenameOfLogfile = filenameOfLogfile ?? new Date().toISOString().replace(/:/g, "-") + ".log.json";
+
+		//Wenn bereits eine Log Datei für diese Sitzung existiert
+		if (await exists([".soundboard", "logs", filenameOfLogfile].join("\\"), { dir: BaseDirectory.Data })) {
+			//Content der Log Datei wird ausgelesen
+			const content = JSON.parse(await readTextFile([".soundboard", "logs", filenameOfLogfile].join("\\"), { dir: BaseDirectory.Data }));
+			content.push(log);
+			//Content wird mit neuem Log Eintrag in File geschrieben
+			await writeFile(
+				{ path: [".soundboard", "logs", filenameOfLogfile].join("\\"), contents: JSON.stringify(content) },
+				{ dir: BaseDirectory.Data }
+			);
+		} else {
+			//Wenn keine Log Datei existiert, wird eine neue Datei erstellt
+			await writeFile({ path: [".soundboard", "logs", filenameOfLogfile].join("\\"), contents: JSON.stringify([log]) }, { dir: BaseDirectory.Data });
+		}
+	} catch (e) {
+		console.error(e);
+	}
+}
+
+export { loadNewPlaylist, loadPlaylist, loadPreset, loadAllPresets, openSong, writeToLogfile };
