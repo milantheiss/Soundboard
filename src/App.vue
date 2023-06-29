@@ -1,7 +1,7 @@
 <template>
 	<div ref="window" @click="$refs.ctxMenu.close()" class="font-poppins font-normal text-white p-6 bg-background-dark-gray flex flex-col gap-6">
 		<!--TODO Remove-->
-		<p class="text-3xl font-semibold col-span-2 italic ml-6 mt-6">Version Neu</p>
+		<p class="text-3xl font-semibold col-span-2 italic ml-6 mt-6">Version 0.1.0</p>
 
 		<!--Preset & Playlist Selector-->
 		<div class="grid grid-cols-2 gap-4 items-center">

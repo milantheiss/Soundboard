@@ -1,6 +1,6 @@
 [package]
 name = "Soundboard"
-version = "0.1.1"
+version = "0.1.0"
 description = "Soundboard fürs Theater und D&D"
 authors = ["Milan Theiß & Noah Yannik Alps"]
 license = ""
