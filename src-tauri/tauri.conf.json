@@ -78,7 +78,7 @@
     "updater": {
       "active": true,
       "endpoints": [
-        "https://gist.githubusercontent.com/milantheiss/e088e98608bb1c90e3995fea27f76969/raw/CurrentVersion.json"
+        "https://gist.githubusercontent.com/milantheiss/e088e98608bb1c90e3995fea27f76969/raw"
       ],
       "dialog": true,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDFBREYxMTU5NTE3MzIxRDYKUldUV0lYTlJXUkhmR3FKWHZHbllGSlpxY29jSk90VDJkWlgvc2FkTVZwUzBkdk1MelNpTjRGRFoK",
