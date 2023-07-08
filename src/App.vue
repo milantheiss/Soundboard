@@ -227,7 +227,7 @@
 			@onCommit="(name) => createPreset(name)"
 			header="Name the new preset..."
 			text="* The name has to be unique."
-			:validator-regex="/[a-zA-Z0-9äöüÄÖÜß]/g"></PromptDialog>
+			:validator-regex="/[a-zA-Z0-9äöüÄÖÜß\s]/g"></PromptDialog>
 		<NewTrackPrompt ref="addSongPrompt" @onCommit="(song) => audioPlayer.addSong(song)"></NewTrackPrompt>
 		<!--<PromptDialog ref="createPlaylist" @onCommit="(name) => createPlaylist(name)" header="Wie soll die neue Playlist heißen?" text="*Der Name muss einzigartig sein."></PromptDialog>-->
 	</div>

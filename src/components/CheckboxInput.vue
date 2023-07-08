@@ -1,5 +1,5 @@
 <template>
-	<input class="cursor-pointer" type="checkbox" :name="name" v-model="input" :placeholder="placeholder" />
+	<input class="cursor-pointer invalid:border-special-red" type="checkbox" :name="name" v-model="input" :placeholder="placeholder" />
 </template>
 
 <script>

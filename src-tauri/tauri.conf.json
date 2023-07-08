@@ -92,7 +92,8 @@
         "height": 726,
         "resizable": true,
         "title": "Soundboard",
-        "width": 1100
+        "width": 1100,
+        "center": true
       }
     ]
   }

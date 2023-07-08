@@ -1,6 +1,6 @@
 <template>
 	<input
-		class="block w-full px-1.5 py-0.5 text-inherit text-lg md:text-xl placeholder:text-gray-200 focus:outline-none focus:border-electric-blue-hover bg-inherit border-0 border-b-2 border-electric-blue rounded-none"
+		class="block w-full px-1.5 py-0.5 text-inherit text-lg md:text-xl placeholder:text-gray-200 focus:outline-none bg-inherit border-0 border-b-2 border-electric-blue rounded-none invalid:border-special-red"
 		:type="type"
 		:name="name"
 		v-model="input"
@@ -36,6 +36,9 @@ export default {
 		modelValue() {
 			this.input = this.modelValue;
 		},
+	},
+	created() {
+		console.log(this.pattern);
 	},
 };
 </script>
