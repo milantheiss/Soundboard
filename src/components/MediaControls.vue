@@ -2,7 +2,7 @@
 	<div class="grid grid-cols-3 gap-3 items-center w-full">
 		<button
 			@click="playPrev"
-			class="h-fit px-2 py-2 border border-transparent bg-electric-blue rounded-md shadow-lg text-base font-medium text-black hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue-hover focus:ring-offset-2 flex justify-center items-center">
+			class="h-fit px-2 py-2 border border-transparent bg-electric-blue rounded-xl shadow-lg text-base font-medium text-black hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue-hover focus:ring-offset-2 flex justify-center items-center">
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7">
 				<path
 					d="M9.195 18.44c1.25.713 2.805-.19 2.805-1.629v-2.34l6.945 3.968c1.25.714 2.805-.188 2.805-1.628V8.688c0-1.44-1.555-2.342-2.805-1.628L12 11.03v-2.34c0-1.44-1.555-2.343-2.805-1.629l-7.108 4.062c-1.26.72-1.26 2.536 0 3.256l7.108 4.061z" />
@@ -10,7 +10,7 @@
 		</button>
 
 		<span
-			class="h-full px-2 py-2 border border-transparent bg-electric-blue rounded-md shadow-lg text-base font-medium text-black hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue-hover focus:ring-offset-2 hover:cursor-pointer flex justify-center items-center"
+			class="h-full px-2 py-2 border border-transparent bg-electric-blue rounded-xl shadow-lg text-base font-medium text-black hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue-hover focus:ring-offset-2 hover:cursor-pointer flex justify-center items-center"
 			@click="togglePlay">
 			<button class="" v-if="!audioPlayer.isPlaying">
 				<!--Play Icon-->
@@ -34,7 +34,7 @@
 
 		<button
 			@click="playNext"
-			class="h-fit px-2 py-2 border border-transparent bg-electric-blue rounded-md shadow-lg text-base font-medium text-black hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue-hover focus:ring-offset-2 flex justify-center items-center">
+			class="h-fit px-2 py-2 border border-transparent bg-electric-blue rounded-xl shadow-lg text-base font-medium text-black hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue-hover focus:ring-offset-2 flex justify-center items-center">
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7">
 				<path
 					d="M5.055 7.06c-1.25-.714-2.805.189-2.805 1.628v8.123c0 1.44 1.555 2.342 2.805 1.628L12 14.471v2.34c0 1.44 1.555 2.342 2.805 1.628l7.108-4.061c1.26-.72 1.26-2.536 0-3.256L14.805 7.06C13.555 6.346 12 7.25 12 8.688v2.34L5.055 7.06z" />

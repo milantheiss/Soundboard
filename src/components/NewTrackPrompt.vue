@@ -45,23 +45,23 @@
 									</button>
 								</div>
 								<div class="flex justify-between items-center mt-4">
-									<p class="text-xl font-semibold text-gray-200">Volume:</p>
+									<p class="text-xl font-medium text-gray-200">Volume:</p>
 									<NumberInput v-model="volume" class="w-32 text-white" :step="0.1" min="0.0" max="1.0"></NumberInput>
 								</div>
 								<div class="flex justify-between items-center mt-4">
-									<p class="text-xl font-semibold text-gray-200">Fade In:</p>
+									<p class="text-xl font-medium text-gray-200">Fade In:</p>
 									<NumberInput v-model="fadeIn" class="w-32 text-white" :step="1" min="0"> </NumberInput>
 								</div>
 								<div class="flex justify-between items-center mt-4">
-									<p class="text-xl font-semibold text-gray-200">Fade Out:</p>
+									<p class="text-xl font-medium text-gray-200">Fade Out:</p>
 									<NumberInput v-model="fadeOut" class="w-32 text-white" :step="1" min="0"> </NumberInput>
 								</div>
 								<div class="flex justify-between items-center mt-4">
-									<p class="text-xl font-semibold text-gray-200">Looping:</p>
+									<p class="text-xl font-medium text-gray-200">Looping:</p>
 									<CheckboxInput v-model="looping"></CheckboxInput>
 								</div>
 								<div class="flex justify-between items-center mt-4">
-									<p class="text-xl font-semibold text-gray-200">Position in playlist:</p>
+									<p class="text-xl font-medium text-gray-200">Position in playlist:</p>
 									<NumberInput v-model="pos" class="w-32 text-white" :step="1" min="1" :max="(audioPlayer.playlist.tracks.length + 1).toString()">
 									</NumberInput>
 								</div>

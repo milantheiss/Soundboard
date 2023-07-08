@@ -1,5 +1,5 @@
 <template>
-	<div ref="window" @click="$refs.ctxMenu.close()" class="font-poppins font-normal text-white p-6 bg-background-dark-gray flex flex-col gap-6">
+	<div ref="window" @click="$refs.ctxMenu.close()" class="font-poppins font-normal text-white p-4 bg-background-dark-gray flex flex-col gap-4">
 		<!--Preset & Playlist Selector-->
 		<div class="grid grid-cols-2 gap-4 items-center">
 			<div class="flex justify-start items-center mx-4">
@@ -15,12 +15,12 @@
 
 			<div class="flex justify-start items-center mx-4">
 				<span class="bg-background-dark-gray">
-					<SelectList
+					<!-- <SelectList
 						ref="selectPlaylist"
 						v-model="_selectedPlaylist"
 						defaultValue="Select a playlist"
 						:options="preset.playlists"
-						class="w-64"></SelectList>
+						class="w-64"></SelectList> -->
 				</span>
 				<button
 					@click="addPlaylistToPreset"
@@ -33,29 +33,33 @@
 
 		<div class="grid grid-cols-2 gap-4">
 			<!--Tracksettings Card-->
-			<div>
-				<TrackSettings :track="audioPlayer.playlist.tracks[trackSettingsIndex]" @removeTrack="removeTrack(trackSettingsIndex)"></TrackSettings>
-			</div>
+			<TrackSettings :track="audioPlayer.playlist.tracks[trackSettingsIndex]" @removeTrack="removeTrack(trackSettingsIndex)"></TrackSettings>
 
 			<!--Playlist Card-->
 			<div class="bg-background rounded-lg p-4 drop-shadow-md row-span-2 w-full h-full flex flex-col">
-				<span class="flex justify-start items-center">
-					<p class="font-semibold text-xl" v-if="typeof audioPlayer.playlist.name !== 'undefined'">
-						{{ audioPlayer.playlist.name }}
-					</p>
-					<p class="font-semibold text-xl" v-if="typeof audioPlayer.playlist.name === 'undefined'">No Playlist selected</p>
-					<!--Refresh Icon-->
-					<span @click="reloadPlaylist" :class="reloadSpin ? 'animate-reloadSpin' : ''" @animationend="reloadSpin = false" class="w-7 h-7 ml-3">
-						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-						</svg>
+				<span class="flex justify-start items-end gap-4">
+					<span class="flex items-center gap-4">
+						<!--Refresh Icon-->
+						<span @click="reloadPlaylist" :class="reloadSpin ? 'animate-reloadSpin' : ''" @animationend="reloadSpin = false" class="w-7 h-7">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+							</svg>
+						</span>
+						<span class="text-xl bg-background">
+							<SelectList
+								ref="selectPlaylist"
+								v-model="_selectedPlaylist"
+								defaultValue="Select a playlist"
+								:options="preset.playlists"
+								class="max-w-[19rem] truncate"></SelectList>
+						</span>
 					</span>
 					<button
 						@click="$refs.addSongPrompt.open = true"
-						class="w-fit inline-flex justify-center px-3 py-2 ml-auto h-fit border border-transparent bg-electric-blue rounded-md shadow-sm text-base font-medium text-black hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue-hover focus:ring-offset-2">
+						class="w-[123px] px-3 py-2 ml-auto h-fit border border-transparent bg-electric-blue rounded-md text-base font-medium text-black hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue-hover focus:ring-offset-2">
 						Add Song
 					</button>
 				</span>
@@ -110,7 +114,7 @@
 				class="grid grid-cols-3 gap-x-2 items-center col-span-2 bg-background rounded-lg px-4 pt-4 drop-shadow-md h-fit w-full"
 				ref="mediaControlsCard"
 				@mouseup="(event) => detectMouseUp(event)">
-				<span class="w-full text-2xl font-semibold col-span-2">
+				<span class="w-full text-2xl font-medium col-span-2">
 					<p v-if="typeof audioPlayer.current !== 'undefined'" class="truncate">
 						{{ audioPlayer.current.pos + 1 }}: <span class="italic"> {{ audioPlayer.current.name }} </span>
 					</p>
@@ -222,7 +226,8 @@
 			ref="createPresetPrompt"
 			@onCommit="(name) => createPreset(name)"
 			header="Name the new preset..."
-			text="* The name has to be unique."></PromptDialog>
+			text="* The name has to be unique."
+			:validator-regex="/[a-zA-Z0-9äöüÄÖÜß]/g"></PromptDialog>
 		<NewTrackPrompt ref="addSongPrompt" @onCommit="(song) => audioPlayer.addSong(song)"></NewTrackPrompt>
 		<!--<PromptDialog ref="createPlaylist" @onCommit="(name) => createPlaylist(name)" header="Wie soll die neue Playlist heißen?" text="*Der Name muss einzigartig sein."></PromptDialog>-->
 	</div>
