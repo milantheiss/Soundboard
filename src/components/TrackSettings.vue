@@ -4,7 +4,8 @@
 		<p class="ml-3 font-medium text-xl" v-if="typeof track === 'undefined'">Track Settings</p>
 		<div class="flex justify-between items-center mt-4">
 			<p class="text-xl font-medium text-gray-200">Trackname:</p>
-			<TextInput v-model="trackSettings.name" class="max-w-[19rem] text-white" placeholder="Songname"> </TextInput>
+			<TextInput v-model="trackSettings.name" class="max-w-[19rem] text-white" placeholder="Songname" pattern="^[a-zA-Z0-9äöüÄÖÜ._\-\s]+$">
+			</TextInput>
 		</div>
 		<div class="flex justify-between items-center mt-4">
 			<p class="text-xl font-medium text-gray-200">Volume:</p>
