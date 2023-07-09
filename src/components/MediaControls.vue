@@ -67,13 +67,16 @@ export default {
 					data: undefined,
 					player: undefined,
 					isFading: false,
+					fadeStartTime: undefined,
+					fadeDurationPlayed: 0,
 				},
 				_to: {
 					data: undefined,
 					player: undefined,
 					isFading: false,
+					fadeStartTime: undefined,
+					fadeDurationPlayed: 0,
 				},
-				isFading: this._isFading,
 				isCrossfading: false,
 				crossfade: this._startCrossfade,
 				resume: this._resumeFade,
@@ -101,7 +104,7 @@ export default {
 					console.debug("Player was paused.");
 
 					//Nur bei Crossfade wichtig: Pausieren auch Next & Previous, wenn in Fading Process wurde
-					if (this.fade.isFading()) {
+					if (this.isFading) {
 						console.debug("Pause fade from togglePlay()");
 						this.fade.pause();
 					} else {
@@ -113,11 +116,10 @@ export default {
 					console.debug(`Now playing: ${this.audioPlayer.current.name}`);
 
 					//Nur bei Crossfade wichtig: Startet auch Next & Previous, wenn in Fading Process pausiert wurde
-					if (this.fade.isFading()) {
+					if (this.isFading) {
 						console.debug("Fade triggered from togglePlay()");
 						this.fade.resume();
 					} else {
-						this.audioPlayer.current.player.load();
 						this.audioPlayer.current.player.on("end", () => {
 							this.skipToNext();
 						});
@@ -239,7 +241,7 @@ export default {
 			//INFO Fade Duration in ms
 
 			//Stoppt Fade, wenn neuer Fade angefangen wird.
-			if (this.fade.isFading()) {
+			if (this.isFading) {
 				this.fade.stop();
 			}
 
@@ -259,15 +261,18 @@ export default {
 
 			//Faded spielenden Track aus, für die FadeOutDuration des Tracks
 			from.player.fade(from.player.volume(), 0.0, from.fadeOutDuration);
+			this.fade._from.fadeStartTime = Date.now();
 
 			from.player.on("fade", () => {
 				//Wenn Track fertig ausgefadet wurde. Wird bei Abbruch des Fades nicht ausgeführt.
-				if (this.fade._from.player.volume() <= 0.0) {
+				if (this.fade._from.player.playing() || this.fade._from.player.seek() >= this.fade._from.player.duration()) {
 					//Stoppt alten Track. --> Damit ist seek wieder 0.0 aber volume immer noch 0.0
 					this.stopLoggingTrack(this.fade._from.data);
 					this.fade._from.player.stop();
 					this.fade._from.player.seek(0);
 					this.fade._from.player.volume(this.fade._from.data.trackvolume);
+					this.fade._from.fadeStartTime = undefined;
+					this.fade._from.fadeDurationPlayed = 0;
 
 					console.debug(`Finished fading ${this.fade._from.data.name}`);
 
@@ -287,28 +292,30 @@ export default {
 			});
 
 			if (!to.player.playing()) {
-				to.player.load();
-				this.startLoggingTrack(to);
 				to.player.play();
+				this.startLoggingTrack(to);
 			}
 
 			to.player.volume(0.0);
 
 			//Beginnt den nächsten Track einzufaden
 			to.player.fade(0.0, to.trackvolume, to.fadeInDuration);
+			this.fade._to.fadeStartTime = Date.now();
 
 			to.player.on("fade", () => {
 				//Wenn Track fertig ausgefadet wurde. Wird bei Abbruch des Fades nicht ausgeführt.
-				if (this.fade._to.player.volume() >= this.fade._to.data.trackvolume) {
-					console.debug(`Finished fading ${this.fade._to.data.name}`);
+				if (this.fade._to.player.playing() || this.fade._to.player.seek() >= this.fade._to.player.duration()) {
+					console.debug(`Finished fading to ${this.fade._to.data.name}`);
 
 					//Erhöhe Index auf nächsten Track, wenn next schneller ausfadet.
-					if (this.fade._to.data.fadeInDuration >= this.fade._to.data.fadeOutDuration) {
+					if (this.fade._to.data.fadeInDuration >= this.fade._from.data.fadeOutDuration) {
 						this.fade.isCrossfading = false;
 					}
 
 					this.fade._to.isFading = false;
 					this.fade._to.player.volume(this.fade._to.data.trackvolume);
+					this.fade._to.fadeStartTime = undefined;
+					this.fade._to.fadeDurationPlayed = 0;
 					//EventListener wird entfernt
 					this.fade._to.player.off("fade");
 				} else {
@@ -318,9 +325,14 @@ export default {
 			});
 		},
 		_pauseFade() {
+			this.fade._from.fadeDurationPlayed += Date.now() - this.fade._from.fadeStartTime;
 			this.fade._from.player.pause();
+
 			this.stopLoggingTrack(this.fade._from.data);
+
+			this.fade._to.fadeDurationPlayed += Date.now() - this.fade._to.fadeStartTime;
 			this.fade._to.player.pause();
+
 			this.stopLoggingTrack(this.fade._to.data);
 		},
 		_resumeFade() {
@@ -331,15 +343,26 @@ export default {
 						this.startLoggingTrack(this.fade._from.data);
 						this.fade._from.player.play();
 					}
-					this.fade._from.player.fade(this.fade._from.player.volume(), 0.0, this.fade._from.data.fadeOutDuration);
+
+					this.fade._from.player.fade(
+						this.fade._from.player.volume(),
+						0.0,
+						this.fade._from.data.fadeOutDuration - this.fade._from.fadeDurationPlayed
+					);
+					this.fade._from.fadeStartTime = Date.now();
 				}
 
+				if (!this.fade._to.player.playing()) {
+					this.startLoggingTrack(this.fade._to.data);
+					this.fade._to.player.play();
+				}
 				if (this.fade._to.isFading) {
-					if (!this.fade._to.player.playing()) {
-						this.startLoggingTrack(this.fade._to.data);
-						this.fade._to.player.play();
-					}
-					this.fade._to.player.fade(this.fade._to.player.volume(), this.fade._to.data.trackvolume, this.fade._to.data.fadeInDuration);
+					this.fade._to.player.fade(
+						this.fade._to.player.volume(),
+						this.fade._to.data.trackvolume,
+						this.fade._to.data.fadeInDuration - this.fade._to.fadeDurationPlayed
+					);
+					this.fade._to.fadeStartTime = Date.now();
 				}
 			}
 		},
@@ -363,22 +386,14 @@ export default {
 			this.fade._from.isFading = false;
 			this.fade._from.data = undefined;
 			this.fade._from.player = undefined;
+			this.fade._from.fadeStartTime = undefined;
+			this.fade._from.fadeDurationPlayed = 0;
 
 			this.fade._to.isFading = false;
 			this.fade._to.data = undefined;
 			this.fade._to.player = undefined;
-		},
-		_isFading() {
-			//Kann Error werfen, wenn _to oder _from 'undefined' ist.
-			try {
-				if (this.fade._to.isFading || this.fade._from.isFading) {
-					return true;
-				} else {
-					return false;
-				}
-			} catch {
-				return false;
-			}
+			this.fade._to.fadeStartTime = undefined;
+			this.fade._to.fadeDurationPlayed = 0;
 		},
 		async toggleHotkeys() {
 			this.useHotkeys = !this.useHotkeys;
@@ -446,9 +461,21 @@ export default {
 			track.trackLog.started = new Date(track.trackLog.started);
 			track.trackLog.ended = new Date(track.trackLog.ended);
 
-			console.log(track.trackLog);
-
 			writeToLogfile(track.trackLog);
+		},
+	},
+	computed: {
+		isFading() {
+			//Kann Error werfen, wenn _to oder _from 'undefined' ist.
+			try {
+				if (this.fade._to?.isFading || this.fade._from?.isFading) {
+					return true;
+				} else {
+					return false;
+				}
+			} catch {
+				return false;
+			}
 		},
 	},
 	watch: {
