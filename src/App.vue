@@ -94,7 +94,7 @@
 				:class="{ 'bg-developer-yellow bg-opacity-10': $refs.mediaControls?.useHotkeys }">
 				<button
 					@click="toggleHotkeys"
-					class="w-fit px-3 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-black focus:outline-none focus:ring-2 focus:ring-offset-2"
+					class="w-fit px-1 sm:px-3 py-2 border border-transparent rounded-md shadow-sm text-xs sm:text-sm md:text-base font-medium text-black focus:outline-none focus:ring-2 focus:ring-offset-2"
 					:class="
 						$refs.mediaControls?.useHotkeys
 							? 'bg-developer-yellow hover:hover:bg-yellow-700 focus:ring-developer-yellow'
@@ -104,7 +104,7 @@
 				</button>
 				<button
 					@click="nextPlaylist"
-					class="w-fit px-3 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-black focus:outline-none focus:ring-2 focus:ring-offset-2 bg-electric-blue hover:bg-electric-blue-hover focus:ring-electric-blue">
+					class="w-fit px-1 sm:px-3 py-2 border border-transparent rounded-md shadow-sm text-xs sm:text-sm md:text-base font-medium text-black focus:outline-none focus:ring-2 focus:ring-offset-2 bg-electric-blue hover:bg-electric-blue-hover focus:ring-electric-blue">
 					Next Playlist
 				</button>
 			</div>
@@ -124,18 +124,18 @@
 				<MediaControls @seekValue="(val) => this.updateSeekbarHandle(val)" ref="mediaControls" class="w-full"> </MediaControls>
 				<!--Seek Bar-->
 				<div
-					class="h-12 flex items-center col-span-3 hover:cursor-pointer"
+					class="h-12 items-center col-span-3 hover:cursor-pointer justify-center grid grid-cols-6 sm:grid-cols-10"
 					ref="seekbarCard"
 					@click="(event) => getClickPosition(event)"
 					@mousedown="(event) => detectMouseDown(event)">
-					<span class="text-lg mr-5" ref="currentSeek">{{ convertTime(seekbar.seek) }}</span>
+					<span class="text-lg mr-2" ref="currentSeek">{{ convertTime(seekbar.seek) }}</span>
 
-					<div ref="seekbar" class="block h-1 relative rounded-full bg-gray-500 w-full">
+					<div ref="seekbar" class="block h-1 relative rounded-full bg-gray-500 w-full col-span-4 sm:col-span-8">
 						<div :style="'width: ' + seekbar.progress + '%'" class="absolute inset-0 rounded-full bg-electric-blue"></div>
 						<div :style="'left: ' + (seekbar.progress - 0.9) + '%'" class="absolute bg-white rounded-full -top-1.5 w-4 h-4"></div>
 					</div>
 
-					<span class="text-lg ml-5">{{ convertTime(seekbar.seek - audioPlayer.current?.player.duration()) }}</span>
+					<span class="text-lg ml-2 text-right">{{ convertTime(seekbar.seek - audioPlayer.current?.player.duration()) }}</span>
 				</div>
 			</div>
 		</div>
@@ -360,8 +360,8 @@ export default {
 
 			// Mausposition bestimmen
 			// this.$refs.seekInText.clientWidth korrigiert die Width, um die Breite des Elements
-			// 58.5 = Anpassung, damit Handel auf Mausspitze liegt
-			let seekWidth = e.clientX - this.$refs.currentSeek.clientWidth - 58.5;
+			// 39.5 = Anpassung, damit Handel auf Mausspitze liegt (Je höher desto weiter links)
+			let seekWidth = e.clientX - this.$refs.currentSeek.clientWidth - 39.5;
 
 			// Neuen Seek Progress berechnen --> von 0.000 bis 100.000
 			this.seekbar.progress = ((seekWidth / wrapperWidth) * 100).toFixed(3);
