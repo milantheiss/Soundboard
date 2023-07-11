@@ -13,22 +13,16 @@
 				</button>
 			</div>
 
-			<div class="flex justify-start items-center mx-4">
-				<span class="bg-background-dark-gray">
-					<!-- <SelectList
-						ref="selectPlaylist"
-						v-model="_selectedPlaylist"
-						defaultValue="Select a playlist"
-						:options="preset.playlists"
-						class="w-64"></SelectList> -->
-				</span>
-				<button
-					@click="addPlaylistToPreset"
-					class="min-w-fit h-fit inline-flex justify-center ml-6 px-2 py-2 border border-transparent bg-electric-blue rounded-md shadow-sm text-base font-medium text-black hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue-hover focus:ring-offset-2">
-					Add Playlist
-				</button>
-				<!--TODO Button ausgrauen, wenn Player spielt.-->
-			</div>
+			<button
+				@click="
+					() => {
+						if (!audioPlayer.isPlaying) addPlaylistToPreset();
+					}
+				"
+				class="ml-auto min-w-fit h-fit inline-flex justify-center px-2 py-2 border border-transparent bg-electric-blue rounded-md shadow-sm text-base font-medium text-black hover:bg-electric-blue-hover focus:outline focus:outline-none focus:ring-2 focus:ring-electric-blue focus:ring-offset-2"
+				:class="{ 'bg-[#404040] hover:bg-[#404040] cursor-default focus:ring-0 focus:ring-offset-0': audioPlayer.isPlaying }">
+				Add Playlist
+			</button>
 		</div>
 
 		<div class="grid grid-cols-2 gap-4">
