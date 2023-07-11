@@ -1,28 +1,30 @@
 <template>
 	<div class="bg-background rounded-lg p-4 drop-shadow-md w-full">
-		<p class="font-semibold text-xl truncate" v-if="typeof track !== 'undefined'">Track Settings • {{ track.name }}</p>
-		<p class="ml-3 font-semibold text-xl" v-if="typeof track === 'undefined'">Track Settings</p>
+		<p class="font-medium text-xl truncate" v-if="typeof track !== 'undefined'">Track Settings • {{ track.name }}</p>
+		<p class="ml-3 font-medium text-xl" v-if="typeof track === 'undefined'">Track Settings</p>
 		<div class="flex justify-between items-center mt-4">
-			<TextInput v-model="trackSettings.name" class="w-full text-white" placeholder="Songname"> </TextInput>
+			<p class="text-xl font-medium text-gray-200">Trackname:</p>
+			<TextInput v-model="trackSettings.name" class="max-w-[19rem] text-white" placeholder="Songname" pattern="^[a-zA-Z0-9äöüÄÖÜ._\-\s]+$">
+			</TextInput>
 		</div>
 		<div class="flex justify-between items-center mt-4">
-			<p class="text-xl font-semibold text-gray-200">Volume:</p>
+			<p class="text-xl font-medium text-gray-200">Volume:</p>
 			<NumberInput v-model="trackSettings.trackvolume" class="w-32 text-white" :step="0.1" min="0.0" max="1.0"></NumberInput>
 		</div>
 		<div class="flex justify-between items-center mt-4">
-			<p class="text-xl font-semibold text-gray-200">Fade In:</p>
+			<p class="text-xl font-medium text-gray-200">Fade In:</p>
 			<NumberInput v-model="trackSettings.fadeInDuration" class="w-32 text-white" :step="1" min="0"> </NumberInput>
 		</div>
 		<div class="flex justify-between items-center mt-4">
-			<p class="text-xl font-semibold text-gray-200">Fade Out:</p>
+			<p class="text-xl font-medium text-gray-200">Fade Out:</p>
 			<NumberInput v-model="trackSettings.fadeOutDuration" class="w-32 text-white" :step="1" min="0"> </NumberInput>
 		</div>
 		<div class="flex justify-between items-center mt-4">
-			<p class="text-xl font-semibold text-gray-200">Looping:</p>
+			<p class="text-xl font-medium text-gray-200">Looping:</p>
 			<CheckboxInput v-model="trackSettings.isLooping"></CheckboxInput>
 		</div>
 		<div class="flex justify-between items-center mt-4">
-			<p class="text-xl font-semibold text-gray-200">Position in playlist:</p>
+			<p class="text-xl font-medium text-gray-200">Position in playlist:</p>
 			<NumberInput v-model="trackSettings.pos" class="w-32 text-white" :step="1" min="1" :max="audioPlayer.playlist.tracks.length.toString()">
 			</NumberInput>
 		</div>

@@ -37,7 +37,7 @@ export const useAudioPlayerStore = defineStore("audioPlayerStore", {
 			}
 		},
 		current() {
-			if (this.playlist.tracks.length > 0) {
+			if (this.playlist.tracks.length > 0 && this.currentIndex < this.playlist.tracks.length) {
 				return this.playlist.tracks[this.currentIndex];
 			} else {
 				return undefined;
