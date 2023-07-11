@@ -37,8 +37,5 @@ export default {
 			this.input = this.modelValue;
 		},
 	},
-	created() {
-		console.log(this.pattern);
-	},
 };
 </script>

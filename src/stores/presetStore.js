@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { exists, readTextFile, writeFile, createDir, BaseDirectory } from "@tauri-apps/api/fs";
 import { loadPreset, loadAllPresets } from "../util/fileManager";
 import { useAudioPlayerStore } from "./audioPlayerStore";
+import _ from "lodash";
 
 export const usePresetStore = defineStore("presetStore", {
 	state: () => ({
@@ -29,7 +30,7 @@ export const usePresetStore = defineStore("presetStore", {
 			} else {
 				this.name = temp.name;
 				this.filename = filename;
-				this.playlists = temp.playlists;
+				this.playlists = _.uniqBy(temp.playlists, "path");
 				// if(typeof this.playlists[0] !== 'undefined') {
 				//   useAudioPlayerStore().setPlaylist(this.playlists[0].path)
 				// } else {
@@ -95,23 +96,26 @@ export const usePresetStore = defineStore("presetStore", {
 		 */
 		async addPlaylist(playlist) {
 			if (typeof playlist !== "undefined") {
-				//Wenn Playlist noch nicht in der Group ist
-				if (!this.playlists.some((val) => val.name === playlist.name)) {
-					if (!(await exists(".soundboard", { dir: BaseDirectory.Data }))) {
-						await createDir(".soundboard", { dir: BaseDirectory.Data });
-					}
-
-					const content = JSON.parse(await readTextFile([".soundboard", this.filename].join("\\"), { dir: BaseDirectory.Data }));
-
-					content.playlists.push({
-						name: playlist.name,
-						path: playlist.path,
-					});
-
-					this.playlists = content.playlists;
-
-					await writeFile({ path: [".soundboard", this.filename].join("\\"), contents: JSON.stringify(content) }, { dir: BaseDirectory.Data });
+				//Wenn bereits eine Playlist mit gleichem Path existiert
+				if (this.playlists.some((val) => val.path === playlist.path)) {
+					throw new Error("This playlist is already in this preset");
 				}
+
+				//Wenn Playlist noch nicht in der Group ist
+				if (!(await exists(".soundboard", { dir: BaseDirectory.Data }))) {
+					await createDir(".soundboard", { dir: BaseDirectory.Data });
+				}
+
+				const content = JSON.parse(await readTextFile([".soundboard", this.filename].join("\\"), { dir: BaseDirectory.Data }));
+
+				content.playlists.push({
+					name: playlist.name,
+					path: playlist.path,
+				});
+
+				this.playlists = content.playlists;
+
+				await writeFile({ path: [".soundboard", this.filename].join("\\"), contents: JSON.stringify(content) }, { dir: BaseDirectory.Data });
 			}
 		},
 		/**
@@ -128,7 +132,7 @@ export const usePresetStore = defineStore("presetStore", {
 		 * Devtool: Lädt nächste Playlist
 		 */
 		nextPlaylist() {
-			let index = this.playlists.indexOf(this.playlists.filter((val) => val.name === useAudioPlayerStore().playlist.name)[0]);
+			let index = this.playlists.indexOf(this.playlists.filter((val) => val.path === useAudioPlayerStore().playlist.path)[0]);
 			if (this.playlists.length > 0) {
 				if (index + 1 >= this.playlists.length) {
 					index = 0;

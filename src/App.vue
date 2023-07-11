@@ -283,9 +283,15 @@ export default {
 
 		async addPlaylistToPreset() {
 			if (this.preset.name.length > 0) {
-				this.preset.addPlaylist(await loadNewPlaylist());
+				try {
+					await this.preset.addPlaylist(await loadNewPlaylist());
+				} catch (e) {
+					console.error(e);
+					this.$refs.playerError.text = e.message;
+					this.$refs.playerError.open = true;
+				}
 			} else {
-				console.error("Kein Preset gesetzt");
+				console.error("No preset set");
 			}
 		},
 
@@ -299,7 +305,7 @@ export default {
 					this.audioPlayer.setPlaylist(this._selectedPlaylist.path);
 				} else {
 					//TODO UI Error zeigen
-					console.error("Playlist kann nur aktualisiert werden, wenn Player pausiert ist.");
+					console.error("You can only reload the playlist when the player is not playing.");
 				}
 			}
 		},

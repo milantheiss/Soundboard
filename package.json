@@ -23,6 +23,7 @@
     "@headlessui/vue": "^1.7.3",
     "@tauri-apps/api": "^1.4.0",
     "howler": "^2.2.3",
+    "lodash": "^4.17.21",
     "pinia": "^2.0.23",
     "vue": "^3.2.45"
   },

@@ -429,7 +429,9 @@ export default {
 				this.fade.crossfade(this.audioPlayer.current, this.audioPlayer.playlist.tracks[index]);
 			} else {
 				this.fade.stop();
-				this.stopLoggingTrack(this.audioPlayer.current);
+				if (this.audioPlayer.current.player.playing()) {
+					this.stopLoggingTrack(this.audioPlayer.current);
+				}
 				this.audioPlayer.current.player.stop();
 				this.audioPlayer.current.player.volume(this.audioPlayer.current.trackvolume);
 				this.seek = 0;
