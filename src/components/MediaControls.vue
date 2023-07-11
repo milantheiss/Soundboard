@@ -148,11 +148,18 @@ export default {
 			if (!this.audioPlayer.current.isLooping) {
 				//Muss Next blockieren, da loading von Howl Player lange braucht. Es entsteht ansonsten ein Bug, wenn man Next bei undefined Player spamt
 				if (typeof this.audioPlayer.current !== "undefined") {
-					//Wenn schon ein Song gespielt wird, dann starte Crossfade
+					this._fadeIn(this.audioPlayer.next);
 					this.audioPlayer.next.player.on("end", () => {
 						this.skipToNext();
 					});
-					this.fade.crossfade(this.audioPlayer.current, this.audioPlayer.next);
+
+					this.stopLoggingTrack(this.audioPlayer.current);
+					this.audioPlayer.current.player.stop();
+					this.audioPlayer.current.player.seek(0);
+					this.audioPlayer.current.player.volume(this.audioPlayer.current.trackvolume);
+
+					this.audioPlayer.current.player.off("end");
+
 					//Der Index wird verschoben
 					this.audioPlayer.advanceToNextIndex();
 				} else {
@@ -166,6 +173,7 @@ export default {
 				//Wenn schon ein Song gespielt wird, dann starte Crossfade
 				if (this.audioPlayer.isPlaying) {
 					if (this.audioPlayer.playlist.tracks.length > 1) {
+						this.audioPlayer.current.player.off("end");
 						this.audioPlayer.next.player.on("end", () => {
 							this.skipToNext();
 						});
@@ -205,6 +213,7 @@ export default {
 				//Wenn schon ein Song gespielt wird, dann starte Crossfade
 				if (this.audioPlayer.isPlaying) {
 					if (this.audioPlayer.playlist.tracks.length > 1) {
+						this.audioPlayer.current.player.off("end");
 						this.audioPlayer.previous.player.on("end", () => {
 							this.skipToNext();
 						});
@@ -246,18 +255,42 @@ export default {
 			}
 
 			//Setup _from und _to (neu)
-			this.fade._from.data = from;
-			this.fade._from.player = from.player;
-
-			this.fade._to.data = to;
-			this.fade._to.player = to.player;
-
-			this.fade._from.isFading = true;
-			this.fade._to.isFading = true;
-
 			this.fade.isCrossfading = true;
 
 			console.debug(`Fading from ${from.name} to ${to.name}`);
+
+			this._fadeOut(from);
+			this._fadeIn(to);
+
+			from.player.on("fade", () => {
+				//Wenn Track fertig ausgefadet wurde. Wird bei Abbruch des Fades nicht ausgeführt.
+				if (this.fade._from.player.playing() || this.fade._from.player.seek() >= this.fade._from.player.duration()) {
+					//Erhöhe Index auf nächsten Track, wenn current schneller ausgefadet ist.
+					if (this.fade._from.data.fadeOutDuration >= this.fade._to.data.fadeInDuration) {
+						this.fade.isCrossfading = false;
+					}
+					//EventListener wird entfernt
+					this.fade._from.player.off("fade");
+				}
+			});
+
+			to.player.on("fade", () => {
+				//Wenn Track fertig ausgefadet wurde. Wird bei Abbruch des Fades nicht ausgeführt.
+				if (this.fade._to.player.playing() || this.fade._to.player.seek() >= this.fade._to.player.duration()) {
+					//Erhöhe Index auf nächsten Track, wenn next schneller ausfadet.
+					if (this.fade._to.data.fadeInDuration >= this.fade._from.data.fadeOutDuration) {
+						this.fade.isCrossfading = false;
+					}
+
+					//EventListener wird entfernt
+					this.fade._to.player.off("fade");
+				}
+			});
+		},
+		_fadeOut(from) {
+			this.fade._from.data = from;
+			this.fade._from.player = from.player;
+			this.fade._from.isFading = true;
 
 			//Faded spielenden Track aus, für die FadeOutDuration des Tracks
 			from.player.fade(from.player.volume(), 0.0, from.fadeOutDuration);
@@ -274,12 +307,7 @@ export default {
 					this.fade._from.fadeStartTime = undefined;
 					this.fade._from.fadeDurationPlayed = 0;
 
-					console.debug(`Finished fading ${this.fade._from.data.name}`);
-
-					//Erhöhe Index auf nächsten Track, wenn current schneller ausgefadet ist.
-					if (this.fade._from.data.fadeOutDuration >= this.fade._to.data.fadeInDuration) {
-						this.fade.isCrossfading = false;
-					}
+					console.debug(`Finished fading from ${this.fade._from.data.name}`);
 
 					this.fade._from.isFading = false;
 
@@ -290,6 +318,11 @@ export default {
 					console.debug(`Fading from current ${this.fade._from.data.name} not finished!`);
 				}
 			});
+		},
+		_fadeIn(to) {
+			this.fade._to.data = to;
+			this.fade._to.player = to.player;
+			this.fade._to.isFading = true;
 
 			if (!to.player.playing()) {
 				to.player.play();
@@ -307,11 +340,6 @@ export default {
 				if (this.fade._to.player.playing() || this.fade._to.player.seek() >= this.fade._to.player.duration()) {
 					console.debug(`Finished fading to ${this.fade._to.data.name}`);
 
-					//Erhöhe Index auf nächsten Track, wenn next schneller ausfadet.
-					if (this.fade._to.data.fadeInDuration >= this.fade._from.data.fadeOutDuration) {
-						this.fade.isCrossfading = false;
-					}
-
 					this.fade._to.isFading = false;
 					this.fade._to.player.volume(this.fade._to.data.trackvolume);
 					this.fade._to.fadeStartTime = undefined;
@@ -325,46 +353,48 @@ export default {
 			});
 		},
 		_pauseFade() {
-			this.fade._from.fadeDurationPlayed += Date.now() - this.fade._from.fadeStartTime;
-			this.fade._from.player.pause();
+			if (this.fade._from.isFading) {
+				this.fade._from.fadeDurationPlayed += Date.now() - this.fade._from.fadeStartTime;
+				this.fade._from.player.pause();
 
-			this.stopLoggingTrack(this.fade._from.data);
+				this.stopLoggingTrack(this.fade._from.data);
+			}
 
-			this.fade._to.fadeDurationPlayed += Date.now() - this.fade._to.fadeStartTime;
-			this.fade._to.player.pause();
+			if (this.fade._to.isFading) {
+				this.fade._to.fadeDurationPlayed += Date.now() - this.fade._to.fadeStartTime;
+			}
 
-			this.stopLoggingTrack(this.fade._to.data);
+			if (this.fade._to.player.playing()) {
+				this.fade._to.player.pause();
+				this.stopLoggingTrack(this.fade._to.data);
+			}
 		},
 		_resumeFade() {
 			//TODO Resume für weitere Fadearten erweitern
-			if (this.fade.isCrossfading) {
-				if (this.fade._from.isFading) {
-					if (!this.fade._from.player.playing()) {
-						this.startLoggingTrack(this.fade._from.data);
-						this.fade._from.player.play();
-					}
-
-					this.fade._from.player.fade(
-						this.fade._from.player.volume(),
-						0.0,
-						this.fade._from.data.fadeOutDuration - this.fade._from.fadeDurationPlayed
-					);
-					this.fade._from.fadeStartTime = Date.now();
+			// if (this.fade.isCrossfading) {
+			if (this.fade._from.isFading) {
+				if (!this.fade._from.player.playing()) {
+					this.startLoggingTrack(this.fade._from.data);
+					this.fade._from.player.play();
 				}
 
-				if (!this.fade._to.player.playing()) {
-					this.startLoggingTrack(this.fade._to.data);
-					this.fade._to.player.play();
-				}
-				if (this.fade._to.isFading) {
-					this.fade._to.player.fade(
-						this.fade._to.player.volume(),
-						this.fade._to.data.trackvolume,
-						this.fade._to.data.fadeInDuration - this.fade._to.fadeDurationPlayed
-					);
-					this.fade._to.fadeStartTime = Date.now();
-				}
+				this.fade._from.player.fade(this.fade._from.player.volume(), 0.0, this.fade._from.data.fadeOutDuration - this.fade._from.fadeDurationPlayed);
+				this.fade._from.fadeStartTime = Date.now();
 			}
+
+			if (!this.fade._to.player.playing()) {
+				this.startLoggingTrack(this.fade._to.data);
+				this.fade._to.player.play();
+			}
+			if (this.fade._to.isFading) {
+				this.fade._to.player.fade(
+					this.fade._to.player.volume(),
+					this.fade._to.data.trackvolume,
+					this.fade._to.data.fadeInDuration - this.fade._to.fadeDurationPlayed
+				);
+				this.fade._to.fadeStartTime = Date.now();
+			}
+			// }
 		},
 		_stopFade() {
 			if (typeof this.fade._from.player !== "undefined") {
