@@ -19,7 +19,7 @@
 						if (!audioPlayer.isPlaying) addPlaylistToPreset();
 					}
 				"
-				class="ml-auto min-w-fit h-fit inline-flex justify-center px-2 py-2 border border-transparent bg-electric-blue rounded-md shadow-sm text-base font-medium text-black hover:bg-electric-blue-hover focus:outline focus:outline-none focus:ring-2 focus:ring-electric-blue focus:ring-offset-2"
+				class="ml-auto mr-4 min-w-fit h-fit inline-flex justify-center px-2 py-2 border border-transparent bg-electric-blue rounded-md shadow-sm text-base font-medium text-black hover:bg-electric-blue-hover focus:outline focus:outline-none focus:ring-2 focus:ring-electric-blue focus:ring-offset-2"
 				:class="{ 'bg-[#404040] hover:bg-[#404040] cursor-default focus:ring-0 focus:ring-offset-0': audioPlayer.isPlaying }">
 				Add Playlist
 			</button>
