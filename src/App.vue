@@ -53,7 +53,7 @@
 					</span>
 					<button
 						@click="$refs.addSongPrompt.open = true"
-						class="w-[123px] px-3 py-2 ml-auto h-fit border border-transparent bg-electric-blue rounded-md text-base font-medium text-black hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue-hover focus:ring-offset-2">
+						class="w-[112px] px-2 py-2 ml-auto h-fit border border-transparent bg-electric-blue rounded-md text-base font-medium text-black hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue-hover focus:ring-offset-2">
 						Add Song
 					</button>
 				</span>
@@ -309,7 +309,6 @@ export default {
 		 */
 		nextPlaylist() {
 			const temp = this.preset.nextPlaylist();
-			console.log(temp);
 			if (typeof temp !== "undefined") {
 				this.$refs.selectPlaylist.selected = temp;
 				this._selectedPlaylist = temp;
@@ -411,7 +410,6 @@ export default {
 
 		triggerContextMenu(i, e) {
 			e.preventDefault();
-			console.log("Right Click");
 			// this.$refs.contextMenu.show(e)
 		},
 
@@ -440,6 +438,7 @@ export default {
 		"audioPlayer.current.player"() {
 			if (typeof this.audioPlayer.current?.player !== "undefined") {
 				this.audioPlayer.current.player.on("loaderror", (id, e) => {
+					console.error(e);
 					if (e === "Failed loading audio file with status: 404.") {
 						this.$refs.playerError.text = "404: Audio Datei konnte nicht im Playlisten Ordner gefunden werden.";
 					} else {

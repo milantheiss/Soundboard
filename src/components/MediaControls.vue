@@ -88,7 +88,7 @@ export default {
 			useHotkeys: false,
 			hotkeyHasCooldown: true,
 			lastHotkey: 0,
-			cooldown: 750,
+			cooldown: 750, //TODO 750
 		};
 	},
 	expose: ["toggleHotkeys", "useHotkeys", "cooldown", "hotkeyHasCooldown", "lastHotkey", "seek", "playTrack"],
@@ -196,7 +196,6 @@ export default {
 						this.audioPlayer.next.player.volume(this.audioPlayer.next.trackvolume);
 					}
 					if (typeof this.audioPlayer.current.player !== "undefined") {
-						this.stopLoggingTrack(this.audioPlayer.current);
 						this.audioPlayer.current.player.stop();
 					}
 					this.seek = 0;
@@ -235,7 +234,6 @@ export default {
 						this.audioPlayer.previous.player.volume(this.audioPlayer.previous.trackvolume);
 					}
 					if (typeof this.audioPlayer.current.player !== "undefined") {
-						this.stopLoggingTrack(this.audioPlayer.current);
 						this.audioPlayer.current.player.stop();
 					}
 					this.seek = 0;
@@ -479,21 +477,31 @@ export default {
 				playbackDuration: Number, //In Millisekunden
 			}
 			*/
+			const _seek = Math.round(track.player.seek() * 100);
+			const min = ("0" + Math.floor(_seek / 6000)).slice(-2); // Minuten des Seeks im Format mm
+			const sec = ("0" + Math.floor((_seek % 6000) / 100)).slice(-2); // Sekunden des Seeks im Format ss
 
 			track.trackLog = {
 				started: Date.now(),
 				title: track.name,
-				startingSeek: Math.round(track.player.seek() * 100) / 100, //Rundet auf 2 Nachkommastellen
+				startingSeek: `${min}:${sec} Min`, //Rundet auf 2 Nachkommastellen & Gibt den Seek als lesbaren String in Min aus
 			};
 		},
 		stopLoggingTrack(track) {
-			track.trackLog.ended = Date.now();
-			track.trackLog.playbackDuration = Date.now() - track.trackLog.started;
+			// if (track.trackLog === undefined) return;
 
-			track.trackLog.started = new Date(track.trackLog.started);
-			track.trackLog.ended = new Date(track.trackLog.ended);
+			try {
+				track.trackLog.ended = Date.now();
+				track.trackLog.playbackDuration = (Date.now() - track.trackLog.started) / 1000;
 
-			writeToLogfile(track.trackLog);
+				track.trackLog.started = new Date(track.trackLog.started).toLocaleString("de-DE", { timeZone: "Europe/Berlin" });
+				track.trackLog.ended = new Date(track.trackLog.ended).toLocaleString("de-DE", { timeZone: "Europe/Berlin" });
+
+				writeToLogfile(track.trackLog);
+			} catch (e) {
+				console.error(e);
+				console.log(track);
+			}
 		},
 	},
 	computed: {

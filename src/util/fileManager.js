@@ -255,6 +255,7 @@ async function writeToLogfile(log) {
 		}
 	} catch (e) {
 		console.error(e);
+		console.log(log);
 	}
 }
 

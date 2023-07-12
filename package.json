@@ -1,7 +1,7 @@
 {
   "name": "Soundboard",
   "description": "Soundboard is a simple soundboard for Windows, Mac and Linux.",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "homepage": "https://github.com/milantheiss/Soundboard",
   "bugs": {
     "url": "https://github.com/milantheiss/Soundboard/issues",

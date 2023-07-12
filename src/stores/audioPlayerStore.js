@@ -99,11 +99,19 @@ export const useAudioPlayerStore = defineStore("audioPlayerStore", {
 
 			if (this.playlist.tracks.length > 5) {
 				if (typeof this.playlist.tracks[getIndexForwardsBuffer()].player === "undefined") {
-					this.playlist.tracks[getIndexForwardsBuffer()].player = new Howl({
-						src: [[this.playlist.path, this.playlist.tracks[getIndexForwardsBuffer()].filename].join("%5C")],
-						volume: this.playlist.tracks[getIndexForwardsBuffer()].trackvolume,
-						loop: this.playlist.tracks[getIndexForwardsBuffer()].isLooping,
-					});
+					try {
+						this.playlist.tracks[getIndexForwardsBuffer()].player = new Howl({
+							src: [[this.playlist.path, this.playlist.tracks[getIndexForwardsBuffer()].filename].join("%5C")],
+							volume: this.playlist.tracks[getIndexForwardsBuffer()].trackvolume,
+							loop: this.playlist.tracks[getIndexForwardsBuffer()].isLooping,
+						});
+					} catch (e) {
+						console.error(e);
+						console.log(this.playlist.tracks[getIndexForwardsBuffer()]);
+						console.log([this.playlist.path, this.playlist.tracks[getIndexForwardsBuffer()].filename].join("%5C"));
+					}
+				} else {
+					this.playlist.tracks[getIndexForwardsBuffer()].player.load();
 				}
 				this.playlist.tracks[getIndexOldBackwardsBuffer()].player.unload();
 			}
@@ -136,11 +144,19 @@ export const useAudioPlayerStore = defineStore("audioPlayerStore", {
 
 			if (this.playlist.tracks.length > 5) {
 				if (typeof this.playlist.tracks[getIndexBackwardsBuffer()].player === "undefined") {
-					this.playlist.tracks[getIndexBackwardsBuffer()].player = new Howl({
-						src: [[this.playlist.path, this.playlist.tracks[getIndexBackwardsBuffer()].filename].join("%5C")],
-						volume: this.playlist.tracks[getIndexBackwardsBuffer()].trackvolume,
-						loop: this.playlist.tracks[getIndexBackwardsBuffer()].isLooping,
-					});
+					try {
+						this.playlist.tracks[getIndexBackwardsBuffer()].player = new Howl({
+							src: [[this.playlist.path, this.playlist.tracks[getIndexBackwardsBuffer()].filename].join("%5C")],
+							volume: this.playlist.tracks[getIndexBackwardsBuffer()].trackvolume,
+							loop: this.playlist.tracks[getIndexBackwardsBuffer()].isLooping,
+						});
+					} catch (e) {
+						console.error(e);
+						console.log(this.playlist.tracks[getIndexBackwardsBuffer()]);
+						console.log([this.playlist.path, this.playlist.tracks[getIndexBackwardsBuffer()].filename].join("%5C"));
+					}
+				} else {
+					this.playlist.tracks[getIndexBackwardsBuffer()].player.load();
 				}
 				this.playlist.tracks[getIndexOldForwardsBuffer()].player.unload();
 			}
@@ -365,7 +381,6 @@ export const useAudioPlayerStore = defineStore("audioPlayerStore", {
 
 		async increaseTrackPosition(track) {
 			if (typeof track !== "undefined") {
-				console.log(track.pos);
 				if (track.pos < this.playlist.tracks.length - 1) {
 					this.changeTrackPosition(track, track.pos + 1);
 				} else {
@@ -376,7 +391,6 @@ export const useAudioPlayerStore = defineStore("audioPlayerStore", {
 
 		async decreaseTrackPosition(track) {
 			if (typeof track !== "undefined") {
-				console.log(track.pos);
 				if (track.pos > 0) {
 					this.changeTrackPosition(track, track.pos - 1);
 				} else {
@@ -455,11 +469,13 @@ export const useAudioPlayerStore = defineStore("audioPlayerStore", {
 					volume: this.current.trackvolume,
 					loop: this.current.isLooping,
 				});
+
 				this.next.player = new Howl({
 					src: [[this.playlist.path, this.next.filename].join("%5C")],
 					volume: this.next.trackvolume,
 					loop: this.next.isLooping,
 				});
+
 				this.previous.player = new Howl({
 					src: [[this.playlist.path, this.previous.filename].join("%5C")],
 					volume: this.previous.trackvolume,
@@ -531,6 +547,8 @@ export const useAudioPlayerStore = defineStore("audioPlayerStore", {
 							volume: this.playlist.tracks[i].trackvolume,
 							loop: this.playlist.tracks[i].isLooping,
 						});
+					} else {
+						this.playlist.tracks[i].player.load();
 					}
 				});
 			}
@@ -543,6 +561,8 @@ export const useAudioPlayerStore = defineStore("audioPlayerStore", {
 					volume: this.playlist.tracks[index].trackvolume,
 					loop: this.playlist.tracks[index].isLooping,
 				});
+			} else {
+				this.playlist.tracks[index].player.load();
 			}
 		},
 	},
