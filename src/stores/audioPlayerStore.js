@@ -16,22 +16,14 @@ export const useAudioPlayerStore = defineStore("audioPlayerStore", {
 	getters: {
 		next() {
 			if (this.playlist.tracks.length > 0) {
-				if (this.currentIndex + 1 > this.playlist.tracks.length - 1) {
-					return this.playlist.tracks[0];
-				} else {
-					return this.playlist.tracks[this.currentIndex + 1];
-				}
+				return this.playlist.tracks[(this.currentIndex + 1) % this.playlist.tracks.length];
 			} else {
 				return undefined;
 			}
 		},
 		previous() {
 			if (this.playlist.tracks.length > 0) {
-				if (this.currentIndex - 1 < 0) {
-					return this.playlist.tracks[this.playlist.tracks.length - 1];
-				} else {
-					return this.playlist.tracks[this.currentIndex - 1];
-				}
+				return this.playlist.tracks[(this.playlist.tracks.length + (this.currentIndex - 1)) % this.playlist.tracks.length];
 			} else {
 				return undefined;
 			}
@@ -75,26 +67,14 @@ export const useAudioPlayerStore = defineStore("audioPlayerStore", {
 		advanceToNextIndex() {
 			this.oldIndex = this.currentIndex;
 			//Erhöht Index
-			if (this.currentIndex + 1 > this.playlist.tracks.length - 1) {
-				this.currentIndex = 0;
-			} else {
-				this.currentIndex++;
-			}
+			this.currentIndex = (this.currentIndex + 1) % this.playlist.tracks.length;
 
 			const getIndexForwardsBuffer = () => {
-				if (this.currentIndex + 2 > this.playlist.tracks.length - 1) {
-					return this.currentIndex + 2 - this.playlist.tracks.length;
-				} else {
-					return this.currentIndex + 2;
-				}
+				return (this.currentIndex + 2) % this.playlist.tracks.length;
 			};
 
 			const getIndexOldBackwardsBuffer = () => {
-				if (this.currentIndex - 3 < 0) {
-					return this.playlist.tracks.length - 3 + this.currentIndex;
-				} else {
-					return this.currentIndex - 3;
-				}
+				return (this.currentIndex - 3 + this.playlist.tracks.length) % this.playlist.tracks.length;
 			};
 
 			if (this.playlist.tracks.length > 5) {
@@ -120,26 +100,15 @@ export const useAudioPlayerStore = defineStore("audioPlayerStore", {
 		advanceToPreviousIndex() {
 			this.oldIndex = this.currentIndex;
 			//Verringert Index
-			if (this.currentIndex - 1 < 0) {
-				this.currentIndex = this.playlist.tracks.length - 1;
-			} else {
-				this.currentIndex--;
-			}
+
+			this.currentIndex = (this.playlist.tracks.length + (this.currentIndex - 1)) % this.playlist.tracks.length;
 
 			const getIndexOldForwardsBuffer = () => {
-				if (this.currentIndex + 3 > this.playlist.tracks.length - 1) {
-					return this.currentIndex + 3 - this.playlist.tracks.length;
-				} else {
-					return this.currentIndex + 3;
-				}
+				return (this.currentIndex + 3) % this.playlist.tracks.length;
 			};
 
 			const getIndexBackwardsBuffer = () => {
-				if (this.currentIndex - 2 < 0) {
-					return this.playlist.tracks.length - 2 + this.currentIndex;
-				} else {
-					return this.currentIndex - 2;
-				}
+				return (this.currentIndex - 2 + this.playlist.tracks.length) % this.playlist.tracks.length;
 			};
 
 			if (this.playlist.tracks.length > 5) {
@@ -208,35 +177,19 @@ export const useAudioPlayerStore = defineStore("audioPlayerStore", {
 			this.oldIndex = this.currentIndex;
 
 			const getIndexNext = (i) => {
-				if (i + 1 > this.playlist.tracks.length - 1) {
-					return 0;
-				} else {
-					return i + 1;
-				}
+				return (i + 1) % this.playlist.tracks.length;
 			};
 
 			const getIndexPrevious = (i) => {
-				if (i - 1 < 0) {
-					return this.playlist.tracks.length - 1;
-				} else {
-					return i - 1;
-				}
+				return (i - 1 + this.playlist.tracks.length) % this.playlist.tracks.length;
 			};
 
 			const getIndexForwardsBuffer = (i) => {
-				if (i + 2 > this.playlist.tracks.length - 1) {
-					return i + 2 - this.playlist.tracks.length;
-				} else {
-					return i + 2;
-				}
+				return (i + 2) % this.playlist.tracks.length;
 			};
 
 			const getIndexBackwardsBuffer = (i) => {
-				if (i - 2 < 0) {
-					return this.playlist.tracks.length - 2 + i;
-				} else {
-					return i - 2;
-				}
+				return (i - 2 + this.playlist.tracks.length) % this.playlist.tracks.length;
 			};
 
 			//Lädt Buffer neu
@@ -386,16 +339,13 @@ export const useAudioPlayerStore = defineStore("audioPlayerStore", {
 				} else {
 					this.changeTrackPosition(track, 0);
 				}
+				this.changeTrackPosition(track, (track.pos + 1) % this.playlist.tracks.length);
 			}
 		},
 
 		async decreaseTrackPosition(track) {
 			if (typeof track !== "undefined") {
-				if (track.pos > 0) {
-					this.changeTrackPosition(track, track.pos - 1);
-				} else {
-					this.changeTrackPosition(track, this.playlist.tracks.length - 1);
-				}
+				this.changeTrackPosition(track, (track.pos - 1 + this.playlist.tracks.length) % this.playlist.tracks.length);
 			}
 		},
 
@@ -492,39 +442,23 @@ export const useAudioPlayerStore = defineStore("audioPlayerStore", {
 			// Fix für Bug, ansonsten würde die Methode versuchen nicht existierende Player zu laden
 			if (this.playlist.tracks.length > 0) {
 				const getIndexNext = (i) => {
-					if (i + 1 > this.playlist.tracks.length - 1) {
-						return 0;
-					} else {
-						return i + 1;
-					}
+					return (i + 1) % this.playlist.tracks.length;
 				};
 
 				const getIndexPrevious = (i) => {
-					if (i - 1 < 0) {
-						return this.playlist.tracks.length - 1;
-					} else {
-						return i - 1;
-					}
+					return (i - 1 + this.playlist.tracks.length) % this.playlist.tracks.length;
 				};
 
 				const getIndexForwardsBuffer = (i) => {
 					// Fix für Bug, ansonsten würde bei einer Playlist mit nur einem Track, der Index 1 zurückgegeben werden.
 					if (this.playlist.tracks.length === 1) return 0;
-					if (i + 2 > this.playlist.tracks.length - 1) {
-						return i + 2 - this.playlist.tracks.length;
-					} else {
-						return i + 2;
-					}
+					return (i + 2) % this.playlist.tracks.length;
 				};
 
 				const getIndexBackwardsBuffer = (i) => {
 					// Fix für Bug, ansonsten würde bei einer Playlist mit nur einem Track, der Index -1 zurückgegeben werden.
 					if (this.playlist.tracks.length === 1) return 0;
-					if (i - 2 < 0) {
-						return this.playlist.tracks.length - 2 + i;
-					} else {
-						return i - 2;
-					}
+					return (i - 2 + this.playlist.tracks.length) % this.playlist.tracks.length;
 				};
 
 				//Index aller Player die geladen werden sollen
