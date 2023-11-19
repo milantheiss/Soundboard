@@ -15,7 +15,7 @@
   "private": false,
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vue-tsc && vite build",
     "preview": "vite preview",
     "tauri": "tauri"
   },
@@ -25,12 +25,13 @@
     "howler": "^2.2.3",
     "lodash": "^4.17.21",
     "pinia": "^2.0.23",
-    "vue": "^3.2.45"
+    "vue": "^3.3.8"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.3",
-    "@tauri-apps/cli": "^1.4.0",
-    "@vitejs/plugin-vue": "^4.0.0",
+    "@tauri-apps/cli": "^1.5.6",
+    "@types/howler": "^2.2.11",
+    "@vitejs/plugin-vue": "^4.5.0",
     "@vue/devtools": "^6.5.0",
     "autoprefixer": "^10.4.12",
     "eslint": "^8.25.0",
@@ -38,7 +39,9 @@
     "postcss": "^8.4.17",
     "prettier": "^2.7.1",
     "tailwindcss": "^3.1.8",
-    "vite": "^4.2.1"
+    "typescript": "^5.2.2",
+    "vite": "^5.0.0",
+    "vue-tsc": "^1.8.22"
   },
   "contributors": [
     "Milan Theiss (https://github.com/milantheiss)",
