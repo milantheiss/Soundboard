@@ -1,7 +1,7 @@
 <template>
 	<div class="grid grid-cols-3 gap-3 items-center w-full">
 		<button
-			@click="audioPlayer.setPlaylist('https://asset.localhost/C%3A%5CUsers%5Cmilan%5COneDrive%5CDokumente%5CLicht%20Tontechnik%5CPlaylisten%5CS2%20Sommernacht%201%5C')"
+			@click="playPrev"
 			class="h-fit px-2 py-2 border border-transparent bg-electric-blue rounded-xl shadow-lg text-base font-medium text-black hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue-hover focus:ring-offset-2 flex justify-center items-center">
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7">
 				<path
@@ -11,7 +11,7 @@
 
 		<span
 			class="h-full px-2 py-2 border border-transparent bg-electric-blue rounded-xl shadow-lg text-base font-medium text-black hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue-hover focus:ring-offset-2 hover:cursor-pointer flex justify-center items-center"
-			@click="audioPlayer.togglePlay()">
+			@click="togglePlay">
 			<button class="" v-if="!audioPlayer.isPlaying">
 				<!--Play Icon-->
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8">
@@ -32,21 +32,21 @@
 			</button>
 		</span>
 
-		<!-- <button
+		<button
 			@click="playNext"
 			class="h-fit px-2 py-2 border border-transparent bg-electric-blue rounded-xl shadow-lg text-base font-medium text-black hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue-hover focus:ring-offset-2 flex justify-center items-center">
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7">
 				<path
 					d="M5.055 7.06c-1.25-.714-2.805.189-2.805 1.628v8.123c0 1.44 1.555 2.342 2.805 1.628L12 14.471v2.34c0 1.44 1.555 2.342 2.805 1.628l7.108-4.061c1.26-.72 1.26-2.536 0-3.256L14.805 7.06C13.555 6.346 12 7.25 12 8.688v2.34L5.055 7.06z" />
 			</svg>
-		</button> -->
+		</button>
 	</div>
 	<SeekUpdater v-model="seek" v-bind="$attrs"></SeekUpdater>
 	<div @keyup.space="keyTest"></div>
 </template>
 
 <script>
-import { MediaPlayer } from "../util/mediaPlayer";
+import { useAudioPlayerStore } from "@/stores/audioPlayerStore.js";
 import SeekUpdater from "./SeekUpdater.vue";
 import { register, unregisterAll } from "@tauri-apps/api/globalShortcut";
 import { writeToLogfile } from "../util/fileManager.js";
@@ -54,7 +54,7 @@ import { writeToLogfile } from "../util/fileManager.js";
 export default {
 	name: "MediaControls",
 	setup() {
-		const audioPlayer = new MediaPlayer();
+		const audioPlayer = useAudioPlayerStore();
 
 		return {
 			audioPlayer,
@@ -62,6 +62,27 @@ export default {
 	},
 	data() {
 		return {
+			fade: {
+				_from: {
+					data: undefined,
+					player: undefined,
+					isFading: false,
+					fadeStartTime: undefined,
+					fadeDurationPlayed: 0,
+				},
+				_to: {
+					data: undefined,
+					player: undefined,
+					isFading: false,
+					fadeStartTime: undefined,
+					fadeDurationPlayed: 0,
+				},
+				isCrossfading: false,
+				crossfade: this._startCrossfade,
+				resume: this._resumeFade,
+				pause: this._pauseFade,
+				stop: this._stopFade,
+			},
 			seek: 0,
 			//IMPORTANT Nicht final
 			useHotkeys: false,
@@ -76,6 +97,41 @@ export default {
 		SeekUpdater,
 	},
 	methods: {
+		togglePlay() {
+			if (typeof this.audioPlayer.current !== "undefined") {
+				//Pausiert wenn Sound abgespielt wird.
+				if (this.audioPlayer.isPlaying) {
+					console.debug("Player was paused.");
+
+					//Nur bei Crossfade wichtig: Pausieren auch Next & Previous, wenn in Fading Process wurde
+					if (this.isFading) {
+						console.debug("Pause fade from togglePlay()");
+						this.fade.pause();
+					} else {
+						this.stopLoggingTrack(this.audioPlayer.current);
+						this.audioPlayer.current.player.pause();
+					}
+				} else {
+					//Startet wenn noch kein Sound gespielt wird.
+					console.debug(`Now playing: ${this.audioPlayer.current.name}`);
+
+					//Nur bei Crossfade wichtig: Startet auch Next & Previous, wenn in Fading Process pausiert wurde
+					if (this.isFading) {
+						console.debug("Fade triggered from togglePlay()");
+						this.fade.resume();
+					} else {
+						this.audioPlayer.current.player.on("end", () => {
+							this.skipToNext();
+						});
+
+						this.startLoggingTrack(this.audioPlayer.current);
+						this.audioPlayer.current.player.play();
+					}
+				}
+			} else {
+				console.error("No current track loaded");
+			}
+		},
 		toggleLoop() {
 			if (typeof this.audioPlayer.current !== "undefined") {
 				this.audioPlayer.current.isLooping = !this.audioPlayer.current.isLooping;
