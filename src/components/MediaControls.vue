@@ -1,7 +1,9 @@
 <template>
 	<div class="grid grid-cols-3 gap-3 items-center w-full">
 		<button
-			@click="audioPlayer.setPlaylist('https://asset.localhost/C%3A%5CUsers%5Cmilan%5COneDrive%5CDokumente%5CLicht%20Tontechnik%5CPlaylisten%5CS2%20Sommernacht%201%5C')"
+			@click="
+				audioPlayer.setPlaylist('https://asset.localhost/E%3A%5COneDrive%5CDokumente%5CLicht%20Tontechnik%5CPlaylisten%5CS2%20Sommernacht%201%5C')
+			"
 			class="h-fit px-2 py-2 border border-transparent bg-electric-blue rounded-xl shadow-lg text-base font-medium text-black hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue-hover focus:ring-offset-2 flex justify-center items-center">
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7">
 				<path
@@ -32,14 +34,14 @@
 			</button>
 		</span>
 
-		<!-- <button
-			@click="playNext"
+		<button
+			@click="audioPlayer.skipToNext()"
 			class="h-fit px-2 py-2 border border-transparent bg-electric-blue rounded-xl shadow-lg text-base font-medium text-black hover:bg-electric-blue-hover focus:outline-none focus:ring-2 focus:ring-electric-blue-hover focus:ring-offset-2 flex justify-center items-center">
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7">
 				<path
 					d="M5.055 7.06c-1.25-.714-2.805.189-2.805 1.628v8.123c0 1.44 1.555 2.342 2.805 1.628L12 14.471v2.34c0 1.44 1.555 2.342 2.805 1.628l7.108-4.061c1.26-.72 1.26-2.536 0-3.256L14.805 7.06C13.555 6.346 12 7.25 12 8.688v2.34L5.055 7.06z" />
 			</svg>
-		</button> -->
+		</button>
 	</div>
 	<SeekUpdater v-model="seek" v-bind="$attrs"></SeekUpdater>
 	<div @keyup.space="keyTest"></div>

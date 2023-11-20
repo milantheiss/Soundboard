@@ -4,7 +4,7 @@ import { Playlist } from "../modules/playlist";
 import { Track } from "../modules/track";
 
 export class MediaPlayer {
-	constructor() {}
+	constructor() { }
 
 	playlist?: Playlist;
 
@@ -27,11 +27,11 @@ export class MediaPlayer {
 	 */
 	async setPlaylist(path: string) {
 		console.log("Load Playlist");
-		
+
 		const playlistConfig = await loadPlaylist(path);
-		
+
 		console.log("Playlist Config", playlistConfig);
-		
+
 		const getFilepath = (playlistPath: string, filename: string) => {
 			filename = filename.replaceAll(" ", "%20");
 			return [playlistPath, filename].join("");
@@ -52,6 +52,16 @@ export class MediaPlayer {
 			} else {
 				this.playlist.current.play();
 			}
+		}
+	}
+
+	public skipToNext(): void {
+		console.log("Skip to Next");
+
+		if (this.playlist && this.playlist.tracks.length > 0) {
+			this.playlist.current.stop();
+			this.playlist.goToNext();
+			this.playlist.current.play();
 		}
 	}
 }
