@@ -13,7 +13,7 @@
 				</button>
 			</div>
 
-			<button
+			<!-- <button
 				@click="
 					() => {
 						if (!audioPlayer.isPlaying) addPlaylistToPreset();
@@ -22,12 +22,12 @@
 				class="ml-auto mr-4 min-w-fit h-fit inline-flex justify-center px-2 py-2 border border-transparent bg-electric-blue rounded-md shadow-sm text-base font-medium text-black hover:bg-electric-blue-hover focus:outline focus:outline-none focus:ring-2 focus:ring-electric-blue focus:ring-offset-2"
 				:class="{ 'bg-[#404040] hover:bg-[#404040] cursor-default focus:ring-0 focus:ring-offset-0': audioPlayer.isPlaying }">
 				Add Playlist
-			</button>
+			</button> -->
 		</div>
 
 		<div class="grid grid-cols-2 gap-4">
 			<!--Tracksettings Card-->
-			<TrackSettings :track="audioPlayer.playlist.tracks[trackSettingsIndex]" @removeTrack="removeTrack(trackSettingsIndex)"></TrackSettings>
+			<!-- <TrackSettings :track="audioPlayer.playlist.tracks[trackSettingsIndex]" @removeTrack="removeTrack(trackSettingsIndex)"></TrackSettings> -->
 
 			<!--Playlist Card-->
 			<div class="bg-background rounded-lg p-4 drop-shadow-md row-span-2 w-full h-full flex flex-col">
@@ -57,7 +57,7 @@
 						Add Song
 					</button>
 				</span>
-				<div class="flex flex-col overflow-y-auto h-[26rem] pb-4 mt-4">
+				<!-- <div class="flex flex-col overflow-y-auto h-[26rem] pb-4 mt-4">
 					<div
 						v-for="(track, index) in audioPlayer.playlist?.tracks"
 						:key="track.pos"
@@ -79,7 +79,7 @@
 							{{ index + 1 }}: <span class="italic"> {{ track.name }} </span>
 						</p>
 					</div>
-				</div>
+				</div> -->
 			</div>
 
 			<!--Devtools Card-->
@@ -104,7 +104,7 @@
 			</div>
 
 			<!--Media Controls Card-->
-			<div
+			<!-- <div
 				class="grid grid-cols-3 gap-x-2 items-center col-span-2 bg-background rounded-lg px-4 pt-4 drop-shadow-md h-fit w-full"
 				ref="mediaControlsCard"
 				@mouseup="(event) => detectMouseUp(event)">
@@ -113,11 +113,10 @@
 						{{ audioPlayer.current.pos + 1 }}: <span class="italic"> {{ audioPlayer.current.name }} </span>
 					</p>
 					<p v-if="typeof audioPlayer.current === 'undefined'">No track loaded.</p>
-					<!--TODO Seek Bar hinzufügen-->
-				</span>
-				<MediaControls @seekValue="(val) => this.updateSeekbarHandle(val)" ref="mediaControls" class="w-full"> </MediaControls>
-				<!--Seek Bar-->
-				<div
+				</span> -->
+			<MediaControls @seekValue="(val) => this.updateSeekbarHandle(val)" ref="mediaControls" class="w-full"> </MediaControls>
+			<!--Seek Bar-->
+			<!-- <div
 					class="h-12 items-center col-span-3 hover:cursor-pointer justify-center grid grid-cols-6 sm:grid-cols-10"
 					ref="seekbarCard"
 					@click="(event) => getClickPosition(event)"
@@ -131,7 +130,7 @@
 
 					<span class="text-lg ml-2 text-right">{{ convertTime(seekbar.seek - audioPlayer.current?.player.duration()) }}</span>
 				</div>
-			</div>
+			</div> -->
 		</div>
 
 		<!--
@@ -229,7 +228,6 @@
 <script>
 import MediaControls from "@/components/MediaControls.vue";
 import SelectList from "@/components/SelectList.vue";
-import { useAudioPlayerStore } from "@/stores/audioPlayerStore.js";
 import PromptDialog from "./components/PromptDialog.vue";
 import ConfirmationPrompt from "./components/ConfirmationPrompt.vue";
 import NewTrackPrompt from "./components/NewTrackPrompt.vue";
@@ -238,20 +236,21 @@ import { loadNewPlaylist, loadAllPresets } from "./util/fileManager";
 import { register, unregisterAll } from "@tauri-apps/api/globalShortcut";
 import ErrorPrompt from "./components/ErrorPrompt.vue";
 import ContextMenu from "./components/ContextMenu.vue";
-import TrackSettings from "./components/TrackSettings.vue";
+// import TrackSettings from "./components/TrackSettings.vue";
+import { ref } from "vue";
 
 export default {
 	setup() {
-		const audioPlayer = useAudioPlayerStore();
 		const preset = usePresetStore();
-
+		const mediaControls = ref(null);
 		return {
-			audioPlayer,
 			preset,
+			mediaControls,
 		};
 	},
 	data() {
 		return {
+			audioPlayer: undefined,
 			// eslint-disable-next-line vue/no-reserved-keys
 			_selectedPreset: undefined,
 			// eslint-disable-next-line vue/no-reserved-keys
@@ -268,6 +267,9 @@ export default {
 			ctxMenuOnIndex: 0,
 			trackSettingsIndex: 0,
 		};
+	},
+	mounted() {
+		this.audioPlayer = this.mediaControls.audioPlayer;
 	},
 	methods: {
 		async createPreset(presetName) {
@@ -296,6 +298,7 @@ export default {
 			if (typeof this.audioPlayer.playlist.name !== "undefined") {
 				if (!this.audioPlayer.isPlaying) {
 					this.reloadSpin = true;
+					console.log(this._selectedPlaylist.path);
 					this.audioPlayer.setPlaylist(this._selectedPlaylist.path);
 				} else {
 					//TODO UI Error zeigen
@@ -432,7 +435,7 @@ export default {
 		ConfirmationPrompt,
 		ErrorPrompt,
 		ContextMenu,
-		TrackSettings,
+		// TrackSettings,
 	},
 	watch: {
 		"audioPlayer.current.player"() {

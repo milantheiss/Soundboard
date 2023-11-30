@@ -1,5 +1,5 @@
 import { Howl } from "howler";
-import EventEmitter from "events";
+import { emit } from '@tauri-apps/api/event';
 
 interface TrackLog {
 	title: string;
@@ -72,7 +72,7 @@ export class Track {
 		if (!this.isLoaded) {
 			try {
 				console.log(`Filepath: ${this.filepath}`);
-				
+
 				this.player = new Howl({
 					//TODO Implement new Filestructure
 					src: [this.filepath],
@@ -88,10 +88,10 @@ export class Track {
 
 	public unload(): void {
 		this.player = null!;
-        this.isFading = false;
-        this.fadeStartTime = 0;
-        this.fadeTimeRemaining = 0;
-        this.targetVolume = 0;    
+		this.isFading = false;
+		this.fadeStartTime = 0;
+		this.fadeTimeRemaining = 0;
+		this.targetVolume = 0;
 	}
 
 	// Public Method to play a track and manage fading
@@ -104,7 +104,7 @@ export class Track {
 			}
 		}
 	}
-	
+
 	private _play(): void {
 		// TODO Implement Logging
 		console.log('Here');
@@ -118,6 +118,7 @@ export class Track {
 		this.player!.stop();
 		this.player!.seek(0);
 		this.player!.volume(this.volume);
+		emit("stop", this)
 	}
 
 	public pause(): void {
@@ -156,8 +157,7 @@ export class Track {
 				console.debug(`Finished fading out: ${this.name}`);
 
 				//Emit Event to notify that the fade is finished
-				const eventEmitter = new EventEmitter();
-				eventEmitter.emit("fadeFinished");
+				emit("fadeFinished", this);
 			} else {
 				this.fadeTimeRemaining = duration - (Date.now() - this.fadeStartTime);
 			}

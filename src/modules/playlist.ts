@@ -1,5 +1,6 @@
 import { Track } from "./track";
 import { exists, copyFile, writeFile } from "@tauri-apps/api/fs";
+import { emit } from '@tauri-apps/api/event';
 
 export interface SongMetaData {
 	name: string;
@@ -77,12 +78,12 @@ export class Playlist {
 		}
 	}
 
-    // Entlädt den Player Buffer. Player wird nicht unloaded, wenn er spieled
-    unloadBuffer(index: number = this.currentIndex): void {
-        if (this.tracks.length > 0) {
-            index = index > 0 ? index % this.tracks.length : 0;
+	// Entlädt den Player Buffer. Player wird nicht unloaded, wenn er spieled
+	unloadBuffer(index: number = this.currentIndex): void {
+		if (this.tracks.length > 0) {
+			index = index > 0 ? index % this.tracks.length : 0;
 
-            //Index aller Player die geladen werden sollen
+			//Index aller Player die geladen werden sollen
 			const indexOfAllPlayersToLoad = [
 				index, // Current Index
 				(index + 1) % this.tracks.length, // Next Index
@@ -96,14 +97,16 @@ export class Playlist {
 
 			//Lädt alle Player die noch nicht geladen sind
 			uniqueIndex.forEach((i) => {
-                if (!this.tracks[i].isPlaying){
-                    this.tracks[i].unload();
-                }
+				if (!this.tracks[i].isPlaying) {
+					this.tracks[i].unload();
+				}
 			});
-        }
-    }
+		}
+	}
 
 	public goToNext(): void {
+		emit("start", "Start Event in Playlist");
+
 		this.oldIndex = this.currentIndex;
 		this.currentIndex = (this.currentIndex + 1) % this.tracks.length;
 
@@ -186,8 +189,8 @@ export class Playlist {
 		//Speichert alten Index
 		this.oldIndex = this.currentIndex;
 
-        // Warning Bug wenn man einen Player Unloadet der gerade spielt wird dieser nicht unloaded, sodass zwei Player spielen
-        //Entlädt Buffer um alten Index
+		// Warning Bug wenn man einen Player Unloadet der gerade spielt wird dieser nicht unloaded, sodass zwei Player spielen
+		//Entlädt Buffer um alten Index
 		this.unloadBuffer(this.currentIndex)
 
 		//Erhöht Index
